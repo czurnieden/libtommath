@@ -91,8 +91,10 @@ LBL_ERR:
 int mp_div(mp_int *a, mp_int *b, mp_int *c, mp_int *d)
 {
    mp_int x, y;
-   int res, neg, ratio;
-
+   int res, neg;
+#ifdef BN_MP_DIV_BZ_C
+   int ratio;
+#endif
    /* is divisor zero ? */
    if (mp_iszero(b) == 1) {
       return MP_VAL;
@@ -114,7 +116,7 @@ int mp_div(mp_int *a, mp_int *b, mp_int *c, mp_int *d)
    /*
     * Subquadratic algorithms
     */
-
+#ifdef BN_MP_DIV_NEWTON_C
    /*
     * Division by multiplication with the inverse (Newton division)
     * TODO: the cutoff value depends also on the ratio albeit not as much as
@@ -146,14 +148,15 @@ int mp_div(mp_int *a, mp_int *b, mp_int *c, mp_int *d)
       mp_clear_multi(&x, &y, NULL);
       return MP_OKAY;
    }
-
+#endif
+#ifdef BN_MP_DIV_BZ_C
    /*
     * The cutoffs depend on the ratio, absolute and relative sizes
     * of the participants. See also the comments in bn_mp_div_bz.c.
     */
    ratio = (a->used * BURN_ZIEG_UPPER_DEN_CUTOFF) / 10;
-   /* pulled apart for legibility */
 
+   /* Conditions pulled apart for legibility */
    if (a->used >= BURN_ZIEG_NUM_CUTOFF && b->used <= ratio) {
 
       if ((res = mp_init_copy(&x, a)) != MP_OKAY) {
@@ -206,9 +209,11 @@ int mp_div(mp_int *a, mp_int *b, mp_int *c, mp_int *d)
          }
       }
    } else {
-
+#endif
       return mp_div_school(a, b, c, d);
+#ifdef BN_MP_DIV_BZ_C
    }
+#endif
    // should not get reached
    return MP_VAL;
 }
@@ -230,24 +235,6 @@ int mp_div_school(mp_int *a, mp_int *b, mp_int *c, mp_int *d)
 {
    mp_int q, x, y, t1, t2;
    int res, n, t, i, norm, neg;
-
-   /* is divisor zero ? */
-   if (mp_iszero(b) == 1) {
-      return MP_VAL;
-   }
-
-   /* if a < b then q=0, r = a */
-   if (mp_cmp_mag(a, b) == MP_LT) {
-      if (d != NULL) {
-         res = mp_copy(a, d);
-      } else {
-         res = MP_OKAY;
-      }
-      if (c != NULL) {
-         mp_zero(c);
-      }
-      return res;
-   }
 
    if ((res = mp_init_size(&q, a->used + 2)) != MP_OKAY) {
       return res;

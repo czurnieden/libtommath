@@ -25,7 +25,7 @@ int mp_fft_mul(mp_int *a, mp_int *b, mp_int *c)
    double *fa, *fb;
    fa = NULL;
    fb = NULL;
-   int length, e;
+   int length, e,k;
    mp_int r;
 
    if (mp_iszero(a) == MP_YES || mp_iszero(b) == MP_YES) {
@@ -60,11 +60,23 @@ int mp_fft_mul(mp_int *a, mp_int *b, mp_int *c)
       if (fb != NULL) free(fb);
       return e;
    }
+
+
    if ((e = mp_fft(fa, fb, length)) != MP_OKAY) {
       if (fa != NULL) free(fa);
       if (fb != NULL) free(fb);
       return e;
    }
+/*
+for(k=0;k< length;k++){
+printf("%f,",fa[k]);
+}
+puts("");
+for(k=0;k< length;k++){
+printf("%f,",fb[k]);
+}
+puts("");
+*/
    if( (e = mp_init(&r) ) != MP_OKAY){
       return e;
    }
@@ -81,6 +93,70 @@ int mp_fft_mul(mp_int *a, mp_int *b, mp_int *c)
    return MP_OKAY;
 }
 
+
+int mp_fft_mul_float(mp_int *a, mp_int *b, mp_int *c)
+{
+   float *fa, *fb;
+   fa = NULL;
+   fb = NULL;
+   int length, e,k;
+   mp_int r;
+
+   if (mp_iszero(a) == MP_YES || mp_iszero(b) == MP_YES) {
+      return MP_OKAY;
+   }
+   if (a->used == 1) {
+      if (a->dp[0] == 1) {
+         if ((e = mp_copy(b,c)) != MP_OKAY) {
+            return e;
+         }
+      }
+      return MP_OKAY;
+   }
+   if (b->used == 1) {
+      if (b->dp[0] == 1) {
+         if ((e = mp_copy(a,c)) != MP_OKAY) {
+            return e;
+         }
+      }
+      return MP_OKAY;
+   }
+
+   /* rounds the edges of the stair a bit (good for equal sized multipliers) */
+   /*  il2 = ilog2((unsigned int)MAX(a->used,b->used));
+     extra = (il2<12)?powtwos[il2-2]:powtwos[8];
+     if( a->used < powtwos[il2]+extra ){
+       return mp_toom_cook_5_mul(a,b,c);
+     }
+   */
+   if ((e = mp_dp_to_fft_float(a, &fa, b, &fb, &length)) != MP_OKAY) {
+      if (fa != NULL) free(fa);
+      if (fb != NULL) free(fb);
+      return e;
+   }
+
+
+   if ((e = mp_fft_float(fa, fb, length)) != MP_OKAY) {
+      if (fa != NULL) free(fa);
+      if (fb != NULL) free(fb);
+      return e;
+   }
+
+   if( (e = mp_init(&r) ) != MP_OKAY){
+      return e;
+   }
+   if ((e = mp_fft_to_dp_float(fb, &r, length)) != MP_OKAY) {
+      if (fa != NULL) free(fa);
+      if (fb != NULL) free(fb);
+      mp_clear(&r);
+      return e;
+   }
+   free(fa);
+   free(fb);
+   mp_exch(&r,c);
+   mp_clear(&r);
+   return MP_OKAY;
+}
 #else
 #error only for 28 bit digits for now
 #endif

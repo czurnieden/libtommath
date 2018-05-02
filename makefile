@@ -17,8 +17,8 @@ endif
 ifndef IGNORE_SPEED
 
 #for speed 
-#CFLAGS += -g3 -O3  -funroll-loops 
-CFLAGS += -g3 -O3  -funroll-loops -DUSE_PTHREAD_FFT -DUSE_PTHREAD
+CFLAGS += -g3 -O3  -funroll-loops 
+#CFLAGS += -g3 -O3  -funroll-loops -DUSE_PTHREAD_FFT -DUSE_PTHREAD
 #CFLAGS += -g3 -O3 -funroll-loops -DUSE_THREADS_FOR_TOOM_5
 
 #for size 

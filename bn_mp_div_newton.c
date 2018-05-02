@@ -1,9 +1,20 @@
 #include <tommath.h>
 #ifdef BN_MP_DIV_NEWTON_C
 
-
-static int lsh(mp_int *a, int n, mp_int *c);
-static int rsh(mp_int *a, int n, mp_int *c);
+/* LibTomMath, multiple-precision integer library -- Tom St Denis
+ *
+ * LibTomMath is a library that provides multiple-precision
+ * integer arithmetic as well as number theoretic functionality.
+ *
+ * The library was designed directly after the MPI library by
+ * Michael Fromberger but has been written from scratch with
+ * additional optimizations in place.
+ *
+ * The library is free for all purposes without any express
+ * guarantee it works.
+ *
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
+ */
 
 static int lsh(mp_int *a, int n, mp_int *c)
 {
@@ -32,7 +43,7 @@ int mp_div_newton(mp_int *a, mp_int *b, mp_int *c, mp_int *d)
    int steps, gs0, gsi, startprecision, i, *precs;
 
    err = MP_OKAY;
-   fprintf(stderr,"a = %d, b = %d\n", a->used, b->used);
+
    alen = mp_count_bits(a);
    blen = mp_count_bits(b);
    rlen = alen - blen;
@@ -50,19 +61,20 @@ int mp_div_newton(mp_int *a, mp_int *b, mp_int *c, mp_int *d)
    alen += extra;
    rlen += extra;
 
-   // quite arbitrary number
+   // quite arbitrary number greater than zero
    startprecision = 15;
-   // stepsize = 2
+   // stepsize = 2 (quadratic)
    if ((err =
            mp_giantsteps(startprecision, rlen, 2, &precs, &steps)) != MP_OKAY) {
       goto _ERR;
    }
-   gs0 = *precs;
+   gs0 = startprecision;
 
    mp_set(&t1, 1);
    if ((err = mp_mul_2d(&t1, 2 * gs0, &t1)) != MP_OKAY) {
       goto _ERR;
    }
+
    if ((err = mp_div_2d(b, blen - gs0, &t2, NULL)) != MP_OKAY) {
       goto _ERR;
    }
@@ -81,11 +93,9 @@ int mp_div_newton(mp_int *a, mp_int *b, mp_int *c, mp_int *d)
       if ((err = rsh(b, blen - gsi, &t4)) != MP_OKAY) {
          goto _ERR;
       }
-      // Do the squaring of the Newton-Raphson algorithm
       if ((err = mp_sqr(&t1, &t1)) != MP_OKAY) {
          goto _ERR;
       }
-      // Do the multiplication of the Newton-Raphson algorithm
       if ((err = mp_mul(&t1, &t4, &t1)) != MP_OKAY) {
          goto _ERR;
       }
@@ -93,7 +103,6 @@ int mp_div_newton(mp_int *a, mp_int *b, mp_int *c, mp_int *d)
       if ((err = rsh(&t1, 2 * gs0, &t4)) != MP_OKAY) {
          goto _ERR;
       }
-      // Do the subtraction of the Newton-Raphson algorithm
       if ((err = mp_sub(&t3, &t4, &t1)) != MP_OKAY) {
          goto _ERR;
       }
@@ -101,7 +110,8 @@ int mp_div_newton(mp_int *a, mp_int *b, mp_int *c, mp_int *d)
    }
    free(precs);
 
-   // the reciprocal is in t1, do the final multiplication to get the quotient
+   // The reciprocal is in t1, do the final multiplication to get the quotient
+
    // Adjust the numerator's precision to the precision of the denominator
    if ((err = mp_div_2d(&ts, blen, &ts, NULL)) != MP_OKAY) {
       goto _ERR;
@@ -122,7 +132,7 @@ int mp_div_newton(mp_int *a, mp_int *b, mp_int *c, mp_int *d)
       goto _ERR;
    }
 
-   // The N_R algorithm as implemented can be off by one, correct it
+   // The N-R algorithm as implemented can be off by one, correct it
    if (r.sign == MP_NEG) {
       if ((err = mp_add(&r, b, &r)) != MP_OKAY) {
          goto _ERR;
@@ -131,14 +141,12 @@ int mp_div_newton(mp_int *a, mp_int *b, mp_int *c, mp_int *d)
          goto _ERR;
       }
    } else if (mp_cmp(&r, b) == MP_GT) {
-
       if ((err = mp_sub(&r, b, &r)) != MP_OKAY) {
          goto _ERR;
       }
       if ((err = mp_add_d(&q, 1, &q)) != MP_OKAY) {
          goto _ERR;
       }
-
    }
 
    if (c != NULL) {
@@ -152,7 +160,6 @@ _ERR:
    mp_clear_multi(&t1, &t2, &t3, &t4, &ts, &q, &r, NULL);
    return err;
 }
-
 
 #endif
 

@@ -43,7 +43,7 @@ int mp_mul(mp_int *a, mp_int *b, mp_int *c)
    /*
     * Size check for linear balance
     * Check sizes. The smaller one needs to be larger than the Karatsuba cut-off.
-    * The bigger one needs to be at leat about one KARATSUBA_MUL_CUTOFF bigger to make some
+    * The bigger one needs to be at least about one KARATSUBA_MUL_CUTOFF bigger to make some
     * sense, but it depends on architecture, OS and position of the planets, so YMMV.
     */
    if (MIN(len_a, len_b) < KARATSUBA_MUL_CUTOFF
@@ -75,7 +75,6 @@ GO_ON:
 if (MIN(a->used, b->used) >= FFT_MUL_CUTOFF &&
     MAX(a->used, b->used) <= FFT_UPPER_LIMIT)
 {
-
    res = mp_fft_mul(a, b, c);
 } else
 

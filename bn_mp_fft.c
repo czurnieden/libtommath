@@ -376,6 +376,7 @@ int mp_fft_to_dp(double *fft_array, mp_int *a,int length)
       a->dp[i] <<= MP_DIGIT_BIT_FIFTH;
       a->dp[i] |= (mp_digit)(round(fft_array[j]))    & MP_DIGIT_MASK;
       /* and count them all */
+
       a->used++;
    }
   // fprintf(stderr,"a.used %d\n",a->used );
@@ -499,67 +500,9 @@ static void fht_dif_iterative(double *x, unsigned long n, int do_loop)
   with others e.g.: those in "src/transform.c". They are legible now, too.
 */
 
-#ifdef USE_PTHREAD_FFT_NOT
-#include <pthread.h>
-#ifndef FFT_DIF_NUM_THREADS
-#define FFT_DIF_NUM_THREADS 1
-#endif
-
-struct fht_dif_params{
-   double *x;
-   unsigned long n;
-   int depth;
-};
-
-static void *fht_dif_rec_threaded(void *p)
-{
-  unsigned long nh;
-  struct fht_dif_params *params = p;
-  if (params->n == 1)
-    return NULL;
-  if (params->n < (unsigned long) (L1_SIZE / (2 * sizeof(double)))) {
-    fht_dif_iterative(params->x, params->n, 1);
-    return NULL;
-  }
-  fht_dif_iterative(params->x, params->n, 0);
-  nh = (params->n) >> 1;
-
-  struct fht_dif_params param_one = {
-        .x = (params->x),
-        .n = nh,
-        .depth = params->depth + 1
-  };
-  struct fht_dif_params param_two = {
-        .x = (params->x) + nh,
-        .n = nh,
-        .depth = params->depth + 1
-  };
-
-  if (params->depth < FFT_DIF_NUM_THREADS) {
-    pthread_t thread_one, thread_two;
-    pthread_create(&thread_one, NULL, fht_dif_rec_threaded, &param_one);
-    pthread_create(&thread_two, NULL, fht_dif_rec_threaded, &param_two);
-
-    pthread_join(thread_one, NULL);
-    pthread_join(thread_two, NULL);
-  } else {
-    fht_dif_rec_threaded(&param_one);
-    fht_dif_rec_threaded(&param_two);
-  }
-  return NULL;
-}
-
-static void fht_dif_rec(double *x, unsigned long n){
-  struct fht_dif_params param = {
-        .x = x,
-        .n = n,
-        .depth = 0
-  };
-  fht_dif_rec_threaded(&param);
-  return;
-}
-#else
-
+/*
+    For 64-bit with 60-bit limbs the cut-off is at about 60,000 limbs
+*/
 static void fht_dif_rec(double *x, unsigned long n)
 {
    unsigned long nh;
@@ -575,7 +518,7 @@ static void fht_dif_rec(double *x, unsigned long n)
    fht_dif_rec(x + nh, nh);
    return;
 }
-#endif
+
 
 /* The iterative Hartley transform, decimation in time. Description above */
 static void fht_dit_iterative(double *x, unsigned long n, int do_loop)
@@ -619,72 +562,6 @@ static void fht_dit_iterative(double *x, unsigned long n, int do_loop)
 }
 /* The binary splitting. Description above */
 
-#ifdef USE_PTHREAD_FFT_NOT
-#include <pthread.h>
-#ifndef FFT_DIT_NUM_THREADS
-#define FFT_DIT_NUM_THREADS 1
-#endif
-struct fht_dit_params{
-   double *x;
-   unsigned long n;
-   int depth;
-};
-
-
-static void *fht_dit_rec_threaded(void *p)
-{
-   unsigned long nh;
-   struct fht_dit_params *params = p;
-
-   if (params->n == 1)
-      return NULL;
-   if (params->n < (unsigned long)(L1_SIZE / (2 * sizeof(double)))) {
-      fht_dit_iterative(params->x,params->n,1);
-      return NULL;
-   }
-   nh = params->n >> 1;
-
-  struct fht_dit_params param_one = {
-        .x = (params->x),
-        .n = nh,
-        .depth = params->depth + 1
-  };
-  struct fht_dit_params param_two = {
-        .x = (params->x) + nh,
-        .n = nh,
-        .depth = params->depth + 1
-  };
-
-
-  if (params->depth < FFT_DIT_NUM_THREADS) {
-    pthread_t thread_one, thread_two;
-    pthread_create(&thread_one, NULL, fht_dit_rec_threaded, &param_one);
-    pthread_create(&thread_two, NULL, fht_dit_rec_threaded, &param_two);
-
-    pthread_join(thread_one, NULL);
-    pthread_join(thread_two, NULL);
-  } else {
-    fht_dit_rec_threaded(&param_one);
-    fht_dit_rec_threaded(&param_two);
-  }
-
-   fht_dit_iterative(params->x,params->n,0);
-   return NULL;
-}
-
-
-static void fht_dit_rec(double *x, unsigned long n){
-  struct fht_dit_params param = {
-        .x = x,
-        .n = n,
-        .depth = 0
-  };
-  fht_dit_rec_threaded(&param);
-  return;
-}
-
-
-#else
 
 static void fht_dit_rec(double *x, unsigned long n)
 {
@@ -703,7 +580,7 @@ static void fht_dit_rec(double *x, unsigned long n)
    return;
    return;
 }
-#endif
+
 
 /*
   The FHT convolution from Jörg Arndt's book.

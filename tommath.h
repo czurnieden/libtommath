@@ -49,14 +49,6 @@
 #endif   
 
 
-#ifdef USE_PTHREAD
-   #define _MULTI_TRHEADED_
-   #include <pthread.h>
-   // Best set to number of cores - 1
-   #define LTM_NUM_THREADS 3
-#endif
-
-
 
 #ifdef __cplusplus
 extern "C" {

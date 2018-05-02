@@ -1,8 +1,20 @@
 #include <tommath.h>
 #ifdef BN_MP_DIV_BZ_C
 
-static int div2n1n(mp_int *a, mp_int *b, int n, mp_int *c, mp_int *d);
-static int div3n2n(mp_int *a, mp_int *b, int n, mp_int *c, mp_int *d);
+/* LibTomMath, multiple-precision integer library -- Tom St Denis
+ *
+ * LibTomMath is a library that provides multiple-precision
+ * integer arithmetic as well as number theoretic functionality.
+ *
+ * The library was designed directly after the MPI library by
+ * Michael Fromberger but has been written from scratch with
+ * additional optimizations in place.
+ *
+ * The library is free for all purposes without any express
+ * guarantee it works.
+ *
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
+ */
 
 /*
    Fast division, Karatsuba-like. Assumes positive input!
@@ -12,9 +24,9 @@ static int div3n2n(mp_int *a, mp_int *b, int n, mp_int *c, mp_int *d);
    October 1998.
    (available online)
 
-   This implementation is slightly optimized. For easier understanding I
-   recommend the paper mentioned above. Some explanations in the paper
-   are slightly optimized. For easier understanding I recommend the code below.
+   This implementation is slightly optimized for speed. For easier understanding
+   I recommend the paper mentioned above. Some explanations in the paper are
+   slightly optimized for space. For easier understanding I recommend the code below.
 
    The numbered comments are taken verbatim from the description of the
    algorithm in the paper save some typographical adjusting for ASCII.
@@ -22,8 +34,11 @@ static int div3n2n(mp_int *a, mp_int *b, int n, mp_int *c, mp_int *d);
 
    Cutoffs:
 
+   The values of the cut-offs are in bncore.c and should be changed there.
+
    It equals out when the size of the numerator passes 750 limbs and is always
-   faster at 775 limbs and more.
+   faster at 775 limbs and more with a 32 bit machine and 28 bit limbs. It is
+   roughly the same for a 64 bit machine and 60 bit limbs.
 
    The upper limit for the denominator is about 0.8 times the size of the
    numerator.
@@ -35,12 +50,16 @@ static int div3n2n(mp_int *a, mp_int *b, int n, mp_int *c, mp_int *d);
    TODO: write a little script to test the values in between.
 
    These values are too high, that is: this implementation is still too slow.
-   The problem has the same reason as with ll recursive algorithms: allocating
+   The problem has the same reason as with all recursive algorithms: allocating
    memory a lot of times. Here the amount of memory is known before (an upper
    limit to be exact) and this knowledge should be used. But using it involves
    heavy pointer juggling which would make this code nearly illegible.
 
 */
+
+static int div3n2n(mp_int *a, mp_int *b, int n, mp_int *c, mp_int *d);
+static int div2n1n(mp_int *a, mp_int *b, int n, mp_int *c, mp_int *d);
+
 int mp_div_bz(mp_int *a, mp_int *b, mp_int *c, mp_int *d)
 {
    int i, j, k, m, n, sigma, t, err;
@@ -116,8 +135,8 @@ int mp_div_bz(mp_int *a, mp_int *b, mp_int *c, mp_int *d)
     */
    // ceil() to get a zero digit if aa.used is not divisible by n
    t = (aa.used + n - 1) / n;
-   // is aa.used is divisible by n and the most significant bit of aa is not
-   // equal to zero ad another chunk to guarantee condition of step 5.
+   // if aa.used is divisible by n and the most significant bit of aa is not
+   // equal to zero add another chunk to guarantee condition of step 5.
    // A bit rough but simple
    if ((aa.used % n == 0) && ((aa.dp[aa.used - 1] & msb) != 0)) {
       t++;
@@ -199,7 +218,7 @@ int mp_div_bz(mp_int *a, mp_int *b, mp_int *c, mp_int *d)
       for (; i < n; i++, j++) {
          cc.dp[j] = 0;
       }
-      // The main quotient cannot get larger than (t-2) * n, so we can set
+      // The main quotient cannot get larger than (t-2) * n, we can set
       // its size to (t-2)*n + q.used and leave it there. Zeros get chopped
       // off by the final clamp()
       if (cc.used == 0) {
@@ -344,7 +363,7 @@ static int div3n2n(mp_int *a, mp_int *b, int n, mp_int *c, mp_int *d)
     * 5. Compute Rhat = R_1*beta^n + A_4 - D.
     *
     * That's wrong, must be A_3 instead of A_4.
-    * Thank you very much, guys for _NOT_ updating your paper!
+    * Thank you very much, guys, for _NOT_ updating your paper!
     */
    if ((err = mp_lshd(&R1, n)) != MP_OKAY) {
       goto _ERR;

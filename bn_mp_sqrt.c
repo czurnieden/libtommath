@@ -18,7 +18,7 @@
 /* this function is less generic than mp_n_root, simpler and faster */
 int mp_sqrt(mp_int *arg, mp_int *ret)
 {
-   int res;
+   int res, ilog2;
    mp_int t1,t2;
 
    /* must be positive */
@@ -32,28 +32,20 @@ int mp_sqrt(mp_int *arg, mp_int *ret)
       return MP_OKAY;
    }
 
-   if ((res = mp_init_copy(&t1, arg)) != MP_OKAY) {
-      return res;
-   }
-
    if ((res = mp_init(&t2)) != MP_OKAY) {
       goto E2;
    }
 
-   /* First approx. (not very bad for large arg) */
-   mp_rshd(&t1,t1.used/2);
-
-   /* t1 > 0  */
-   if ((res = mp_div(arg,&t1,&t2,NULL)) != MP_OKAY) {
+   ilog2 = mp_count_bits(arg) >> 1;
+   /* floor(sqrt(n)) == 1 for n in {1,2,3}*/
+   if (ilog2 <= 1) {
+      mp_set(ret,1);
       goto E1;
    }
-   if ((res = mp_add(&t1,&t2,&t1)) != MP_OKAY) {
+   /* First approximation must be bigger than sqrt(arg) to make it converge provably*/
+   if ((res = mp_2expt(&t1, ilog2 + 1)) != MP_OKAY) {
       goto E1;
    }
-   if ((res = mp_div_2(&t1,&t1)) != MP_OKAY) {
-      goto E1;
-   }
-   /* And now t1 > sqrt(arg) */
    do {
       if ((res = mp_div(arg,&t1,&t2,NULL)) != MP_OKAY) {
          goto E1;
@@ -64,7 +56,6 @@ int mp_sqrt(mp_int *arg, mp_int *ret)
       if ((res = mp_div_2(&t1,&t1)) != MP_OKAY) {
          goto E1;
       }
-      /* t1 >= sqrt(arg) >= t2 at this point */
    } while (mp_cmp_mag(&t1,&t2) == MP_GT);
 
    mp_exch(&t1,ret);

@@ -122,7 +122,6 @@ static int mp_get_str_intern(mp_int *a, char *string, int digits, int base, char
 
    b = mp_count_bits(a);
    n = ilog2(b / (2 * log_table[base])) - 1;
-
    if (n >= (int)(sizeof(int) * CHAR_BIT) - 1) {
       return MP_VAL;
    }
@@ -168,7 +167,6 @@ static int mp_get_str_intern(mp_int *a, char *string, int digits, int base, char
    }
 
    ed = 1 << n;
-
    if ((err = mp_get_str_intern(&q, string, digits - ed, base, ls)) != MP_OKAY) {
       mp_clear_multi(&q, &r, NULL);
       return err;
@@ -196,7 +194,7 @@ int mp_get_str(mp_int * a, char *string, int base)
   int sign, e;
   // maximum from base 2
   char s[SCHOENHAGE_CONVERSION_CUT * MP_DIGIT_BIT + 1];
-
+  //char *str = string;
   //s = malloc((SCHOENHAGE_CONVERSION_CUT * MP_DIGIT_BIT + 1) * sizeof(char));
   // we need a defined starting point
   *string = '\0';
@@ -217,6 +215,7 @@ int mp_get_str(mp_int * a, char *string, int base)
     return e;
   }
   //free(s);
+
   a->sign = sign;
   return MP_OKAY;
 }
