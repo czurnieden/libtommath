@@ -78,7 +78,6 @@
 #   define BN_MP_MUL_2_C
 #   define BN_MP_MUL_2D_C
 #   define BN_MP_MUL_D_C
-#   define BN_MP_MUL_SI_C
 #   define BN_MP_MULMOD_C
 #   define BN_MP_N_ROOT_C
 #   define BN_MP_N_ROOT_EX_C
@@ -421,6 +420,7 @@
 #endif
 
 #if defined(BN_MP_GET_BIT_C)
+#   define BN_MP_ISZERO_C
 #endif
 
 #if defined(BN_MP_GET_INT_C)
@@ -507,14 +507,9 @@
 #endif
 
 #if defined(BN_MP_JACOBI_C)
+#   define BN_MP_KRONECKER_C
 #   define BN_MP_ISNEG_C
 #   define BN_MP_CMP_D_C
-#   define BN_MP_ISZERO_C
-#   define BN_MP_INIT_COPY_C
-#   define BN_MP_CNT_LSB_C
-#   define BN_MP_DIV_2D_C
-#   define BN_MP_MOD_C
-#   define BN_MP_CLEAR_C
 #endif
 
 #if defined(BN_MP_KARATSUBA_MUL_C)
@@ -630,14 +625,6 @@
 #   define BN_MP_CLAMP_C
 #endif
 
-#if defined(BN_MP_MUL_SI_C)
-#   define BN_MP_MUL_D_C
-#   define BN_MP_INIT_C
-#   define BN_MP_SET_INT_C
-#   define BN_MP_MUL_C
-#   define BN_MP_CLEAR_C
-#endif
-
 #if defined(BN_MP_MULMOD_C)
 #   define BN_MP_INIT_SIZE_C
 #   define BN_MP_MUL_C
@@ -685,8 +672,12 @@
 #endif
 
 #if defined(BN_MP_PRIME_FROBENIUS_UNDERWOOD_C)
+#   define BN_MP_MUL_D_C
+#   define BN_MP_INIT_C
+#   define BN_MP_SET_LONG_C
+#   define BN_MP_MUL_C
+#   define BN_MP_CLEAR_C
 #   define BN_MP_INIT_MULTI_C
-#   define BN_MP_SET_INT_C
 #   define BN_MP_SQR_C
 #   define BN_MP_SUB_D_C
 #   define BN_MP_KRONECKER_C
@@ -695,9 +686,7 @@
 #   define BN_MP_SET_C
 #   define BN_MP_COUNT_BITS_C
 #   define BN_MP_MUL_2_C
-#   define BN_MP_MUL_D_C
 #   define BN_MP_ADD_C
-#   define BN_MP_MUL_C
 #   define BN_MP_SUB_C
 #   define BN_MP_MOD_C
 #   define BN_MP_GET_BIT_C
@@ -725,6 +714,7 @@
 #   define BN_MP_SET_C
 #   define BN_MP_COUNT_BITS_C
 #   define BN_MP_RAND_C
+#   define BN_MP_DIV_2D_C
 #   define BN_MP_CLEAR_C
 #endif
 
@@ -748,7 +738,7 @@
 #   define BN_MP_MOD_D_C
 #   define BN_MP_INIT_C
 #   define BN_MP_ADD_D_C
-#   define BN_MP_PRIME_MILLER_RABIN_C
+#   define BN_MP_PRIME_IS_PRIME_C
 #   define BN_MP_CLEAR_C
 #endif
 
@@ -766,22 +756,22 @@
 
 #if defined(BN_MP_PRIME_STRONG_LUCAS_SELFRIDGE_C)
 #   define BN_MP_INIT_MULTI_C
-#   define BN_MP_SET_INT_C
+#   define BN_MP_SET_LONG_C
 #   define BN_MP_GCD_C
+#   define BN_MP_CMP_D_C
 #   define BN_MP_CMP_C
 #   define BN_MP_KRONECKER_C
 #   define BN_MP_ADD_D_C
 #   define BN_MP_CNT_LSB_C
 #   define BN_MP_DIV_2D_C
 #   define BN_MP_SET_C
+#   define BN_MP_MUL_2_C
 #   define BN_MP_COUNT_BITS_C
 #   define BN_MP_MUL_C
 #   define BN_MP_MOD_C
 #   define BN_MP_SQR_C
 #   define BN_MP_SUB_C
-#   define BN_MP_MUL_2_C
 #   define BN_MP_GET_BIT_C
-#   define BN_MP_MUL_SI_C
 #   define BN_MP_ADD_C
 #   define BN_MP_ISODD_C
 #   define BN_MP_DIV_2_C

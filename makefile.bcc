@@ -20,7 +20,7 @@ bn_mp_init_set.obj bn_mp_init_set_int.obj bn_mp_init_size.obj bn_mp_invmod.obj b
 bn_mp_is_square.obj bn_mp_jacobi.obj bn_mp_karatsuba_mul.obj bn_mp_karatsuba_sqr.obj bn_mp_kronecker.obj \
 bn_mp_lcm.obj bn_mp_lshd.obj bn_mp_mod_2d.obj bn_mp_mod.obj bn_mp_mod_d.obj bn_mp_montgomery_calc_normalization.obj \
 bn_mp_montgomery_reduce.obj bn_mp_montgomery_setup.obj bn_mp_mul_2.obj bn_mp_mul_2d.obj bn_mp_mul.obj bn_mp_mul_d.obj \
-bn_mp_mulmod.obj bn_mp_mul_si.obj bn_mp_neg.obj bn_mp_n_root.obj bn_mp_n_root_ex.obj bn_mp_or.obj bn_mp_prime_fermat.obj \
+bn_mp_mulmod.obj bn_mp_neg.obj bn_mp_n_root.obj bn_mp_n_root_ex.obj bn_mp_or.obj bn_mp_prime_fermat.obj \
 bn_mp_prime_frobenius_underwood.obj bn_mp_prime_is_divisible.obj bn_mp_prime_is_prime.obj \
 bn_mp_prime_miller_rabin.obj bn_mp_prime_next_prime.obj bn_mp_prime_rabin_miller_trials.obj \
 bn_mp_prime_random_ex.obj bn_mp_prime_strong_lucas_selfridge.obj bn_mp_radix_size.obj bn_mp_radix_smap.obj \
