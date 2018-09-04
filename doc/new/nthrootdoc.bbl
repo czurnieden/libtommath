@@ -1,0 +1,249 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 2.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \sortlist{entry}{nty}
+    \entry{agrawal2004primes}{article}{}
+      \name{labelname}{3}{}{%
+        {{hash=643dfbd788f89e01e0d8f3dcfca6a7c8}{Agrawal}{A\bibinitperiod}{Manindra}{M\bibinitperiod}{}{}{}{}}%
+        {{hash=132a91296a099d008b0c152b456ec45a}{Kayal}{K\bibinitperiod}{Neeraj}{N\bibinitperiod}{}{}{}{}}%
+        {{hash=72d1eef2e218521619ddc0b9bebf0b3a}{Saxena}{S\bibinitperiod}{Nitin}{N\bibinitperiod}{}{}{}{}}%
+      }
+      \name{author}{3}{}{%
+        {{hash=643dfbd788f89e01e0d8f3dcfca6a7c8}{Agrawal}{A\bibinitperiod}{Manindra}{M\bibinitperiod}{}{}{}{}}%
+        {{hash=132a91296a099d008b0c152b456ec45a}{Kayal}{K\bibinitperiod}{Neeraj}{N\bibinitperiod}{}{}{}{}}%
+        {{hash=72d1eef2e218521619ddc0b9bebf0b3a}{Saxena}{S\bibinitperiod}{Nitin}{N\bibinitperiod}{}{}{}{}}%
+      }
+      \list{publisher}{1}{%
+        {JSTOR}%
+      }
+      \strng{namehash}{36b48090d1990c2c2cdf61dc7f162d7c}
+      \strng{fullhash}{36b48090d1990c2c2cdf61dc7f162d7c}
+      \field{sortinit}{A}
+      \field{labeltitle}{PRIMES is in P}
+      \field{journaltitle}{Annals of mathematics}
+      \field{title}{PRIMES is in P}
+      \field{year}{2004}
+      \field{pages}{781\bibrangedash 793}
+    \endentry
+    \entry{bach1993sieve}{article}{}
+      \name{labelname}{2}{}{%
+        {{hash=5036e15c25223f01d09b4d70fb5c9ab6}{Bach}{B\bibinitperiod}{Eric}{E\bibinitperiod}{}{}{}{}}%
+        {{hash=0415dfcec06f3a9d4c6d7b91c96dd01e}{Sorenson}{S\bibinitperiod}{Jonathan}{J\bibinitperiod}{}{}{}{}}%
+      }
+      \name{author}{2}{}{%
+        {{hash=5036e15c25223f01d09b4d70fb5c9ab6}{Bach}{B\bibinitperiod}{Eric}{E\bibinitperiod}{}{}{}{}}%
+        {{hash=0415dfcec06f3a9d4c6d7b91c96dd01e}{Sorenson}{S\bibinitperiod}{Jonathan}{J\bibinitperiod}{}{}{}{}}%
+      }
+      \list{publisher}{1}{%
+        {Springer}%
+      }
+      \strng{namehash}{330e23148de2424da2911f943d707e76}
+      \strng{fullhash}{330e23148de2424da2911f943d707e76}
+      \field{sortinit}{B}
+      \field{labeltitle}{Sieve algorithms for perfect power testing}
+      \field{journaltitle}{Algorithmica}
+      \field{number}{4}
+      \field{title}{Sieve algorithms for perfect power testing}
+      \field{volume}{9}
+      \field{year}{1993}
+      \field{pages}{313\bibrangedash 328}
+    \endentry
+    \entry{bernstein1998detecting}{article}{}
+      \name{labelname}{1}{}{%
+        {{hash=74e797bcead1a7410c7500987bf96bbb}{Bernstein}{B\bibinitperiod}{Daniel}{D\bibinitperiod}{}{}{}{}}%
+      }
+      \name{author}{1}{}{%
+        {{hash=74e797bcead1a7410c7500987bf96bbb}{Bernstein}{B\bibinitperiod}{Daniel}{D\bibinitperiod}{}{}{}{}}%
+      }
+      \strng{namehash}{74e797bcead1a7410c7500987bf96bbb}
+      \strng{fullhash}{74e797bcead1a7410c7500987bf96bbb}
+      \field{sortinit}{B}
+      \field{labeltitle}{Detecting perfect powers in essentially linear time}
+      \field{journaltitle}{Mathematics of Computation of the American Mathematical Society}
+      \field{number}{223}
+      \field{title}{Detecting perfect powers in essentially linear time}
+      \field{urlday}{20}
+      \field{urlmonth}{06}
+      \field{urlyear}{2016}
+      \field{volume}{67}
+      \field{year}{1998}
+      \field{pages}{1253\bibrangedash 1283}
+      \verb{url}
+      \verb http://www.ams.org/mcom/1998-67-223/S0025-5718-98-00952-1/S0025-5718-98-00952-1.pdf
+      \endverb
+    \endentry
+    \entry{bernstein2003proving}{article}{}
+      \name{labelname}{1}{}{%
+        {{hash=dbc9c2504b80655f9de96edf5c43a55a}{Bernstein}{B\bibinitperiod}{Daniel\bibnamedelima J}{D\bibinitperiod\bibinitdelim J\bibinitperiod}{}{}{}{}}%
+      }
+      \name{author}{1}{}{%
+        {{hash=dbc9c2504b80655f9de96edf5c43a55a}{Bernstein}{B\bibinitperiod}{Daniel\bibnamedelima J}{D\bibinitperiod\bibinitdelim J\bibinitperiod}{}{}{}{}}%
+      }
+      \strng{namehash}{dbc9c2504b80655f9de96edf5c43a55a}
+      \strng{fullhash}{dbc9c2504b80655f9de96edf5c43a55a}
+      \field{sortinit}{B}
+      \field{labeltitle}{Proving primality after agrawal-kayal-saxena}
+      \field{journaltitle}{Department of Mathematics, Statistics, and Computer Science, University of Illinois. Available from the World Wide Web:< http://cr. yp. to/papers/aks. pdf}
+      \field{title}{Proving primality after agrawal-kayal-saxena}
+      \field{year}{2003}
+    \endentry
+    \entry{denislibtommath}{misc}{}
+      \name{labelname}{1}{}{%
+        {{hash=de2845430e4ec59dea9478a75f960748}{Denis}{D\bibinitperiod}{Tom\bibnamedelima St}{T\bibinitperiod\bibinitdelim S\bibinitperiod}{}{}{}{}}%
+      }
+      \name{author}{1}{}{%
+        {{hash=de2845430e4ec59dea9478a75f960748}{Denis}{D\bibinitperiod}{Tom\bibnamedelima St}{T\bibinitperiod\bibinitdelim S\bibinitperiod}{}{}{}{}}%
+      }
+      \strng{namehash}{de2845430e4ec59dea9478a75f960748}
+      \strng{fullhash}{de2845430e4ec59dea9478a75f960748}
+      \field{sortinit}{D}
+      \field{labeltitle}{Libtommath}
+      \field{title}{Libtommath}
+      \field{urlday}{25}
+      \field{urlmonth}{12}
+      \field{urlyear}{2015}
+      \verb{url}
+      \verb https://github.com/libtom/libtommath
+      \endverb
+    \endentry
+    \entry{dietz2015understanding}{article}{}
+      \name{labelname}{4}{}{%
+        {{hash=e7a4978a28510c760b5e32e67b89eeb9}{Dietz}{D\bibinitperiod}{Will}{W\bibinitperiod}{}{}{}{}}%
+        {{hash=24bece773e8873ff8f03d9a3eced56df}{Li}{L\bibinitperiod}{Peng}{P\bibinitperiod}{}{}{}{}}%
+        {{hash=43d6b8ac43fd2f45f710ff8a73b2c942}{Regehr}{R\bibinitperiod}{John}{J\bibinitperiod}{}{}{}{}}%
+        {{hash=1bbfd49b96c18edb5a0c84c94c3fa6c4}{Adve}{A\bibinitperiod}{Vikram}{V\bibinitperiod}{}{}{}{}}%
+      }
+      \name{author}{4}{}{%
+        {{hash=e7a4978a28510c760b5e32e67b89eeb9}{Dietz}{D\bibinitperiod}{Will}{W\bibinitperiod}{}{}{}{}}%
+        {{hash=24bece773e8873ff8f03d9a3eced56df}{Li}{L\bibinitperiod}{Peng}{P\bibinitperiod}{}{}{}{}}%
+        {{hash=43d6b8ac43fd2f45f710ff8a73b2c942}{Regehr}{R\bibinitperiod}{John}{J\bibinitperiod}{}{}{}{}}%
+        {{hash=1bbfd49b96c18edb5a0c84c94c3fa6c4}{Adve}{A\bibinitperiod}{Vikram}{V\bibinitperiod}{}{}{}{}}%
+      }
+      \list{publisher}{1}{%
+        {ACM}%
+      }
+      \strng{namehash}{3a5835820dcd6310f05eb7165ccd9ec1}
+      \strng{fullhash}{ac310aa1fb533004f5c83b569e50bfe7}
+      \field{sortinit}{D}
+      \field{labeltitle}{Understanding integer overflow in C/C++}
+      \field{journaltitle}{ACM Transactions on Software Engineering and Methodology (TOSEM)}
+      \field{number}{1}
+      \field{title}{Understanding integer overflow in C/C++}
+      \field{urlday}{13}
+      \field{urlmonth}{03}
+      \field{urlyear}{2018}
+      \field{volume}{25}
+      \field{year}{2015}
+      \field{pages}{2}
+      \verb{url}
+      \verb http://www.cs.utah.edu/~regehr/papers/overflow12.pdf
+      \endverb
+    \endentry
+    \entry{gentleman1966fast}{inproceedings}{}
+      \name{labelname}{2}{}{%
+        {{hash=188b2b5ddf7e0eb21e64de6e78117289}{Gentleman}{G\bibinitperiod}{W\bibnamedelima Morven}{W\bibinitperiod\bibinitdelim M\bibinitperiod}{}{}{}{}}%
+        {{hash=656221b95068cfb6885bc4459d25b35e}{Sande}{S\bibinitperiod}{Gordon}{G\bibinitperiod}{}{}{}{}}%
+      }
+      \name{author}{2}{}{%
+        {{hash=188b2b5ddf7e0eb21e64de6e78117289}{Gentleman}{G\bibinitperiod}{W\bibnamedelima Morven}{W\bibinitperiod\bibinitdelim M\bibinitperiod}{}{}{}{}}%
+        {{hash=656221b95068cfb6885bc4459d25b35e}{Sande}{S\bibinitperiod}{Gordon}{G\bibinitperiod}{}{}{}{}}%
+      }
+      \list{organization}{1}{%
+        {ACM}%
+      }
+      \strng{namehash}{451bfa2a86cd6ef41c42cecd8bd50732}
+      \strng{fullhash}{451bfa2a86cd6ef41c42cecd8bd50732}
+      \field{sortinit}{G}
+      \field{labeltitle}{Fast Fourier Transforms: for fun and profit}
+      \field{booktitle}{Proceedings of the November 7-10, 1966, fall joint computer conference}
+      \field{title}{Fast Fourier Transforms: for fun and profit}
+      \field{year}{1966}
+      \field{pages}{563\bibrangedash 578}
+    \endentry
+    \entry{hensel1908theorie}{book}{}
+      \name{labelname}{1}{}{%
+        {{hash=d3aff79dc22558c34ce73b60450e1809}{Hensel}{H\bibinitperiod}{Kurt}{K\bibinitperiod}{}{}{}{}}%
+      }
+      \name{author}{1}{}{%
+        {{hash=d3aff79dc22558c34ce73b60450e1809}{Hensel}{H\bibinitperiod}{Kurt}{K\bibinitperiod}{}{}{}{}}%
+      }
+      \list{publisher}{1}{%
+        {BG Teubner}%
+      }
+      \strng{namehash}{d3aff79dc22558c34ce73b60450e1809}
+      \strng{fullhash}{d3aff79dc22558c34ce73b60450e1809}
+      \field{sortinit}{H}
+      \field{labeltitle}{Theorie der algebraischen Zahlen}
+      \field{title}{Theorie der algebraischen Zahlen}
+      \field{volume}{1}
+      \field{year}{1908}
+    \endentry
+    \entry{lenstra2002primality}{inproceedings}{}
+      \name{labelname}{2}{}{%
+        {{hash=fd787a5b30bada6e3299ee95825a165d}{Lenstra\bibnamedelima Jr}{L\bibinitperiod\bibinitdelim J\bibinitperiod}{Hendrik\bibnamedelima W}{H\bibinitperiod\bibinitdelim W\bibinitperiod}{}{}{}{}}%
+        {{hash=34cd111572eb6a2915f43f1b19d9a81b}{Pomerance}{P\bibinitperiod}{Carl}{C\bibinitperiod}{}{}{}{}}%
+      }
+      \name{author}{2}{}{%
+        {{hash=fd787a5b30bada6e3299ee95825a165d}{Lenstra\bibnamedelima Jr}{L\bibinitperiod\bibinitdelim J\bibinitperiod}{Hendrik\bibnamedelima W}{H\bibinitperiod\bibinitdelim W\bibinitperiod}{}{}{}{}}%
+        {{hash=34cd111572eb6a2915f43f1b19d9a81b}{Pomerance}{P\bibinitperiod}{Carl}{C\bibinitperiod}{}{}{}{}}%
+      }
+      \strng{namehash}{713b40e0ccc56610ae3e2d95ac6d97ff}
+      \strng{fullhash}{713b40e0ccc56610ae3e2d95ac6d97ff}
+      \field{sortinit}{L}
+      \field{labeltitle}{Primality testing with Gaussian periods}
+      \field{booktitle}{FSTTCS}
+      \field{title}{Primality testing with Gaussian periods}
+      \field{urlday}{22}
+      \field{urlmonth}{03}
+      \field{urlyear}{2018}
+      \field{year}{2002}
+      \field{pages}{1}
+      \verb{url}
+      \verb https://pdfs.semanticscholar.org/2b24/99600a772bb9f173a481db55a59e30d030a6.pdf
+      \endverb
+    \endentry
+    \entry{stmulti}{article}{}
+      \name{labelname}{3}{}{%
+        {{hash=5b169de6cff43516529eaab9b00d3f07}{St\bibnamedelima Denis}{S\bibinitperiod\bibinitdelim D\bibinitperiod}{Tom}{T\bibinitperiod}{}{}{}{}}%
+        {{hash=6664803bca5f3de71f11bc317f74fd2c}{Rasmussen}{R\bibinitperiod}{Mads}{M\bibinitperiod}{}{}{}{}}%
+        {{hash=c282e0b4879b18437a8414a11a3d674c}{Rose}{R\bibinitperiod}{Greg}{G\bibinitperiod}{}{}{}{}}%
+      }
+      \name{author}{3}{}{%
+        {{hash=5b169de6cff43516529eaab9b00d3f07}{St\bibnamedelima Denis}{S\bibinitperiod\bibinitdelim D\bibinitperiod}{Tom}{T\bibinitperiod}{}{}{}{}}%
+        {{hash=6664803bca5f3de71f11bc317f74fd2c}{Rasmussen}{R\bibinitperiod}{Mads}{M\bibinitperiod}{}{}{}{}}%
+        {{hash=c282e0b4879b18437a8414a11a3d674c}{Rose}{R\bibinitperiod}{Greg}{G\bibinitperiod}{}{}{}{}}%
+      }
+      \strng{namehash}{5de8ab240e33d2a206aa259efef04631}
+      \strng{fullhash}{5de8ab240e33d2a206aa259efef04631}
+      \field{sortinit}{S}
+      \field{labeltitle}{Multi-precision math (tommath library documentation)}
+      \field{note}{To be found as tommath.pdf on the internet or build from the source in libtommath.}
+      \field{title}{Multi-precision math (tommath library documentation)}
+      \field{urlday}{04}
+      \field{urlmonth}{09}
+      \field{urlyear}{2018}
+      \verb{url}
+      \verb https://github.com/libtom/libtommath/doc
+      \endverb
+    \endentry
+  \endsortlist
+\endrefsection
+\endinput
+

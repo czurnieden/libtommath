@@ -19,6 +19,21 @@ int mp_mul(const mp_int *a, const mp_int *b, mp_int *c)
    int     res, neg;
    neg = (a->sign == b->sign) ? MP_ZPOS : MP_NEG;
 
+#ifdef BN_MP_BALANCE_MUL_C
+   /* List of conditions pulled apart for legibility */
+   if (a->used != b->used) {
+      if ((MIN(a->used, b->used) >= KARATSUBA_MUL_CUTOFF)
+          && (MAX(a->used, b->used) / 2 >= KARATSUBA_MUL_CUTOFF)) {
+         /* Not much effect has been observed below a ratio of 1:2 */
+         if ((MAX(a->used, b->used) /  MIN(a->used, b->used)) >= 2) {
+            res = mp_balance_mul(a,b,c);
+            goto END;
+         }
+      }
+   }
+#endif
+
+
    /* use Toom-Cook? */
 #ifdef BN_MP_TOOM_MUL_C
    if (MIN(a->used, b->used) >= TOOM_MUL_CUTOFF) {
@@ -55,6 +70,11 @@ int mp_mul(const mp_int *a, const mp_int *b, mp_int *c)
 #endif
          }
       }
+
+#ifdef BN_MP_BALANCE_MUL_C
+END:
+#endif
+
    c->sign = (c->used > 0) ? neg : MP_ZPOS;
    return res;
 }

@@ -1,0 +1,1696 @@
+\documentclass[a4paper,10pt]{report}
+
+% This bunch of macros grew to that size in a couple of years,
+% some parts are even decades old, so be aware of the risks of diving in!
+
+\usepackage{lmodern}
+% Narrow the margins a bit to fit in the code
+\usepackage[margin=1.2in]{geometry}
+\usepackage{amsmath, amsthm,amsfonts,amssymb}
+\usepackage{graphicx}
+\usepackage{fixltx2e}
+\usepackage[
+    backend=biber,
+    style=numeric,
+    natbib=true,
+    sortlocale=en_US,
+    url=true, 
+    doi=true,
+    eprint=true
+]{biblatex}
+% a bit of a crutch to avoid multiple files
+\usepackage{filecontents}
+\begin{filecontents*}{nthrootdoc.bib}
+
+@article{agrawal2004primes,
+  title={PRIMES is in P},
+  author={Agrawal, Manindra and Kayal, Neeraj and Saxena, Nitin},
+  journal={Annals of mathematics},
+  pages={781--793},
+  year={2004},
+  publisher={JSTOR}
+}
+
+@article{ISO:c11,
+  title={SC22/WG14. ISO/IEC 9899: 2011},
+  author= "International Organization for Standardization",
+  address = "Geneva, Switzerland",
+  journal="Information technology-Programming languages-C",
+  year={2011}
+}
+
+@misc{denislibtommath,
+  title={Libtommath},
+  author={Denis, Tom St},
+  url="https://github.com/libtom/libtommath",
+  urldate="2015-12-25"
+}
+
+@article{stmulti,
+  title={Multi-precision math (tommath library documentation)},
+  author={St Denis, Tom and Rasmussen, Mads and Rose, Greg},
+  note="To be found as tommath.pdf on the internet or build from the source in libtommath.",
+  url="https://github.com/libtom/libtommath/doc",
+  urldate="2018-09-04"
+}
+
+
+
+@article{barkley1962approximate,
+  title={Approximate formulas for some functions of prime numbers},
+  author={Barkley Rosser, J and Schoenfeld, Lowell},
+  journal={Illinois Journal of Mathematics},
+  volume={6},
+  pages={6z--9z},
+  year={1962}
+}
+
+@book{obsieger2013numerical,
+  title={Numerical Methods II-Roots and Equation Systems},
+  author={Obsieger, Boris},
+  year={2013},
+  publisher={university-books. eu}
+}
+
+@article{bach1993sieve,
+  title={Sieve algorithms for perfect power testing},
+  author={Bach, Eric and Sorenson, Jonathan},
+  journal={Algorithmica},
+  volume={9},
+  number={4},
+  pages={313--328},
+  year={1993},
+  publisher={Springer}
+}
+
+@article{halley1694original,
+  title={Methodus Nova Accurata et Facilis Inveniendi Radices AEquationum Quarumcumque Generaliter, Sine Praevia Reductione},
+  author={Halley, Edmond},
+  year={1694},
+  volume={18},
+  number={210},
+  pages={136--148},
+  publisher={Philosophical Transactions},
+  url="http://www.jstor.org/stable/102449?seq=1#page_scan_tab_contents",
+  urldate="2016-06-16"
+}
+
+@article{bernstein1998detecting,
+  title={Detecting perfect powers in essentially linear time},
+  author={Bernstein, Daniel},
+  journal={Mathematics of Computation of the American Mathematical Society},
+  volume={67},
+  number={223},
+  pages={1253--1283},
+  year={1998},
+  url={http://www.ams.org/mcom/1998-67-223/S0025-5718-98-00952-1/S0025-5718-98-00952-1.pdf},
+  urldate="2016-06-20"
+}
+
+@incollection{jeffrey2000integer,
+  title={Integer Roots For Integer-Power-Content Calculations},
+  author={Jeffrey, DJ and Giesbrecht, MW and Corless, RM},
+  booktitle={Computer Mathematics},
+  pages={71--74},
+  year={2000},
+  publisher={World Scientific}
+}
+
+@article{dusart1999,
+  title={The $k^{\text{\tiny th}}$ prime is greater than $k (\log k + \log\log k-1)$ for $k \geq 2$},
+  author={Dusart, Pierre},
+  journal={Mathematics of Computation of the American Mathematical Society},
+  volume={68},
+  number={225},
+  pages={411--415},
+  year={1999},
+  url={http://www.ams.org/mcom/1999-68-225/S0025-5718-99-01037-6/S0025-5718-99-01037-6.pdf},
+  urldate="2018-03-04"
+}
+
+@article{rosser1962approximate,
+  title={Approximate formulas for some functions of prime numbers},
+  author={Rosser, J Barkley and Schoenfeld, Lowell and others},
+  journal={Illinois Journal of Mathematics},
+  volume={6},
+  number={1},
+  pages={64--94},
+  year={1962},
+  publisher={University of Illinois at Urbana-Champaign, Department of Mathematics},
+  url={https://projecteuclid.org/euclid.ijm/1255631807},
+  urldate="2018-03-04"
+
+}
+@article{sebah2001newton,
+  title={Newton's method and high order iterations},
+  author={Sebah, Pascal and Gourdon, Xavier},
+  journal={Numbers Comput.},
+  pages={1--10},
+  year={2001},
+  url = {http://numbers.computation.free.fr/Constants/Algorithms/newton.html},
+  urldate = "2018-03-05"
+}
+
+
+@article{newton1967methodus,
+  title={Methodus fluxionum et serierum infinitarum, 1671},
+  author={Newton, Isaac},
+  journal={The method of fluxions and infinite series},
+  year={1967}
+}
+
+@book{raphson1702analysis,
+  title={Analysis aequationum universalis},
+  author={Raphson, Joseph},
+  year={1702},
+  publisher={typis TB prostant venales apud A. \& I. Churchill},
+  url={https://play.google.com/store/books/details?id=JYQ_AAAAcAAJ&rdid=book-JYQ_AAAAcAAJ&rdot=1},
+  urldate="2018-03-05"
+}
+
+@inproceedings{gentleman1966fast,
+  title={Fast Fourier Transforms: for fun and profit},
+  author={Gentleman, W Morven and Sande, Gordon},
+  booktitle={Proceedings of the November 7-10, 1966, fall joint computer conference},
+  pages={563--578},
+  year={1966},
+  organization={ACM}
+}
+
+@article{dietz2015understanding,
+  title={Understanding integer overflow in C/C++},
+  author={Dietz, Will and Li, Peng and Regehr, John and Adve, Vikram},
+  journal={ACM Transactions on Software Engineering and Methodology (TOSEM)},
+  volume={25},
+  number={1},
+  pages={2},
+  year={2015},
+  publisher={ACM},
+  url="http://www.cs.utah.edu/~regehr/papers/overflow12.pdf",
+  urldate="2018-03-13"
+}
+
+@inproceedings{lenstra2002primality,
+  title={Primality testing with Gaussian periods},
+  author={Lenstra Jr, Hendrik W and Pomerance, Carl},
+  booktitle={FSTTCS},
+  pages={1},
+  year={2002},
+  url={https://pdfs.semanticscholar.org/2b24/99600a772bb9f173a481db55a59e30d030a6.pdf},
+  urldate="2018-03-22"
+}
+
+@article{bernstein2003proving,
+  title={Proving primality after agrawal-kayal-saxena},
+  author={Bernstein, Daniel J},
+  journal={Department of Mathematics, Statistics, and Computer Science, University of Illinois. Available from the World Wide Web:< http://cr. yp. to/papers/aks. pdf},
+  year={2003}
+}
+
+@book{hensel1908theorie,
+  title={Theorie der algebraischen Zahlen},
+  author={Hensel, Kurt},
+  volume={1},
+  year={1908},
+  publisher={BG Teubner}
+}
+
+
+
+\end{filecontents*}
+\addbibresource{nthrootdoc.bib}
+
+\usepackage{listings}
+\usepackage{algorithm}
+% pseudocode
+\usepackage[end]{algpseudocode}
+\newcommand*\Let[2]{\State #1 $\gets$ #2}
+\algrenewcommand\alglinenumber[1]{{\sf\scriptsize#1}}
+\algrenewcommand\algorithmicrequire{\textbf{Input:}}
+\algrenewcommand\algorithmicensure{\textbf{Output:}}
+
+\makeatletter
+\let\OldStatex\Statex
+\renewcommand{\Statex}[1][3]{%
+  \setlength\@tempdima{\algorithmicindent}%
+  \OldStatex\hskip\dimexpr#1\@tempdima\relax}
+\makeatother
+
+\algnewcommand\algorithmicblackcomment[1]{\hfill\(\blacktriangleright\) #1}
+\algnewcommand{\CommentMulti}[1]{ \(\blacktriangleright\) #1}
+\makeatletter
+\algnewcommand{\CommentInlineMulti}[1]{\Statex[\theALG@nested] \(\triangleright\) #1}
+
+% "algorithmic" without "algorithm" lacks all of the horizontal lines
+% The top lines are in the  "captionof" redefinition below and the trailing
+% line is here
+\algrenewcommand\ALG@endalgorithmic{\Statex[-1]\hrulefill}
+
+\usepackage{xpatch}
+% too many fractions in the algorithms
+% TODO: do it individually per case
+\xpatchcmd{\algorithmic}{\itemsep\z@}{\itemsep=.25ex}{}{}
+\makeatother
+
+
+% shamelessly stolen from http://tex.stackexchange.com/questions/53357/switch-cases-in-algorithmic
+% New definitions
+\algnewcommand\algorithmicswitch{\textbf{switch}}
+\algnewcommand\algorithmiccase{\textbf{case}}
+\algnewcommand\algorithmicdefault{\textbf{default}}
+
+\newcommand{\longsub}[1]{\text{\textit{\scriptsize{#1}}}}
+\newcommand{\RETURN}{\State \textbf{return} }
+\newcommand{\Break}{\State \textbf{break} }
+\newcommand{\Continue}{\State \textbf{break} }
+
+% New "environments"
+\algdef{SE}[SWITCH]{Switch}{EndSwitch}[1]{\algorithmicswitch\ #1\ \algorithmicdo}{\algorithmicend\ \algorithmicswitch}%
+\algdef{SE}[CASE]{Case}{EndCase}[1]{\algorithmiccase\ #1}{\algorithmicend\ \algorithmiccase}%
+\algdef{SE}[DEFAULT]{Default}{EndDefault}[1]{\algorithmicdefault\ #1}{\algorithmicend\ \algorithmicdefault}%
+\algtext*{EndSwitch}%
+\algtext*{EndCase}%
+
+\algdef{SE}[DOWHILE]{Do}{doWhile}{\algorithmicdo}[1]{\algorithmicwhile\ #1}
+
+
+\makeatletter
+\def\hrulefillthick{\leavevmode\leaders\hrule height .85pt\hfill\kern\z@}
+\makeatother
+% shamelessly stolen from http://tex.stackexchange.com/questions/33866/algorithm-tag-and-page-break
+\usepackage[font=small,labelfont=bf,width=.8\linewidth]{caption}
+\DeclareCaptionFormat{algor}{%
+  \hrulefillthick\par\offinterlineskip\vskip2pt%
+     \textbf{#1#2}#3\offinterlineskip\hrulefill}
+\DeclareCaptionStyle{algori}{singlelinecheck=off,format=algor,labelsep=space}
+\captionsetup[algorithm]{style=algori}
+%Still necessary?
+\MakeRobust{\Call}
+
+% http://tex.stackexchange.com/questions/77996/how-to-show-a-hint-when-lstlisting-is-breaking-page
+\usepackage[framemethod=tikz]{mdframed}
+% define the frame style for the listing:
+\mdfdefinestyle{note}
+  {
+    hidealllines = true,
+    skipabove    = .5\baselineskip,
+    skipbelow    = .5\baselineskip,
+    singleextra  = {},
+    firstextra   = {
+      \node[below right,overlay,align=center,font=\continuingfont]
+        at (O) {\continuingtext};
+    },
+    secondextra  = {
+      \node[above right,overlay,align=center,font=\continuingfont]
+        at (O |- P) {\continuedtext};
+    },
+    middleextra  = {
+      \node[below right,overlay,align=center,font=\continuingfont]
+        at (O) {\continuingtext};
+      \node[above right,overlay,align=center,font=\continuingfont]
+        at (O |- P) {\continuedtext};
+    }
+  }
+\newcommand*\continuingfont{\footnotesize\itshape}
+\newcommand*\continuingtext{\hspace{2em}Listing continues on next page}
+\newcommand*\continuedtext{\hspace{2em}Continuing from last page}
+% the trick with mdframed writes over the footnote-line,
+% this lowers the footnote
+\setlength{\skip\footins}{5ex}
+
+\ifpdf
+\pdfcompresslevel=9
+\pdfinfo{
+   /Title      (LibTomMath's Algorithms: details of current changes and additions)
+   /Author     (Editor: Christoph Zurnieden)
+   /Keywords   (arbitrary-precision algorithm libtommath libtom)
+}
+\fi
+
+
+\providecommand{\abs}[1]{\left\lvert#1\right\rvert}
+\providecommand{\floor}[1]{\left\lfloor#1\right\rfloor}
+\providecommand{\ceil}[1]{\left\lceil#1\right\rceil}
+
+\DeclareMathOperator{\AND}{\wedge}
+\DeclareMathOperator{\OR}{\vee}
+\DeclareMathOperator{\sgn}{sgn}
+
+% don't forget to add an empty statement {} after that command to get a space
+% I did not want to add another package to this already very heavy prelude
+% but you can include the package "xspace" and change the macro to
+% \newcommand{\nthroot}{$n^{\text{\tiny th}}$-root\xspace}
+% some say that xspace produces more problems than it solves, vid.:
+% https://tex.stackexchange.com/questions/86565/drawbacks-of-xspace
+% where you'll find out that its own creator does not recommend it.
+\newcommand{\nthroot}{$n^{\text{\tiny th}}$-root}
+
+\newcommand{\RaiseNum}[2]{\raisebox{#1}{$\scriptstyle #2$}}
+
+% wonder if I'll ever need it
+% C&P from the amsthm documentation
+\theoremstyle{plain} % is said to be the default
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{prop}[thm]{Proposition}
+
+\theoremstyle{definition}
+\newtheorem{defn}{Definition}[section]
+\newtheorem{conj}{Conjecture}[section]
+\newtheorem{exmp}{Example}[section]
+
+\theoremstyle{remark}
+\newtheorem*{rem}{Remark}
+\newtheorem*{note}{Note}
+\newtheorem{case}{Case}
+
+% to get the notes a counter (lacks internationalization)
+%\newcounter{notice}
+%\newenvironment{notice}{
+%\stepcounter{notice}
+%\par\bigskip\noindent{\bfseries Note \arabic{notice}}
+%\par\medskip}{\par\medskip}
+
+% shamelessly stolen from https://tex.stackexchange.com/a/94466
+% still lacks internationalization
+\global\mdfdefinestyle{notice}{%
+linecolor=gray,linewidth=1pt,%
+leftmargin=1cm,rightmargin=1cm,
+}
+\newenvironment{fnotice}[1]{%
+\mdfsetup{%
+frametitle={\colorbox{white}{\,#1\,}},
+%frametitle={\tikz\node[fill=white,rectangle,inner sep=0pt,outer sep=0pt]{#1};},
+frametitleaboveskip=-\ht\strutbox,
+%frametitleaboveskip=-0.5\ht\strutbox,
+frametitlealignment=\raggedright
+}%
+\begin{mdframed}[style=notice]
+}{\end{mdframed}}
+
+\definecolor{lightgray}{rgb}{.9,.9,.9}
+\definecolor{darkgray}{rgb}{.4,.4,.4}
+\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
+
+\lstdefinelanguage{parigp}{
+  alsoletter={\\},
+  keywords={ for, forcomposite, fordiv, fordivfactored, forell, forfactored, forpart, forperm,%
+             forprime, forsquarefree, forstep, forsubgroup, forsubset, forvec,%
+             if, iferr, next, return, until, while, %
+             local,%
+             alias, allocatemem, apply, call, default,%
+             extern, externstr, fold, getabstime, getenv, getheap, getrand, getstack, gettime,%
+             getwalltime, global, inline, input%
+             localbitprec, localprec,%
+             print, print1, printf, printp, printsep, printsep1, printtex,%
+             quit, read, readstr, readvec, self, setrand, system, type, uninline,%
+             version, write, write1, writebin, writetex},
+  keywordstyle=\bfseries,
+  morekeywords={[2]{log, floor, ceil,gcd, lcm,sqrt, sqrtn,sqrtint,%
+              sin,cos,tan,asin,acos,atan,sinh,cosh,tanh, asinh,acosh,atanh,%
+              gamma,lngamma,psi,dilog,%
+              % own functions
+              flog2, newton, halley, bisection}},
+  keywordstyle={[2]{\color{darkgray}\bfseries}},
+  sensitive=false,
+  comment=[l]{\\\\},
+  commentstyle=\ttfamily,
+  stringstyle=\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstdefinestyle{code}{
+   extendedchars=true,
+   basicstyle=\footnotesize\ttfamily,
+   showstringspaces=false,
+   showspaces=false,
+   tabsize=2,
+   breaklines=true,
+   showtabs=false,
+   xleftmargin=.2\textwidth, xrightmargin=.2\textwidth,
+   frame=lines
+%   texcl= true
+}
+
+\lstdefinestyle{widercode}{
+   extendedchars=true,
+   basicstyle=\footnotesize\ttfamily,
+   showstringspaces=false,
+   showspaces=false,
+   tabsize=2,
+   breaklines=true,
+   showtabs=false,
+   xleftmargin=.05\textwidth, xrightmargin=.05\textwidth,
+   frame=lines
+}
+
+\lstnewenvironment{pblisting}[1]
+  {%
+    \lstset{style=widercode,#1}%
+    \mdframed[style=note]%
+  }
+  {%
+    \endmdframed
+  }
+% to get subsubsection numbered, too
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+% Boxes with the gray background
+% shamelessly stolen from https://tex.stackexchange.com/a/7545
+\usepackage{calc}
+\newlength{\DepthReference}
+\settodepth{\DepthReference}{g}
+\newlength{\HeightReference}
+\settoheight{\HeightReference}{T}
+\newlength{\Width}
+\newcommand{\newcolorbox}[2][gray!30] {%
+  \settowidth{\Width}{#2}%
+  \setlength{\fboxsep}{.9pt}%
+  \fcolorbox{black}{#1}{%
+    \raisebox{-\DepthReference} {%
+      \parbox[b][\HeightReference+\DepthReference][c]{\Width}{\centering#2}%
+    }%
+  }%
+}
+\setlength{\fboxsep}{1pt}
+%no, a framed ox with grey background is just too much here
+%\newcommand*{\ttchar}[1]{\newcolorbox{\texttt{\strut#1}}}
+\newcommand*{\ttchar}[1]{\texttt{\textbf{\strut#1}}}
+
+\begin{document}
+\title{LibTomMath's Algorithms: details of changes and additions}
+\author{Current editor: Christoph Zurnieden\\
+        \small{\texttt{$<$czurnieden@gmx.de$>$}}}
+\date{Last change: \today}
+\maketitle
+
+\tableofcontents
+% Courier because Computer Modern has no boldface
+\renewcommand{\ttdefault}{pcr}
+
+\chapter*{Introduction}
+
+This document is an addendum to the book ``Multi-Precision Math'' by Tom St Denis et al.\cite{stmulti} and a work in progress. Time is not linear in this book, you might find algorithms described here that are not (yet) put down in code and others that are implemented as code but miss a description here.
+
+\chapter{Added Algorithms}
+\section{Balancing Multiplication}
+
+\section{Perfect Power}
+The algorithm to check an integer $n$ for perfect power is simple. Only the indices up to and including $\log_2(n)$ are needed and of these only the primes. It discards the result of \textsc{NthRoot} but it might be useful to offer both, the root $r$ and the exponent $p$ to the caller if a perfect power is found. The actual code in listing \ref{lst:searchforperfectpowers} includes the necessary lines to do so.
+
+\begin{center}
+  \captionof{algorithm}{Search for the Perfect Power\label{alg:perfectpower}}
+  \begin{algorithmic}[1]
+    \Require{$a > 0$, integer}
+    \Ensure{True if $a$ is a perfect power, false otherwise}
+    \Function{IsPerfectPower}{$a$}
+      \Let{$h$}{\Call{GetPositionOfMSB}{$a$}}
+      \Let{$l$}{\Call{GetPositionOfLSB}{$a$}}
+      \If{$h = l$} \Comment{$s$ is a power of $2$}
+         \RETURN true
+      \EndIf
+      \Let{$p$}{$3$}
+      \While{$p \le h$}
+         \Let{$r$}{\Call{NthRoot}{$a$}}
+         \Let{$e$}{$r^p$}
+         \If{$e = a$}
+           \RETURN $r$
+         \EndIf
+         \Let{$p$}{\Call{NextPrimeAfter}{$p$}}
+      \EndWhile
+      \RETURN false
+    \EndFunction
+  \end{algorithmic}
+\end{center}
+
+The implementation needs a source of small primes but LibTomMath offers only a small table (\ttchar{ltm\_prime\_tab}) with the first 256 primes. Not many are needed, even a $100\,000$-bit large number will need only $9\,592$ primes, so a simple sieve e.g.:~Eratosthenes's sieve will do. The implementation of the bit-set as macros has been caused by the author's need of a simple way to ``slap it on'' without much hassle. Macros allow for that, they can easily be put in any header file by simple copy\&paste and forgotten.
+
+
+\lstset{
+        language=C,
+        fontadjust=true,
+        breaklines=true,
+        breakatwhitespace=true,
+        frame=lines,
+        showstringspaces=false,
+        basicstyle=\ttfamily\small,
+        numbers=left,
+        numberstyle=\tiny,
+        stringstyle=\rmfamily\itshape
+       }
+\lstset{caption={Sieve of Eratosthenes, na\"ive implementation},label=lst:eratosthenes, style=widercode}
+\begin{lstlisting}
+
+/* A general bitset, 32 Bit version */
+#ifndef HAVE_BITSET_MACROS_LOADED
+#define ERAT_BITS (sizeof(uint32_t)*CHAR_BIT)
+#define GET_BIT(s,n)  ((*(s+(n/ERAT_BITS)) &   ( 1<<( n % ERAT_BITS ))) != 0)
+#define SET_BIT(s,n)   (*(s+(n/ERAT_BITS)) |=  ( 1<<( n % ERAT_BITS )))
+#define CLEAR_BIT(s,n) (*(s+(n/ERAT_BITS)) &= ~( 1<<( n % ERAT_BITS )))
+#define TOG_BIT(s,n)   (*(s+(n/ERAT_BITS)) ^=  ( 1<<( n % ERAT_BITS )))
+/* bst.size is the size in bits, the overall size might be bigger */
+typedef struct mp_bitset_t {
+    uint32_t size;
+    uint32_t *content;
+} mp_bitset_t;
+#define mp_bitset_alloc(bst, n) \
+  do {\
+      bst = malloc(sizeof(mp_bitset_t));\
+      if (bst == NULL) {\
+         fprintf(stderr, "memory allocation for bitset failed");\
+         exit(EXIT_FAILURE);\
+      }\
+      (bst)->content=malloc(( n /(sizeof(uint32_t)) + 1 ));\
+      if ((bst)->content == NULL) {\
+          fprintf(stderr, "memory allocation for bitset failed");\
+          exit(EXIT_FAILURE);\
+        }\
+      (bst)->size = n;\
+  } while (0)
+#define mp_bitset_size(bst)  ((bst)->size)
+#include <string.h>
+#define mp_bitset_setall(bst) memset((bst)->content,~(uint32_t)(0),\
+   (bst->size /(sizeof(uint32_t) ) +1 ))
+#define mp_bitset_clearall(bst) memset((bst)->content,0,\
+   (bst->size /(sizeof(uint32_t) ) +1 ))
+#define mp_bitset_clear(bst,n) CLEAR_BIT((bst)->content, n)
+#define mp_bitset_set(bst,n)     SET_BIT((bst)->content, n)
+#define mp_bitset_get(bst,n)     GET_BIT((bst)->content, n)
+#define mp_bitset_free(bst) \
+  do {\
+     free((bst)->content);\
+     free(bst);\
+  } while (0)
+#define HAVE_BITSET_MACROS_LOADED
+#endif
+
+#include <stdint.h>
+#include <inttypes.h>
+
+static uint32_t isqrt(uint32_t n)
+{
+   uint32_t s, rem, root;
+   if (n < 1)
+      return 0;
+   /* This is actually the highest square but it goes
+    * downward from this, quite fast */
+   s = 1 << 30;
+   rem = n;
+   root = 0;
+   while (s > 0) {
+      if (rem >= (s | root)) {
+         rem -= (s | root);
+         root >>= 1;
+         root |= s;
+      } else {
+         root >>= 1;
+      }
+      s >>= 2;
+   }
+   return root;
+}
+
+
+uint32_t mp_bitset_nextset(mp_bitset_t *bst, uint32_t n)
+{
+   while ((n < mp_bitset_size(bst)) && (!mp_bitset_get(bst, n))) {
+      n++;
+   }
+   return n;
+}
+
+uint32_t mp_bitset_prevset(mp_bitset_t *bst, uint32_t n)
+{
+   while (n > 1 && (!mp_bitset_get(bst, n))) {
+      n--;
+   }
+   return n;
+}
+
+void mp_eratosthenes(mp_bitset_t *bst)
+{
+   uint32_t n, k, r, j;
+
+   mp_bitset_setall(bst);
+   mp_bitset_clear(bst, 0);
+   mp_bitset_clear(bst, 1);
+
+   n = mp_bitset_size(bst);
+   r = isqrt(n);
+   for (k = 4; k < n; k += 2)
+      mp_bitset_clear(bst, k);
+   k = 0;
+   while ((k = mp_bitset_nextset(bst, k + 1)) < n) {
+      if (k > r) {
+         break;
+      }
+      for (j = k * k; j < n; j += k * 2) {
+         mp_bitset_clear(bst, j);
+      }
+   }
+}
+\end{lstlisting}
+
+We don't need to calculate the size of the sieve because the maximum value is already given by the number of bits.
+
+This sieve includes no optimizations at all. Normal optimizations would be to skip all even numbers that are not prime, for example to half the amount of memory needed. As tempting as it is but there is not much gain by skipping the multiples of more primes: for $n \leq 1\,000$, a rather miniscule sieve $3$ would save another $167$ bits, shaving off $5$ saves $67$ units more and with $7$ we would get rid of a mere $38$ and with $11$ it subtracts just $21$. Furthermore: if an integer is an even integer the last signficant bit is zero. That is very cheap to test but everything else needs either complicated bit-shuffling or a division. The bit-shuffling code is most probably not much faster than the native division and needs memory itself.
+
+If memory is a problem: a  much more memory savy alternative for the price of much more computations exists in from of a wheel. It offers a list of numbers that are not multiples of a set of small primes, the so called $n$-odd numbers where $n$ is the highest prime in those shorts lists. Most wheels use $11$-rough or $13$-rough numbers and if we take a wheel based on $13$-rough numbers it will yield $22$ non-primes (multiples of the primes $< 13$) and $168$ primes for $n < 1000$. It seems a good ratio but as the amount of multiples stays constant the number of primes declines which makes that method quite slow for large input.
+
+The algorithm is simple: take a number $n > 1$ and, in the case of $13$-rough numbers, print if $n$ is not a multiple of $2,3,5,7,11$. To get only the primes it is possible to do trial-division by the outoput of the wheel which makes it obvious why it is such a slow method and only useful for relatively small $n$ although for the example $n = 100\,000$ given above it would still be fast enough in relation to the time needed to find integer roots of hundred thousand bits large numbers.
+\subsection{Prime generation with a factorization wheel}
+We need a wheel, a method to use it and a method to sieve out the multiples of the seed primes which are $2,3,5,7,11$ in our case.
+\subsubsection{Wheel construction with $13$-rough numbers}
+The sequence can be generated by observing that every number is an element if $\gcd(n,2\cdot3\cdot5\cdot7\cdot11) = 1$. We can also save some memory if we do not tabulate the elements of the sequence but the gaps between them. That allows us to use a one byte (8-bits in most cases) \ttchar{char} instead of a two byte large \ttchar{short} for the $2\cdot3\cdot5\cdot7\cdot11$ wheel.
+
+\lstset{language=parigp,style=widercode}
+\begin{pblisting}{caption={Generating the wheel},label=lst:generatingwheel, style=code}
+generate_wheel_gaps(p)={
+  local(t1, t2, gap,firstp,out,largest_gap);
+
+  \\ checks and balances omitted!
+
+  out = List();
+  t1 = 2;
+  largest_gap = 0;
+
+  \\ list gaps between first primes, the "seed"
+  firstp = factor(p)[,1];
+  for(k=2,length(firstp),
+     t2 = firstp[k];
+     gap = t2 - t1;
+     if(gap > largest_gap,
+        largest_gap = gap;
+     );
+     listinsert(out,gap,length(out)+1);
+     t1 = t2;
+  );
+  \\ the actual ring
+  \\ extending upper limit to close the wheel
+  for(k=t1+1,p+nextprime(firstp[length(firstp)]+1),
+     if(gcd(k,p) == 1,
+        t2 = k;
+        gap = t2 - t1;
+        if(gap > largest_gap,
+           largest_gap = gap;
+        );
+        listinsert(out,gap,length(out)+1);
+        t1 = t2;
+     );
+  );
+
+  for(k=1,length(out),
+     printf(out[k]);
+     if(k<length(out),
+        printf(",")
+     );
+     if(k>0 && k % 20 == 0,
+        print("");
+     );
+  );
+  t1 = length(out) - length(firstp);
+  print("\nseed = " firstp);
+  print("Wheel length - length(seed) = " t1);
+  print("Largest gap = " largest_gap);
+}
+\end{pblisting}
+The largest gap of the wheel build from the $13$-rough numbers is $14$, so two gaps would fit into one 8 bit large byte but most of the gaps are smaller, not much memory to save here. The wheel build from $17$-rough numbers has $5760$ elements and the largest gap is of size $22$. If we use the meory needed for such a wheel ($5760 \cdot 8 = 46080$ bits plus the memory $m$ needed for the program to use the wheel) for a non-optimized sieve we get the first $4767$ primes $\le 46080 + m$ very quickly\footnote{those ~5kibyte would fit in the L1 data-caches of most modern CPUs, even the smaller ones. The memory for the program to use the sieve is also very small and would fit into the L1 program-cache} and the number $\log_2(n) = 46080$ is relatively large and it is quite possible that it is large enough.
+\subsubsection{Using the wheel} % a documentation about how to use a wheel. Well...
+
+
+
+
+\subsubsection{Remove multiples of $2,3,5,7,11$}
+
+\section{Implementation of the Perfect Power test}
+The actual algorithm for the perfect-power test is rather simple. Returning radicand and index can be made optional, it is useful but not essential for the algorithm to function.
+
+\lstset{language=C,caption={Search for perfect powers},label=lst:searchforperfectpowers}
+\begin{lstlisting}
+int mp_isperfpower(mp_int *z, mp_int *rootout, mp_int *exponent)
+{
+   mp_int root, power;
+   mp_bitset_t *bst;
+   int p, max, highbit, lowbit, primepi;
+   int e;
+
+   /* 
+      It seems to be a good idea to place some sanity checks here
+      But all of them are already done in mp_n_root_ex() and even
+      if done it would safe only the memory and runtime of the sieve
+      and both are neglible values.
+   */
+
+   max =  mp_count_bits(z) - 1;
+   highbit = max;
+   lowbit = mp_cnt_lsb(z);
+
+   /* Is it N=2^p ? */
+   if (highbit == lowbit) {
+      if (exponent != NULL) {
+         if ((e = mp_set_int(exponent, (unsigned long) highbit)) != MP_OKAY) {
+            return e;
+         }
+      }
+      if (rootout != NULL) {
+         if ((e = mp_set_int(rootout, 2LU)) != MP_OKAY) {
+            return e;
+         }
+      }
+      return MP_YES;
+   }
+   if ((e = mp_init_multi(&root, &power, NULL)) != MP_OKAY) {
+      return e;
+   }
+   /* find perfection in higher powers */
+   bst = malloc(sizeof(mp_bitset_t));
+   if (bst == NULL) {
+      return MP_MEM;
+   }
+   /* we skipped 2 already and 3 has a smaller upper bound */
+   primepi = floor_log2_over_log3(max + 2);
+   mp_bitset_alloc(bst, primepi);
+   mp_eratosthenes(bst);
+
+   p = 2;
+
+   while ((p = mp_bitset_nextset(bst, p + 1)) <= primepi) {
+      if ((e = mp_n_root_ex_test(z, p, &root,0)) != MP_OKAY) {
+         return e;
+      }
+      if ((e = mp_expt_d(&root, p, &power)) != MP_OKAY) {
+         return e;
+      }
+      if (mp_cmp(z, &power) == MP_EQ) {
+         if (rootout != NULL) {
+            mp_exch(&root, rootout);
+         }
+         if (exponent != NULL) {
+            if ((e = mp_set_int(exponent, (unsigned long)p)) != MP_OKAY) {
+               return e;
+            }
+         }
+         printf("max = %d, p in mid = %d\n",max,p);
+         mp_clear_multi(&root, &power,NULL);
+         mp_bitset_free(bst);
+         return MP_YES;
+      }
+   }
+   if (rootout != NULL) {
+      if ((e = mp_set_int(rootout, 0LU)) != MP_OKAY) {
+         return e;
+      }
+   }
+   if (exponent != NULL) {
+      if ((e = mp_set_int(exponent, 0LU)) != MP_OKAY) {
+         return e;
+      }
+   }
+   mp_clear_multi(&root, &power,NULL);
+   mp_bitset_free(bst);
+   return MP_NO;
+}
+\end{lstlisting}
+
+\chapter{Changed Algorithms}
+\section{The Primality Test}
+\subsection{Old Primality Test}
+\subsection{New Primality Test}
+
+\section{The \nthroot{} Algorithm}
+The \nthroot{} algorithm in LibTomMath\cite{denislibtommath} is defined as the function $\rho\colon\mathbb{Z}^2\mapsto\mathbb{Z}$
+\begin{equation}\label{eq:basicdefinition}
+\rho(x,n) = 
+\begin{cases}
+\floor{\sqrt[n]{x}}&\quad\text{if}\quad x \in \mathbb{N}^+\land n \in \mathbb{N}^+ \\
+-\floor{\sqrt[n]{x}}&\quad\text{if}\quad -x \in \mathbb{N}^+ \land n \in \mathbb{N}^+ \land n \equiv 0 \mod 2\\
+0&\quad\text{if}\quad \left(x = 0 \land n \not= 0\right) \lor \left(x \not=0 \land n < 0\right)\\
+1&\quad\text{if}\quad x > 0 \land \floor{\frac{ {\RaiseNum{2pt}{\floor{\log_2\left(x\right)}} }}{n}} = 0\\
+x&\quad\text{if}\quad n = 1
+\end{cases}
+\end{equation}
+with $\floor{\sqrt[n]{x}}$ representing the integer $r$ such that $r^n \leq x$.
+\subsection{Old \nthroot{} Algorithm}
+The implementation of that function in LibTomMath\cite{denislibtommath} is correct but not very fast (table \ref{tab:oldtohalleybisec}).
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{c c c c }
+\textbf{Index}&\textbf{Original}&\textbf{unmodified Halley}&\textbf{Bisection}\\\hline
+3 & 42,552 &  67 & 868\\
+4 & 86,587 &  56 & 777\\
+5 & 141,631 & 45 & 546\\
+6 & 223,550 & 41 & 482\\
+7 & 322,667 & 52 & 426\\
+8 & 454,878 & 53 & 422\\
+9 & 533,513  & 50 & 323\\
+10 & 741,266 & 47 & 296\\
+20 & 4,651,044 & 20 & 150\\
+40 & 26,089,478 & 44 & 82 \\
+80 & (2 days) & 91 & 42 \\
+160 & (2 weeks) & 194& 23
+\end{tabular}
+\captionof{table}{Runtimes for 2100 bits large numbers in ms per 1,000 runs per index (values in parentheses are extrapolated and {\em very} rough approximations)}\label{tab:oldtohalleybisec}
+\end{center}
+\end{table}
+Some primality tests, for example AKS\cite{agrawal2004primes,lenstra2002primality,bernstein2003proving} or factorization with a quadratic sieve, need to test the input if it is a perfect power\footnote{There are faster methods, of course. For example by making good use of Hensels's lemma\cite{hensel1908theorie} or by using floating point computations as described by D.~Bernstein in \cite{bernstein1998detecting}}. That means that to test if $x$ is a perfect power every prime $p \leq \log_2(x)$ needs to be tested. It would need unreasonable much time with the original algorithm to test all 317 primes of the 2100 bits large number in table \ref{tab:oldtohalleybisec}.
+
+The algorithm itself, Newton's method, converges quadratically but only if its initial value $x_0$ is close enough to the root $r= \floor{x^{1/n}}$ and the biggest reason for that large runtimes is indeed a large difference between $x_0$ and $r$.
+
+The seed value for the original implementation is $x_0 = 2$. The actual root $r$ on the other side lies in the intervall $2^{b-1} \leq r \leq 2^b$ where $b = \ceil{\log_2(x)/n}$. Either one of those values would be suitable for $x_0$ and can be computed in $O(1)$\footnote{It is just: allocate memory with $b$ zero-bits and set the most significant bit. At least on the kind of binary computers common today.}, too. Taking the upper limit $x_0 = 2^b$ we see that $x_0$ can only be $2$ if $\ceil{\log_2(x)/n} = 1$ which is only possible if $\log_2(x) \leq n$ and is not necessary to compute $\floor{x^{1/n}}$, we can set $r = 1$ if $\log_2(x) < n$ and $r = 2$ if $\log_2(x) = n$. The lower limit if of less interrest here because Newton's method for \nthroot{} has the inconvenient property of converging to the wrong root sometimes if $x_0 < r$. An example using some Pari/GP code for convenience:
+
+\lstset{language=parigp,style=code}
+\begin{pblisting}{caption={A more verbose implementation of Newton's method in Pari/GP, $x_O \leq r$},label=lst:newtonnotconverging, style=widercode}
+newton_lower(n,k) = {
+   local(xi,t1,i,tmp);
+   tmp = ceil(log2(n)/k) - 1;
+   xi = 2^tmp;
+   print(xi);
+   t1 = xi + 1;
+   while(
+      xi < t1,
+      t1 = xi;
+      xi = (k-1) * t1 + (n \ t1^(k-1));
+      xi = xi \ k;
+   );
+   return(t1);
+}
+\end{pblisting}
+\begin{pblisting}{caption={A more verbose implementation of Newton's method in Pari/GP, $x_O \geq r$},label=lst:newtonnotconverging, style=widercode}
+newton_higher(n,k) = {
+   local(xi,t1,i,tmp);
+   tmp = ceil(log2(n)/k);
+   xi = 2^tmp;
+   print(xi);
+   t1 = xi + 1;
+   while(
+      xi < t1,
+      t1 = xi;
+      xi = (k-1) * t1 + (n \ t1^(k-1));
+      xi = xi \ k;
+   );
+   return(t1);
+}
+\end{pblisting}
+Where \lstinline!flog2(x) = floor(log(x)/log(2));!. With inputs $n = 123123, k = 12$ ($\floor{123123^{1/12}} = 2$) we get the correct result for both values of $x_O$ but for the inputs $n = 123123, k = 3$ ($\floor{123123^{1/3}} = 49$) we get the wrong result $32$ for \lstinline!newton_lower()!.
+
+Halley's method on the other side is less sensitive and a better initial value, arithmetic average $(2^{b-1} + 2^b)/2$ can be brought to much better effect as shown in figure \ref{fig:normalhalleynewtonbisection}. The same figure shows another issue in great detail: although the real root $r$ is guaranteed to lie in the interval $[2^{b-1}, 2^b]$ the individual runtimes vary wildly, the graphs give a remarkably close approximation to the profile of a highly excited \textit{Hystrix cristata}.
+
+\begin{center}
+\input{normal_halley_and_newton_solid.tex}
+        \captionof{figure}{Runtimes in ms of Halley's and Newton's recurrences and bisection at $6\,000$ bits number size with $1\,000$ runs per index.
+        \label{fig:normalhalleynewtonbisection}}
+\end{center}
+
+Another method to evaluate $r = \floor{x^{1/n}}$ is the bisection method: start with a bracket $[a,b]$ that includes the root $r$, cut the bracket into two smaller ones $[a,c], [c,b]$ with $c = (a+b)/2$, compute $c^n$ and stop if the result is close enough otherwise go on with either $[a,c]$ or $[c,b]$ depending on the sign of $c^n - x$. It will produce about one bit of $r$ per iteration which is slow for large roots and fast for small ones (fig. \ref{fig:normalhalleynewtonbisection}) but it will only do so if the initial bracket is tight enough. An example for such a tight bracket is $[2^{b-1}, 2^b]$ where $b = \ceil{\log_2(x)/n}$ which might look familiar to the discerning reader.
+
+We need $log(n)$ bits of $r = \floor{x^{1/n}}$ as a good initial value for Newton's method and we can combine the two methods described above by letting the bisection method compute the first $\log(n)$ bits of the root for the start value for Newton's method. The full description of this method and the proof of correctness can be found in Bach and Sorenson\cite{bach1993sieve}.
+
+This points us to a reasonable fast and stable integer \nthroot{} algorithm.
+
+\subsection{New \nthroot{} algorithm}
+Both recurrences, Newton's and Halley's method, do not converge to the correct root if the seed is not above the actual root. To avoid the extra runtime and additional complexity of the otherwise necessary checks and corrections the value returned by the bisection method must always be the upper limit.
+
+The full algorithm for the bisection computes $\floor{x^{1/n}}-1$ instead of $\floor{x^{1/n}}$ which makes the addition of unity at the very end a needful thing for the correctness of the result. It should also be noted that the root enclosing bracket is not as tight as it could be but the accumulating rounding errors of the truncating division by $2$ make it necessary.
+\begin{center}
+  \captionof{algorithm}{\nthroot{} algorithm, bisection\label{alg:nthrootbinsection}}
+  \begin{algorithmic}[1]
+    \Require{$a$, integer, $b$ integer, $r = \floor{\ceil{\log_2 a}/ b}+1$ integer, and  $c = \ceil{\log_2 b} \lor c = -1$, integer with $a>0$, $b > 1$}
+    \Ensure{$\floor{\sqrt[b]{a}}$}
+    \Function{Bisection}{$a,b,r,c$}
+    \Let{$i$}{$0$}
+    \If{$c == 0$}
+        \Let{$c$}{$1$}
+    \EndIf
+    \Let{$h$}{$2^{r}$}
+    \Let{$l$}{$2^{r - 2}$}
+    \While{$l < h$}
+       \If{$i = c$}
+           \RETURN {$h$}
+       \Else
+           \Let{$i$}{$i + 1$}
+       \EndIf
+       \Let{$m$}{$\floor{\frac{l + h}{2}}$}
+       \Let{$m_p$}{$m^b$}
+       \If{$l < m \AND m_p < a $}
+          \Let{$l$}{$m$}
+       \ElsIf{$h > m \AND m_p < a $}
+          \Let{$h$}{$m$}
+       \Else
+          \RETURN $m$
+       \EndIf
+    \EndWhile
+    \Let{$m$}{$m + 1$}
+    \RETURN $m$
+    \EndFunction
+  \end{algorithmic}
+\end{center}
+
+
+The algorithms of the recursions with $log(n)$ rounds of \textsc{Bisection} to get about $log(n)$ bits of the root $r = \floor{x^{1/n}}$ as the method to compute the seed $x_0$ for Newton's and Halley's methods are:
+
+\begin{center}
+  \captionof{algorithm}{modified Newton's method\label{alg:newtonsmethod}}
+  \begin{algorithmic}[1]
+    \Require{$a$, integer, $b$ integer, $r = \ceil{\left(\log_2 a \right)/ b}$ integer, and  $c = \ceil{\log_2 b}$,
+                    integer with $a>0$, $b > 1$, and $c > 1$}
+    \Ensure{$\floor{\sqrt[b]{a}}$}
+    \Function{NewtonRecursion}{$a,b,r,c$}
+    \Let{$x_0$}{\Call{Bisection}{$a,b,c,r$}}
+    \Let{$x_i$}{$x_0$}
+    \Let{$t_1$}{$x_0 + 1$}
+    \While{$x_i < t_1$}
+       \Let{$t_1$}{$x_i$}
+       \Let{$t_2$}{$t_1(b-1)$}
+       \Let{$x_i$}{$t1^(b-1)$}
+       \Let{$x_i$}{$\frac{x_i}{a}$}\Comment{Large division}
+       \Let{$x_i$}{$t_2 + xi$}
+       \Let{$x_i$}{$\frac{xi}{b}$}\Comment{Small division, single limb}
+    \EndWhile
+    \RETURN $t_1$
+    \EndFunction
+  \end{algorithmic}
+\end{center}
+
+For sufficiently large numbers\footnote{What this ``sufficiently large number'' exactly is depends on too much details and we propose benchmarking instead.} Halley's method is better suited but it needs more memory and has a large division in it that is significantly greater in magnitude than its counterpart in Newton's method.
+
+\begin{center}
+  \captionof{algorithm}{modified Halley's method\label{alg:halleysmethod}}
+  \begin{algorithmic}[1]
+    \Require{$a$, integer, $b$ integer, $r = \ceil{\left(\log_2 a \right)/ b}$ integer, and  $c = \ceil{\log_2 b}$,
+                    integer with $a>0$, $b > 1$, and $c > 1$}
+    \Ensure{$\floor{\sqrt[b]{a}}$}
+    \Function{HalleyRecursion}{$a,b,r,c$}
+    \Let{$x_0$}{\Call{Bisection}{$a,b,c,r$}}
+    \Let{$x_i$}{$x_0$}
+    \Let{$t_1$}{$0$}
+    \While{$x_i \not= t_1$}
+       \Let{$t_1$}{$x_i$}
+       \Let{$t_2$}{$x_i^b$}
+       \Let{$n$}{$t_2 (b-1)$}
+       \CommentInlineMulti{If the extra memory to hold $a(b-1)$ is available both constants $a(b+1)$ and $a(b-1)$%
+                           can, and should, be computed in advance}
+       \Let{$d$}{$a(b+1)$}\Comment{Check for overflow of $b+1$}
+       \Let{$n$}{$n + d$}
+       \Let{$n$}{$nx_i$}
+       \Let{$d$}{$a(b-1)$}\Comment{No underflow because of the condition $b > 1$}
+       \Let{$t_2$}{$t_2(b+1)$}\Comment{Check for overflow of $b+1$ here or elsewhere}
+       \Let{$d$}{$d + t_2$}
+       \Let{$x_i$}{$\frac{n}{d}$}
+    \EndWhile
+    \RETURN $x_i$
+    \EndFunction
+  \end{algorithmic}
+\end{center}
+
+The bisection method is even faster than both of the modified Householder recurrences at a point where $r$ is small enough to compensate the slow runtime of the bisection method with the large computational overhead of the recurrences. Where is that point? Assuming non-optimized implementations of the basic arithmetic bisection runs in time $O(\log n)$ and the recurrences in $O(\log \log n)$ so let us be a bit silly and use the relation $\log n / \log \log n$. It is already not bad but runs too short by a small amount as some empirical tests (figures \ref{fig:modifiedhalleynewtonpartbisectionzoom}, \ref{fig:modifiedhalleynewtonpartbisectionzoom6000}, \ref{fig:modifiedhalleynewtonpartbisectionzoom600}) have shown and a small twiddle factor\cite{gentleman1966fast} of about $1.2$ is needed for the current implementation of LibTomMath. This  might change if fast division is included in LibTomMath.
+
+% Hu?
+% One hint about the possible reasons for the small correction to the theoretical value is in figure \ref{fig:modifiedhalleynewtonpartbisectionzoom600}.
+
+
+% such things should be put in the margin, but the margin is already reduced and quite small
+\begin{fnotice}{Note}\label{note:log2toln}
+The calculation of the cut-off between the modified reccurences and the bisection method does not need not be done with floating point arithmetic, the approximation  $\operatorname{flnb}(x) = \floor{\log_2(x)} \cdot 69/100$ is sufficient to make the inequality
+\begin{equation}\label{eq:log2toln}
+\floor{ \frac{\log(x)}{\log\log(x)}} \leq
+ \floor{\frac{\operatorname{flnb}(x) }{ \operatorname{flnb} \operatorname{flnb} x}} + 1\quad \text{for } x \geq 8
+\end{equation}
+hold. The multiplication by $69$ can overflow\cite{dietz2015understanding} and the method used in the implementation (Listing \ref{lst:log2toln}) takes care of it by sacrificing two decimal digits of accuracy for safety.
+\end{fnotice}
+
+\begin{center}
+\input{modified_halley_and_newton_1000_100_rand.tex}
+        \captionof{figure}{Runtimes in ms of Halley's and Newton's recurrences at $60\,000$ bits number size with $100$ runs per index with an excerpt of the bisection results.
+        \label{fig:modifiedhalleynewtonpartbisection}}
+\end{center}
+The graph in figure \ref{fig:modifiedhalleynewtonpartbisection} has a very steep beginning, lets look at it from a different perspective.
+
+\begin{center}
+\input{modified_halley_and_newton_1000_100_rand_big_roots.tex}
+        \captionof{figure}{Start of figure \ref{fig:modifiedhalleynewtonpartbisection} mirrored at the y-axis and rotated clockwise by $\pi$.
+        \label{fig:modifiedhalleynewtonpartbisectionbigroot}}
+\end{center}
+
+The main reason for the higher runtime at the largest roots is the number of iterations. Some Pari/GP code to count iterations is listings \ref{lst:paricodeforitercountbis}, \ref{lst:paricodeforitercountnewt}, and \ref{lst:paricodeforitercounthal}.
+
+\lstset{language=parigp,style=code}
+\begin{pblisting}{caption={Bisection in Pari/GP},label=lst:paricodeforitercountbis, style=widercode}
+bisection(n,k,co,rs) = {
+  local(lo, hi, i, mid, midpow);
+  lo = 2^(rs-1); \\ low
+  hi = 2^rs;     \\ high
+  i = 0;
+  if(co == 0,
+     co = 1;
+  );
+  while(
+    hi - lo > 1,
+    i++;
+    if(i == co,
+       print("Bisection iterations inside: " i);
+       return(hi);
+    );
+    mid = (lo + hi)\2;
+    midpow = mid^k;
+    if(midpow < n,
+       lo = mid,
+       if(midpow > n , \\elseif
+          hi = mid,
+          return(mid); \\ else (perfect power)
+       );
+    );  
+  );
+  if( hi^k == n,
+    return(hi);
+  );
+  return(lo);
+}
+\end{pblisting}
+\begin{pblisting}{caption={Newton's method in Pari/GP},label=lst:paricodeforitercountnewt, style=widercode}
+newton(n,k) = {
+   local(xi,t1,i, rootsize);
+   rootsize = bisection(n,k,flog2(k),(flog2(x) \ k) + 1);
+   xi = rootsize;
+   t1 = rootsize + 1;
+   i = 0;
+   while(
+      xi < t1,
+      i++;
+      t1 = xi;
+      xi = (k-1) * t1 + (n \ t1^(k-1));
+      xi = xi \ k;
+   );
+   print("Newtons iterations = " i);
+   return(t1);
+}
+\end{pblisting}
+\begin{pblisting}{caption={Halley's method in Pari/GP},label=lst:paricodeforitercounthal, style=widercode}
+halley(n,k) = {
+   local(xi,t1,nom, den,i);
+   i = 0;
+   xi = bisection(n,k,flog2(k),(flog2(x) \ k) + 1);
+   while(
+      xi != t1,
+      t1 = xi;
+      i++;
+      nom = (xi * ( (k+1) * n + (k-1) * xi^k));
+      den = ((k-1)*n + (k+1)*xi^k);
+      xi = nom \ den;
+   );
+   print("Halley iterations = " i);
+   return (xi);
+}
+\end{pblisting}
+Where \lstinline!flog2(x) = floor(log(x)/log(2));!.
+
+Back to the small problem of finding the point where the difference between the recurrences and the bisection method change sign, so let us zoom further into figure \ref{fig:modifiedhalleynewtonpartbisectionbigroot} and mark the positions of $\log(x)/\log \log(x)$ and $\operatorname{flnb}(x) / \operatorname{flnb}(\operatorname{flnb}(x))$ in figure \ref{fig:modifiedhalleynewtonpartbisectionzoom}. It seems as if the actual crossing lies somewhere in the middle between the two, a hypothesis further supported by figures \ref{fig:modifiedhalleynewtonpartbisectionzoom6000} and \ref{fig:modifiedhalleynewtonpartbisectionzoom600}.
+
+Is that kind of fine-tuning worth it? The exact twiddle factor lies somewhere between $1.1$ and $1.2$ as some experiments with the current version of LibTomMath showed but each additional decimal digit increases the risk of integer-overflow and the code necessary to avoid overflow causes a loss of the same number of decimal digits in accuracy.
+
+\begin{center}
+\input{modified_halley_and_newton_and_bisection_cutoff_point_1000_100.tex}
+        \captionof{figure}{Smaller sector of figure \ref{fig:modifiedhalleynewtonpartbisection}. Where\\
+ $\operatorname{flnb}(x) = \floor{\log_2(x)} \cdot 69/100$ but see note \ref{note:log2toln} for an extended description.
+        \label{fig:modifiedhalleynewtonpartbisectionzoom}}
+\end{center}
+\begin{center}
+\input{modified_halley_and_newton_and_bisection_cutoff_point_100_1000.tex}
+        \captionof{figure}{Small sector of a run with $6\,000$ bit (ca. $10^{1\,800}$) large numbers.
+        \label{fig:modifiedhalleynewtonpartbisectionzoom6000}}
+\end{center}
+\begin{center}
+\input{modified_halley_and_newton_and_bisection_cutoff_point_10_10000.tex}
+        \captionof{figure}{Small sector of a run with $600$ bit (ca. $10^{180}$) large numbers (Newton and bisection only).
+        \label{fig:modifiedhalleynewtonpartbisectionzoom600}}
+\end{center}
+
+For simplification the methods get called by a central function that does all the checks and balances and the computation of the limits and cut-offs.
+
+\begin{center}
+  \captionof{algorithm}{$n^{\text{\tiny th}}$-root algorithm, main function\label{alg:nthrootmain}}
+  \begin{algorithmic}[1]
+    \Require{$a\in\mathbb{Z}$ and $b\in\mathbb{Z_0^+}$}
+    \Ensure{$\rho = \floor{\sqrt[b]{a}}$}
+    \Function{nthrootMain}{$a,b$}
+
+    \If{$a = 0 \AND b = 0$}\Comment{Division by zero}
+       \RETURN $\mathtt{DOMAIN\_ERROR}$
+    \EndIf
+    \If{$a = 0 \AND b > 0$}
+       \RETURN $0$
+    \EndIf
+    \If{$a \not= 0 \AND b = 0$}
+       \RETURN $1$
+    \EndIf
+
+    \If{$ a < 0 \AND b = 0 \mod 2$}
+       \RETURN $\mathtt{DOMAIN\_ERROR}$
+    \EndIf
+
+     \If{$a > 0 \AND b = 2$}
+        \Let{$c$}{\Call{Sqrt}{$a$}}\Comment{Square root might have been implemented faster}
+        \RETURN $c$
+    \EndIf
+     \If{$a > 0 \AND b = 3$}
+        \Let{$c$}{\Call{Cbrt}{$a$}}\Comment{Ditto the cube root}
+        \RETURN $c$
+    \EndIf
+
+    \If{$\#_{\longsub{limbs}}(a) = 1$}
+        \Let{$c$}{\Call{nthrootNative}{$a_0$}}\Comment{Use native integers for a single limb}
+    \EndIf
+
+    \Let{$s$}{$\sgn{a}$}
+    \Let{$A$}{$\abs{a}$}
+
+    \Let{$l_2$}{$\ceil{\log_2 a}$} \Comment{LibTomMath's bit-count function returns $\floor{log_2 a}+1$}
+    \Let{$r$}{$\ceil{l_2/ b}$}   \Comment{One extra precaution to keep the seed $x_0$ above the actual root}
+    \Let{$c$}{$\ceil{\log_2 b}$} \Comment{The first round of bisection might not yield a full bit}
+
+    \Let{$x_0$}{$\Call{ComputeSeed}{a,b,r,c}$}
+
+    \If{$b < \log/\log\log(A) \cdot 1.2$} \Comment{Cut-off to pure bisection method}
+        \If{$A < \mathtt{NTHROOT\_CUTOFF}$}\Comment{Cut-off between Newton's and Halley's method}
+            \Let{$\rho$}{\Call{NewtonRecursion}{$a,b,r,c$}}
+        \Else
+            \Let{$\rho$}{\Call{HalleyRecursion}{$a,b,r,c$}}
+        \EndIf
+    \Else
+         \Let{$\rho$}{\Call{Bisection}{$a,b, r, -1$}}\Comment{$c = -1$ is a flag to do the full run}
+    \EndIf
+
+    \CommentInlineMulti{Final test of correctness is optional}
+    \Let{$t$}{$\rho^b$}
+    \If{$t = a$}\Comment{Perfect Power}
+       \Let{$c$}{$x_0$}
+       \RETURN $c$
+    \EndIf
+    \If{$t > a$}
+       \Let{$\rho$}{$\rho - 1$}
+       \Loop
+          \Let{$t$}{$\rho^b$}
+          \If{$t \le a$}
+             \Break
+          \EndIf
+          \Let{$\rho$}{$\rho - 1$}
+       \EndLoop
+    \EndIf
+
+    \If{$t < a$}
+       \Let{$\rho$}{$\rho + 1$}
+       \Loop
+          \Let{$t$}{$\rho^b$}
+          \If{$t \ge a$}
+             \Break
+          \EndIf
+          \Let{$\rho$}{$\rho + 1$}
+       \EndLoop
+       \If{$t \not= a$}\Comment{Not a perfect power, it just overshot}
+          \Let{$\rho$}{$\rho - 1$}
+       \Else
+          \RETURN $\rho$\Comment{Perfect power}
+       \EndIf
+    \EndIf
+
+    \RETURN $\rho$
+    \EndFunction
+  \end{algorithmic}
+\end{center}
+
+The calling function in LibTomMath has the additional option \ttchar{fast}. You might choose it to call the full bisection method for all input(\emph{very} slow for large roots) or a completely different algorithm, or one of the two unmodified recurrence methods in section \ref{sec:unmodified}.
+
+
+\subsection{Unmodified Newton and Halley}\label{sec:unmodified}
+Halley's method.
+\begin{center}
+  \captionof{algorithm}{\nthroot{} algorithm, Halley's recursion\label{alg:nthroothalley}}
+  \begin{algorithmic}[1]
+    \Require{$a$, integer and $b$, integer with $a>0$ and $b > 1$}
+    \Ensure{$\floor{\sqrt[b]{a}}$}
+    \Function{nthrootHalleyRecursion}{$a,b$}
+    \Let{$l_2$}{$\ceil{\log_2 a}$} 
+    \Let{$r$}{$2^{\ceil{l_2 / b}}$}
+    \Let{$r_2$}{$r/2$}
+    
+    \Let{$x_0$}{$\floor{\frac{r + r_2}{2}}$}\Comment{Just the arithmetic average or one round of bisection}
+
+    \Let{$A_1$}{$a(b - 1)$}
+    \Let{$t_1$}{$2a$}
+    \Let{$A_2$}{$A_1 + t_1$}
+    \Do
+       \Let{$x_1$}{$x_0$}
+       \Let{$x_0$}{$x_0^b$}
+       \If{$x_0 = a$}\Comment{Perfect Power}
+          \Let{$c$}{$x_0$}
+          \RETURN $c$
+       \EndIf
+       \Let{$t_1$}{$t_1 (b - 1)$}
+       \Let{$t_2$}{$2x_0$}
+       \Let{$t_2$}{$t_1 + t_2$}
+       \Let{$t_1$}{$A_2 + t_1$}
+       \Let{$t_2$}{$A_1 + t_2$}
+       \Let{$t_1$}{$x_1t_1$}
+       \Let{$x_0$}{$\floor{\frac{t_1}{t_2}}$}
+    \doWhile{$ x_1 \not= x_0 $}
+
+    \RETURN $x_1$
+    \EndFunction
+  \end{algorithmic}
+\end{center}
+
+Newtons's method.
+
+\begin{center}
+  \captionof{algorithm}{$n^{\text{\tiny th}}$-root algorithm, Newton's recursion\label{alg:nthrootnewton}}
+  \begin{algorithmic}[1]
+    \Require{$a$, integer and $b$, integer with $a>0$ and $b > 1$}
+    \Ensure{$\floor{\sqrt[b]{a}}$}
+    \Function{nthrootNewtonRecursion}{$a,b$}
+    \Let{$l_2$}{$\ceil{\log_2 a}$} 
+    \Let{$r$}{$2^{\ceil{l_2 / b}+1}$}\Comment{$r$ must be bigger than $\floor{\sqrt[b]{a}}$}
+    \Let{$x_i$}{$x_0$}
+    \Let{$t_1$}{$x_0 + 1$}
+    \While{$x_i < t_1$}
+       \Let{$t_1$}{$x_i$}
+       \Let{$t_2$}{$t_1(b-1)$}
+       \Let{$x_i$}{$t1^(b-1)$}
+       \Let{$x_i$}{$\frac{x_i}{a}$}\Comment{Large division}
+       \Let{$x_i$}{$t_2 + xi$}
+       \Let{$x_i$}{$\frac{xi}{b}$}\Comment{Small division}
+    \EndWhile
+    \RETURN $t_1$
+    \EndFunction
+  \end{algorithmic}
+\end{center}
+
+
+
+\subsection{Implementation}
+\lstset{
+        language=C,
+        fontadjust=true,
+        breaklines=true,
+        breakatwhitespace=true,
+        frame=lines,
+        showstringspaces=false,
+        basicstyle=\ttfamily\small,
+        numbers=left,
+        numberstyle=\tiny,
+        stringstyle=\rmfamily\itshape
+       }
+The code for Halley's method does not implement the optimizations described in algorithm \ref{alg:halleysmethod};
+\lstset{caption={$n^{\text{\tiny th}}$-root algorithm, Halley's recursion},label=lst:nthroothalley, style=widercode}
+\begin{lstlisting}
+static int modified_halley(mp_int *a,mp_digit  b,mp_int * c, int cutoff, int rootsize){
+   mp_int xi, t1, t2, nom, den;
+   int e = MP_OKAY;
+
+   if ((e = mp_init_multi(&xi, &t1, &t2, &nom, &den, NULL)) != MP_OKAY) {
+      goto LBL_T3;
+   }
+
+   if ((e = bisection(a, b, &xi, cutoff, rootsize )) != MP_OKAY) {
+      goto LBL_T3;
+   }
+
+   // while xi != t1
+   while(mp_cmp(&xi, &t1) != MP_EQ){
+      // t1 = xi;
+      if( (e = mp_copy(&xi, &t1) ) != MP_OKAY){
+         return e;
+      }
+      // t2 = xi^b;
+      if ((e = mp_expt_d(&xi, b, &t2)) != MP_OKAY) {
+         goto LBL_T3;
+      }
+      // nom = (xi * ( (b+1) * a + (b-1) * t2))
+      // nom = (b-1) * t2
+      if ((e = mp_mul_d(&t2, b - 1, &nom)) != MP_OKAY) {
+         goto LBL_T3;
+      }
+      // den = (b+1) * a
+      // TODO: check for overflow of b+1
+      if ((e = mp_mul_d(a, b + 1, &den)) != MP_OKAY) {
+         goto LBL_T3;
+      }
+      // nom = nom + den <- (b+1) * a + (b-1) * t2)
+      if ((e = mp_add(&den, &nom, &nom)) != MP_OKAY) {
+         goto LBL_T3;
+      }
+      // nom = xi * nom <- xi * (b+1) * a + (b-1) * t2)
+      if ((e = mp_mul(&xi, &nom, &nom)) != MP_OKAY) {
+         goto LBL_T3;
+      }
+      // den = ((b-1)*a + (b+1)*t2)
+      // den = (b-1)*a
+      if ((e = mp_mul_d(a, b - 1, &den)) != MP_OKAY) {
+         goto LBL_T3;
+      }
+      // t2 = (b+1)*t2
+      // TODO: check for overflow of b+1
+      if ((e = mp_mul_d(&t2, b + 1, &t2)) != MP_OKAY) {
+         goto LBL_T3;
+      }
+      // den = den + t2 <- ((b-1)*a + (b+1)*t2)
+      if ((e = mp_add(&den, &t2, &den)) != MP_OKAY) {
+         goto LBL_T3;
+      }
+      if ((e = mp_div(&nom, &den, &xi, NULL)) != MP_OKAY) {
+         goto LBL_T3;
+      }
+   }
+   mp_exch(&xi, c);
+LBL_T3:
+   mp_clear_multi(&xi, &t1, &t2, &nom, &den, NULL);
+   return e;
+}
+
+\end{lstlisting}
+\lstset{caption={$n^{\text{\tiny th}}$-root algorithm, Newton's recursion},label=lst:nthrootnewton}
+\begin{lstlisting}
+static int modified_newton(mp_int * a, mp_digit b, mp_int * c, int cutoff, int rootsize)
+{
+  mp_int xi, t1, t2;
+  int e = MP_OKAY;
+
+  if ((e = mp_init_multi(&xi, &t1, &t2, NULL)) != MP_OKAY) {
+    return e;
+  }
+  if ((e = bisection(a, b, &xi, cutoff, rootsize)) != MP_OKAY) {
+    goto __ERR;
+  }
+  //  t1 = xi + 1;
+  if ((e = mp_add_d(&xi, 1, &t1)) != MP_OKAY) {
+    goto __ERR;
+  }
+
+  while (mp_cmp(&xi, &t1) == MP_LT) {
+
+    //  t1 = xi;
+    if ((e = mp_copy(&xi, &t1)) != MP_OKAY) {
+      goto __ERR;
+    }
+    // xi = (b-1) * t1 + (a \ t1^(b-1));
+    // t2 = (b-1) * t1
+    if ((e = mp_mul_d(&t1, b - 1, &t2)) != MP_OKAY) {
+      goto __ERR;
+    }
+    // xi = t1^(b-1)
+    if ((e = mp_expt_d(&t1, b - 1, &xi)) != MP_OKAY) {
+      goto __ERR;
+    }
+    // xi = a \ xi = a \ t1^(b-1)
+    if ((e = mp_div(a, &xi, &xi, NULL)) != MP_OKAY) {
+      goto __ERR;
+    }
+    // xi = t2 + xi = (b-1) * t1 + (a \ t1^(b-1))
+    if ((e = mp_add(&xi, &t2, &xi)) != MP_OKAY) {
+      goto __ERR;
+    }
+    //  xi = xi \ b;
+    if ((e = mp_div_d(&xi, b, &xi, NULL)) != MP_OKAY) {
+      goto __ERR;
+    }
+  }
+
+  mp_exch(&t1, c);
+__ERR:
+  mp_clear_multi(&xi, &t1, &t2, NULL);
+  return e;
+}
+\end{lstlisting}
+
+
+\lstset{caption={$n^{\text{\tiny th}}$-root algorithm, binary search},label=lst:binarysearch}
+\begin{lstlisting}
+static int bisection(mp_int *a, mp_digit b, mp_int *c, int cutoff, int rootsize){
+   mp_int low, high, mid, midpow;
+   int e, comp, i = 0;
+   if ((e = mp_init_multi(&low, &high, &mid, &midpow, NULL)) != MP_OKAY) {
+      return e;
+   }
+   if ((e = mp_2expt(&high, rootsize)) != MP_OKAY) {
+      goto __ERR;
+   }
+   if ((e = mp_2expt(&low, rootsize - 1)) != MP_OKAY) {
+      goto __ERR;
+   }
+   while ( mp_cmp(&high, &low) == MP_GT) {
+      // we got our log(b) bits and can go on to Halley from here
+      if(i == cutoff){
+        break;
+      }
+      i++;
+      // mid = (low + high)/2
+      if ((e = mp_add(&low, &high, &mid)) != MP_OKAY) {
+         goto __ERR;
+      }
+      if ((e = mp_div_2(&mid, &mid)) != MP_OKAY) {
+         goto __ERR;
+      }
+      // midpow = mid^b
+      if ((e = mp_expt_d(&mid, b, &midpow)) != MP_OKAY) {
+         goto __ERR;
+      }
+      comp = mp_cmp(&midpow, a);
+      if(comp == MP_LT){
+         mp_exch(&low, &mid);
+      }
+      else if(comp == MP_GT){
+         mp_exch(&high, &mid);
+      }
+      else{
+         break;
+      }
+   }
+   mp_exch(&high, c);
+__ERR:
+   mp_clear_multi(&low, &high, &mid, &midpow, NULL);
+   return e;
+}
+\end{lstlisting}
+
+\lstset{caption={Approximation of computation of cut-off $\floor{ \frac{\log(x)}{\log\log(x)}} \cdot 1.2$ },label=lst:log2toln}
+\begin{lstlisting}
+#include <limits.h>
+static int recurrence_bisection_cutoff(int value)
+{
+   int lnx, lnlnx;
+
+   // such small values should have been handled by a nth-root
+   // implementation with native integers
+   if (value < 8) {
+       return 1;
+   }
+
+   // ln(x) ~ floor(log2(x)) * log(2)
+   if (value > ((INT_MAX / 69))) {
+      // if "value" is so big that a multiplication
+      // with 69 can overflow it we can safely spend
+      // two digits of accuracy for a better sleep.
+      lnx = (value / 100) * 69;
+   } else {
+      lnx = ((69 * value) / 100);
+   }
+   // ln ln x
+   lnlnx = floor_log2((mp_digit) lnx);
+   if (lnlnx > ((INT_MAX / 69))) {
+      // if "lnlnx" is so big that a multiplication
+      // with 69 can overflow it we can again safely spend
+      // two digits of accuracy for a better sleep.
+      // Actually: it cannot overflow, or can it?
+      lnlnx = (lnlnx / 10) * 69;
+   } else {
+      lnlnx = ((69 * lnlnx) / 10);
+   }
+   lnx  /= lnlnx;
+   // floor(ln(x)/(ln ln (x))) < floor(fln2(x)/(fln2 fln2 (x))) + 1 for x >= 8
+   lnx += 1;
+   // apply twiddle factor
+   if (lnx > ((INT_MAX / 12))) {
+      // if "lnx" is so big that a multiplication
+      // with 12 can overflow it we can again safely spend
+      // one digit of accuracy for a better sleep.
+      // Actually: it cannot overflow, or can it?
+      lnx = (lnx / 10) * 12;
+   } else {
+      lnx = ((12 * lnx) / 10);
+   }
+   return lnx;
+}
+
+\end{lstlisting}
+
+The implementation is slightly different from algorithm \ref{alg:nthrootmain} for compatibility reasons
+\lstset{caption={$n^{\text{\tiny th}}$-root algorithm, main function},label=lst:mainfunction}
+\begin{lstlisting}
+int mp_n_root_ex(mp_int * a, mp_digit b, mp_int * c, int fast)
+{
+  int e, ilog2, neg, rootsize;
+  mp_digit cutoff;
+
+  /*
+   * if b = 0             -> MP_VAL
+   * if b even and a neg. -> MP_VAL
+   * if a = 0 and b > 0   -> 0
+   * if a = 0 and b < 0   -> MP_VAL;
+   * if a = 1             -> 1
+   * if a > 0 and b < 0   -> 0;
+   */
+  if (b == 0) {
+    return MP_VAL;
+  }
+  if (b == 1) {
+    if ((e = mp_copy(a, c)) != MP_OKAY) {
+      return e;
+    }
+    return MP_OKAY;
+  }
+  if (b == 2) {
+    return mp_sqrt(a, c);
+  }
+
+  if (((b & 1) == 0) && (a->sign == MP_NEG)) {
+    return MP_VAL;
+  }
+
+  if ((a->used == 1) && (a->dp[0] == 1)) {
+    mp_set(c, 1);
+    if (a->sign == MP_NEG) {
+      c->sign = MP_NEG;
+    }
+    return MP_OKAY;
+  }
+
+  if (mp_iszero(a)) {
+    mp_zero(c);
+    return MP_OKAY;
+  }
+
+  neg = a->sign;
+  a->sign = MP_ZPOS;
+
+  // ceil(log_2(a))
+  ilog2 = mp_count_bits(a);
+
+  if (ilog2 < (int) (b)) {
+    a->sign = neg;
+    mp_set(c, 1);
+    c->sign = neg;
+    return MP_OKAY;
+  }
+
+/*
+  if (a->used == 1) {
+    sd = small_nthroot(a->dp[0],b);
+    a->sign = neg;
+    mp_set(c, sd);
+    c->sign = neg;
+    return MP_OKAY;
+   }
+*/
+
+  // to make use of the "fast" option we offer a slower algorithm
+  // which is faster only for very large indices.
+  if (fast != 0) {
+    if ((e = bisection_full(a, b)) != MP_OKAY) {
+      a->sign = neg;
+      return e;
+    }
+  }
+
+  rootsize = (ilog2 / b) + 1;
+
+
+  // we need log(b) bits of a^(1/b) for the recursion methods
+  cutoff = floor_log2(b);
+  if (cutoff < 1) {
+    cutoff = 1;
+  }
+  //  NTHROOT_CUTOFF is most probably beyond 10^6 limbs
+  if (a->used > NTHROOT_CUTOFF) {
+    if ((e = modified_halley(a, b, c, cutoff, rootsize)) != MP_OKAY) {
+      a->sign = neg;
+      return e;
+    }
+  }
+  else {
+    if ((e = modified_newton(a, b, c, cutoff, rootsize)) != MP_OKAY) {
+      a->sign = neg;
+      return e;
+    }
+  }
+
+  a->sign = neg;
+  c->sign = neg;
+  return MP_OKAY;
+}
+\end{lstlisting}
+
+\lstset{caption={$n^{\text{\tiny th}}$-root algorithm, full bisection},label=lst:fullbisection}
+\begin{lstlisting}
+static int bisection2(mp_int *a, mp_digit b, mp_int *c)
+{
+   mp_int low, high, mid, midpow;
+   int e, ilog2, comp;
+
+   ilog2 = mp_count_bits(a);
+   ilog2 = (ilog2 / (int) b) + 1;
+
+   if ((e = mp_init_multi(&low, &high, &mid, &midpow, NULL)) != MP_OKAY) {
+      return e;
+   }
+   if ((e = mp_2expt(&high, ilog2)) != MP_OKAY) {
+      goto __ERR;
+   }
+   if ((e = mp_div_2d(&high, 2, &low, NULL)) != MP_OKAY) {
+      goto __ERR;
+   }
+   while (mp_cmp(&low, &high) == MP_LT) {
+      if ((e = mp_add(&low, &high, &mid)) != MP_OKAY) {
+         goto __ERR;
+      }
+      if ((e = mp_div_2(&mid, &mid)) != MP_OKAY) {
+         goto __ERR;
+      }
+      mp_expt_d(&mid, b, &midpow);
+      comp = mp_cmp(&midpow, a);
+      if (mp_cmp(&low, &mid) == MP_LT && comp == MP_LT) {
+         mp_exch(&low, &mid);
+      } else if (mp_cmp(&high, &mid) == MP_GT && comp == MP_GT) {
+         mp_exch(&high, &mid);
+      } else {
+         mp_exch(&mid, c);
+         goto __ERR;
+      }
+   }
+   if ((e = mp_add_d(&mid, 1, &mid)) != MP_OKAY) {
+      goto __ERR;
+   }
+   mp_exch(&mid, c);
+__ERR:
+   mp_clear_multi(&low, &high, &mid, &midpow, NULL);
+   return e;
+}
+\end{lstlisting}
+A small helper if no native functions exists that is able to compute $\floor{\log_2 x}$ quickly.
+\lstset{caption={$n^{\text{\tiny th}}$-root integer log2 function},label=lst:floorlog2}
+\begin{lstlisting}
+static int floor_log2(int value)
+{
+   int r = 0;
+   if (value <= 0) {
+      return MP_VAL;
+   }
+   while ((value >>= 1) != 0) {
+      r++;
+   }
+   return r;
+}
+\end{lstlisting}
+
+
+\printbibliography
+\end{document}
