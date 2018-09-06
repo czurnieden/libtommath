@@ -1,6 +1,6 @@
 Some documentation about the changes and additions to Libttommath.
 A makefile to build a PDF is included, just do a
 
-    make -F Makefile.pdf
+    make -F Makefile_pdf
 
 to build it it. Should build with pdfTeX 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian)

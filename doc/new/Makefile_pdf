@@ -1,0 +1,65 @@
+# A quite general makefile to do a latex-to-pdf conversion of a complex document with biography and glossary
+
+# Probably the only place to adapt. The filename is the base-name, that is the
+# full filename without any path and endings e.g.: /home/user/somefile.tex -> somefile
+filename=nthrootdoc
+
+# "pdflatex" is still the most common tool here, but others are gaining weight, too.
+PDFLATEX=/usr/bin/pdflatex
+
+# The builder of glossaries. Are there fully working alternatives now?
+GLOSSARYBUILDER=/usr/bin/makeglossaries
+
+# "biber" is probably what you need but not what you want/have, please change if necessary
+BIBMAKER=/usr/bin/biber
+
+# Software to view the PDF. "evince" is the document viewer for Gnome but more generaly
+# available programs are xpdf (https://www.xpdfreader.com/download.html for Linux/Windows/Mac) or
+# acroread (Acrobat Reader(TM)(R))
+PDFREADER=/usr/bin/evince
+
+# Bash or compatible commandline is needed for the braces expansion used for "clean"
+# If Bash is not available you need to expand manually, make a long list
+# and comment the following line out
+SHELL=/bin/bash
+
+all: pdf
+
+pdf-print: pdf
+	lp ${filename}.pdf
+
+text: html
+	html2text -width 100 -style pretty ${filename}/${filename}.html | sed -n '/./,$$p' | head -n-2 >${filename}.txt
+
+html:
+	@#latex2html -split +0 -info "" -no_navigation ${filename}
+	htlatex ${filename}
+
+# the "||true" should be made unnecessary but it is an easy way to get rid
+# of complicated code/extra manual configuration if you do not have a
+# bibliography and/or glossary
+# the second run of the BIBMAKER has been cause by a "biber" which
+# seemed to need it with my more complex documents, although not always.
+pdf:
+	$(PDFLATEX) ${filename}
+	$(BIBMAKER) ${filename}||true
+	$(GLOSSARYBUILDER) ${filename}||true
+	$(PDFLATEX) ${filename}
+	$(BIBMAKER) ${filename}||true
+	$(PDFLATEX) ${filename}
+
+read: pdf
+	$(PDFREADER) ${filename}.pdf &
+
+
+xread: pdf
+	$(PDFREADER) ${filename}.pdf
+
+.PHONY : clean
+# Needs to be adapted if no Bash or fully bash compatible commandline is available
+# Most commandlines have some sort of name-expansion, if not: just list them manualy
+# If your document has includes you need to include that filename, too. It is most
+# likely only an ".aux" file.
+clean:
+	$(RM) ${filename}.{pdf,log,aux,out,bbl,bcf,blg,glg,glo,gls,loa,lof}
+	$(RM) ${filename}.{lol,lot,slg,syg,syi,toc,xdy,run.xml}

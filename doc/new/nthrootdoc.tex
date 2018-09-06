@@ -496,6 +496,37 @@ This document is an addendum to the book ``Multi-Precision Math'' by Tom St Deni
 
 \chapter{Added Algorithms}
 \section{Balancing Multiplication}
+Asymmetric factors are not very good for fast multiplication with something like the Toom--Cook algorithms. One of many methods to handle the problem is to put the big integers one step higher and use chunks of the size of the smaller factor as big digits and do simple textbook multiplication with the \enquote{digits} in the multiplication the size of the smaller block.
+
+\begin{center}
+  \captionof{algorithm}{Balancing Multiplication, Linear\label{alg:muldintbalanc
+elinear}}
+  \begin{algorithmic}[1]
+    \Require{$a$, (very) big integer and $b$, (very) big integer and $a>b$}
+    \Ensure{$a\cdot d$}
+    \Function{mulBalancedLinear}{$a,b$}
+    \Let{$l_\longsub{a}$}{$ \#_{\left(2^\beta\right)}(a) $}\Comment{Number of limbs}
+    \Let{$l_\longsub{b}$}{$ \#_{\left(2^\beta\right)}(b) $}\Comment{Number of limbs}
+    \Let{$n_\longsub{blocks}$}{$\floor{ \frac{l_\longsub{a}}{l_\longsub{b}} } $}
+    \Let{$\mu$}{$2^\beta$}
+    \Let{$r$}{$0$}
+\CommentInlineMulti{No carry to carry, hence good paralellizability}
+    \For{$i=0\to n_\longsub{blocks}$}
+       \Let{$t$}{\Call{Slice}{$a,l_\longsub{b}\cdot i, l_\longsub{b}\cdot (i+1),$}}
+       \Let{$t$}{$t\cdot b$}
+       \Let{$t$}{$t\cdot \mu\left( i\cdot l_\longsub{b} \right)$}
+                       \Comment{Left-shift by $i$ times limbs of $b$}
+       \Let{$r$}{$r + t$}
+    \EndFor
+    \Let{$t$}{\Call{Slice}{$a,l_\longsub{b}\cdot i, l_\longsub{a},$}}\Comment{Last block}
+    \Let{$t$}{$t\cdot b$}
+    \Let{$t$}{$t\cdot \mu\left( i\cdot l_\longsub{b} \right)$}
+                   \Comment{Left-shift by $i$ times limbs of $b$}
+    \Let{$r$}{$r + t$}
+    \RETURN $r$
+    \EndFunction
+  \end{algorithmic}
+\end{center}
 
 \section{Perfect Power}
 The algorithm to check an integer $n$ for perfect power is simple. Only the indices up to and including $\log_2(n)$ are needed and of these only the primes. It discards the result of \textsc{NthRoot} but it might be useful to offer both, the root $r$ and the exponent $p$ to the caller if a perfect power is found. The actual code in listing \ref{lst:searchforperfectpowers} includes the necessary lines to do so.
@@ -724,6 +755,12 @@ The largest gap of the wheel build from the $13$-rough numbers is $14$, so two g
 
 \subsubsection{Remove multiples of $2,3,5,7,11$}
 
+\section{Prime generation with Erastothenes' Sieve}
+\subsection{Solid Sieve}
+\subsection{Segmented Sieve}
+
+
+
 \section{Implementation of the Perfect Power test}
 The actual algorithm for the perfect-power test is rather simple. Returning radicand and index can be made optional, it is useful but not essential for the algorithm to function.
 
@@ -814,10 +851,15 @@ int mp_isperfpower(mp_int *z, mp_int *rootout, mp_int *exponent)
 }
 \end{lstlisting}
 
+
 \chapter{Changed Algorithms}
-\section{The Primality Test}
-\subsection{Old Primality Test}
-\subsection{New Primality Test}
+\section{Primality Tests}
+\subsection{Lucas--Selfridge Test}
+\subsection{Frobenius--Underwood Test}
+\subsection{Baillie--Pomerance--Selfridge--Wagstaff Test}
+\subsection{Lucas--Selfridge Test}
+\subsection{Fips 186.4}
+\subsection{Deterministic Test}
 
 \section{The \nthroot{} Algorithm}
 The \nthroot{} algorithm in LibTomMath\cite{denislibtommath} is defined as the function $\rho\colon\mathbb{Z}^2\mapsto\mathbb{Z}$
@@ -877,22 +919,7 @@ newton_lower(n,k) = {
    return(t1);
 }
 \end{pblisting}
-\begin{pblisting}{caption={A more verbose implementation of Newton's method in Pari/GP, $x_O \geq r$},label=lst:newtonnotconverging, style=widercode}
-newton_higher(n,k) = {
-   local(xi,t1,i,tmp);
-   tmp = ceil(log2(n)/k);
-   xi = 2^tmp;
-   print(xi);
-   t1 = xi + 1;
-   while(
-      xi < t1,
-      t1 = xi;
-      xi = (k-1) * t1 + (n \ t1^(k-1));
-      xi = xi \ k;
-   );
-   return(t1);
-}
-\end{pblisting}
+
 Where \lstinline!flog2(x) = floor(log(x)/log(2));!. With inputs $n = 123123, k = 12$ ($\floor{123123^{1/12}} = 2$) we get the correct result for both values of $x_O$ but for the inputs $n = 123123, k = 3$ ($\floor{123123^{1/3}} = 49$) we get the wrong result $32$ for \lstinline!newton_lower()!.
 
 Halley's method on the other side is less sensitive and a better initial value, arithmetic average $(2^{b-1} + 2^b)/2$ can be brought to much better effect as shown in figure \ref{fig:normalhalleynewtonbisection}. The same figure shows another issue in great detail: although the real root $r$ is guaranteed to lie in the interval $[2^{b-1}, 2^b]$ the individual runtimes vary wildly, the graphs give a remarkably close approximation to the profile of a highly excited \textit{Hystrix cristata}.
