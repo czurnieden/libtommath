@@ -140,6 +140,22 @@ extern void *MP_CALLOC(size_t nmemb, size_t size);
 extern void MP_FREE(void *mem, size_t size);
 #endif
 
+/* Size of the base sieve of mp_sieve*/
+#ifdef MP_8BIT
+#   define MP_SIEVE_PRIME_MAX          0xFFFFlu
+#   define MP_SIEVE_PRIME_MAX_SQRT     0xFFlu
+#elif ( (defined MP_64BIT) && (defined MP_SIEVE_USE_LARGE_SIEVE) )
+#   define MP_SIEVE_PRIME_MAX          0xFFFFFFFFFFFFFFFFllu
+#   define MP_SIEVE_PRIME_MAX_SQRT     0xFFFFFFFFllu
+#else
+#   define MP_SIEVE_PRIME_MAX          0xFFFFFFFFlu
+#   define MP_SIEVE_PRIME_MAX_SQRT     0xFFFFlu
+#endif
+
+/* TODO: Remove PRIVATE_MP_WARRAY as soon as deprecated MP_WARRAY is removed from tommath.h */
+#undef MP_WARRAY
+#define MP_WARRAY PRIVATE_MP_WARRAY
+
 /* TODO: Remove private_mp_word as soon as deprecated mp_word is removed from tommath. */
 #undef mp_word
 typedef private_mp_word mp_word;

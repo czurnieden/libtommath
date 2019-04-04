@@ -2098,6 +2098,245 @@ If \texttt{LTM\_NO\_FILE} is not defined a function to write to a file is also a
 int mp_fwrite(const mp_int *a, int radix, FILE *stream);
 \end{alltt}
 
+\chapter{Factorization}
+
+\section{Prime Sieve}
+The prime sieve is implemented as a simple segmented Sieve of Eratosthenes. It is only moderately optimized for space and runtime but should be small enough and also fast enough for almost all use-cases; quite quick for sequential access but relatively slow for random access.
+
+\subsection{Initialization and Clearing}
+Initializing. It cannot fail because it only sets some default values. Memory is allocated later according to needs.
+\index{mp\_sieve\_init}
+\begin{alltt}
+void mp_sieve_init(mp_sieve *sieve);
+\end{alltt}
+The function \texttt{mp\_sieve\_init} is equivalent to
+\begin{alltt}
+mp_sieve sieve = {NULL, NULL, 0};
+\end{alltt}
+
+Free the memory used by the sieve with
+\index{mp\_sieve\_clear}
+\begin{alltt}
+void mp_sieve_clear(mp_sieve *sieve);
+\end{alltt}
+
+\subsection{Primality Test of Small Numbers}
+Individual small numbers can be tested for primality with
+\index{mp\_is\_small\_prime}
+\begin{alltt}
+int mp_is_small_prime(mp_sieve_prime n, mp_sieve_prime *result,
+                      mp_sieve *sieve);
+\end{alltt}
+The implementation of this function does all the heavy lifting--the building of the base sieve and the segment if one is necessary. The base sieve stays, so this function can be used to ``warm up'' the sieve and, if \texttt{n} is slightly larger than the upper limit of the base sieve, ``warm up'' the first segment, too.
+It will return \texttt{MP\_SIEVE\_MAX\_REACHED} to flag the content of \texttt{result} as the last valid one.
+
+\subsection{Find Adjacent Primes}
+To find the prime bigger than a number \texttt{n} use
+\index{mp\_next\_small\_prime}
+\begin{alltt}
+int mp_next_small_prime(mp_sieve_prime n, mp_sieve_prime *result,
+                        mp_sieve *sieve);
+\end{alltt}
+and to find the one smaller than \texttt{n}
+\begin{alltt}
+int mp_prec_small_prime(mp_sieve_prime n, mp_sieve_prime *result,
+                        mp_sieve *sieve);
+\end{alltt}
+
+\subsection{Useful Constants}
+\begin{description}
+\item[\texttt{MP\_SIEVE\_BIGGEST\_PRIME}] \texttt{read-only} The biggest prime the sieve can offer. It is be $65\,521$ for \texttt{MP\_8BIT},
+ $4\,294\,967\,291$ for \texttt{MP\_16BIT}, \texttt{MP\_32BIT} and \texttt{MP\_64BIT}; and
+ $18\,446\,744\,073\,709\,551\,557$ for \texttt{MP\_64BIT} if the macro\\
+ \texttt{LTM\_SIEVE\_USE\_LARGE\_SIEVE} is defined.
+
+\item[\texttt{mp\_sieve\_prime}] \texttt{read-only}  The basic type for the numbers in the sieve. It is be \texttt{uint16\_t} for \texttt{MP\_8BIT}, \texttt{uint32\_t} for \texttt{MP\_16BIT}, \texttt{MP\_32BIT} and \texttt{MP\_64BIT}; and \texttt{uint64\_t} for \texttt{MP\_64BIT} if the macro \texttt{LTM\_SIEVE\_USE\_LARGE\_SIEVE} is defined.
+
+\item[\texttt{LTM\_SIEVE\_USE\_LARGE\_SIEVE}] \texttt{read-only} A flag to make a large sieve.  No advantage has been seen in using 64-bit integers if available except the ability to get a sieve up to $2^64$. But in this case the base sieve gets 0.25 Gibibytes large and the segments 0.5 Gibibytes (although you can change \texttt{LTM\_SIEVE\_RANGE\_A\_B} in \texttt{bn\_mp\_sieve.c} to get smaller segments) and need a long time to fill.
+
+
+\item[\texttt{MP\_SIEVE\_PR\_UINT}] Choses the correct macro from \texttt{inttypes.h} to print a\\
+ \texttt{mp\_sieve\_prime}. The header \texttt{inttypes.h} must be included before\\
+ \texttt{tommath.h} for it to work.
+\end{description}
+
+
+\subsection{Examples}\label{sec:spnexamples}
+\subsubsection{Initialization and Clearing}
+Using a sieve follows the same procedure as using a bigint:
+\begin{alltt}
+/* Declaration */
+mp_sieve sieve;
+
+/*
+   Initialization.
+   Cannot fail, only sets a handful of default values.
+   Memory allocation is done in the library itself
+   according to needs.
+ */
+mp_sieve_init(&sieve);
+
+/* use the sieve */
+
+/* Clean up */
+mp_sieve_clear(&sieve);
+\end{alltt}
+\subsubsection{Primality Test}
+A small program to test the input of a small number for primality.
+\begin{alltt}
+#include <stdlib.h>
+#include <stdio.h>
+#include <errno.h>
+/*inttypes.h is needed for printing and must be included before tommath.h*/
+#include <inttypes.h>
+#include "tommath.h"
+int main(int argc, char **argv)
+{
+   mp_sieve_prime number;
+   mp_sieve *base = NULL;
+   mp_sieve *segment = NULL;
+   mp_sieve_prime single_segment_a = 0;
+   int e;
+
+   /* variable holding the result of mp_is_small_prime */
+   mp_sieve_prime result;
+
+   if (argc != 2) {
+      fprintf(stderr,"Usage %s number\textbackslash{}n", argv[0]);
+      exit(EXIT_FAILURE);
+   }
+
+   number = (mp_sieve_prime) strtoul(argv[1],NULL, 10);
+   if (errno == ERANGE) {
+      fprintf(stderr,"strtoul(l) failed: input out of range\textbackslash{}n");
+      goto LTM_ERR;
+   }
+
+   mp_sieve_init(&sieve);
+
+   if ((e = mp_is_small_prime(number, &result, &sieve)) != MP_OKAY) {
+      fprintf(stderr,"mp_is_small_prime failed: \textbackslash{}"%s\textbackslash{}"\textbackslash{}n",
+              mp_error_to_string(e));
+      goto LTM_ERR;
+   }
+
+   printf("The number %" LTM_SIEVE_PR_UINT " is %s prime\textbackslash{}n",
+           number,(result)?"":"not");
+
+
+   mp_sieve_clear(&sieve);
+   exit(EXIT_SUCCESS);
+LTM_ERR:
+   mp_sieve_clear(&sieve);
+   exit(EXIT_FAILURE);
+}
+\end{alltt}
+\subsubsection{Find Adjacent Primes}
+To sum up all primes up to and including \texttt{MP\_SIEVE\_BIGGEST\_PRIME} you might do something like:
+\begin{alltt}
+#include <stdlib.h>
+#include <stdio.h>
+#include <errno.h>
+#include <tommath.h>
+int main(int argc, char **argv)
+{
+   mp_sieve_prime number;
+   mp_sieve sieve;
+   mp_sieve_prime k, ret;
+   mp_int total, t;
+   int e;
+
+   if (argc != 2) {
+      fprintf(stderr,"Usage %s integer\textbackslash{}n", argv[0]);
+      exit(EXIT_FAILURE);
+   }
+
+   if ((e = mp_init_multi(&total, &t, NULL)) != MP_OKAY) {
+      fprintf(stderr,"mp_init_multi(segment): \textbackslash{}"%s\textbackslash{}"\textbackslash{}n",
+              mp_error_to_string(e));
+      goto LTM_ERR_1;
+   }
+   errno = 0;
+#if ( (defined MP_64BIT) && (defined LTM_SIEVE_USE_LARGE_SIEVE) )
+   number = (mp_sieve_prime) strtoull(argv[1],NULL, 10);
+#else
+   number = (mp_sieve_prime) strtoul(argv[1],NULL, 10);
+#endif
+   if (errno == ERANGE) {
+      fprintf(stderr,"strtoul(l) failed: input out of range\textbackslash{}n");
+      return EXIT_FAILURE
+   }
+
+   mp_sieve_init(&sieve);
+
+   for (k = 0, ret = 0; ret < number; k = ret) {
+      if ((e = mp_next_small_prime(k + 1, &ret, &sieve)) != MP_OKAY) {
+         if (e == LTM_SIEVE_MAX_REACHED) {
+#ifdef MP_64BIT
+            if ((e = mp_add_d(&total, (mp_digit) k, &total)) != MP_OKAY) {
+               fprintf(stderr,"mp_add_d (1) failed: \textbackslash{}"%s\textbackslash{}"\textbackslash{}n",
+                       mp_error_to_string(e));
+               goto LTM_ERR;
+            }
+#else
+            if ((e = mp_set_long(&t, k)) != MP_OKAY) {
+               fprintf(stderr,"mp_set_long (1) failed: \textbackslash{}"%s\textbackslash{}"\textbackslash{}n",
+                       mp_error_to_string(e));
+               goto LTM_ERR;
+            }
+            if ((e = mp_add(&total, &t, &total)) != MP_OKAY) {
+               fprintf(stderr,"mp_add (1) failed: \textbackslash{}"%s\textbackslash{}"\textbackslash{}n",
+                       mp_error_to_string(e));
+               goto LTM_ERR;
+            }
+#endif
+            break;
+         }
+         fprintf(stderr,"mp_next_small_prime failed: \textbackslash{}"%s\textbackslash{}"\textbackslash{}n",
+                 mp_error_to_string(e));
+         goto LTM_ERR;
+      }
+      /* The check if the prime is below the given limit
+       * cannot be done in the for-loop conditions because if
+       * it could we wouldn't need the sieve in the first place.
+       */
+      if (ret <= number) {
+#ifdef MP_64BIT
+         if ((e = mp_add_d(&total, (mp_digit) k, &total)) != MP_OKAY) {
+            fprintf(stderr,"mp_add_d failed: \textbackslash{}"%s\textbackslash{}"\textbackslash{}n",
+                    mp_error_to_string(e));
+            goto LTM_ERR;
+         }
+#else
+         if ((e = mp_set_long(&t, k)) != MP_OKAY) {
+            fprintf(stderr,"mp_set_long failed: \textbackslash{}"%s\textbackslash{}"\textbackslash{}n",
+                    mp_error_to_string(e));
+            goto LTM_ERR;
+         }
+         if ((e = mp_add(&total, &t, &total)) != MP_OKAY) {
+            fprintf(stderr,"mp_add failed: \textbackslash{}"%s\textbackslash{}"\textbackslash{}n",
+            mp_error_to_string(e));
+            goto LTM_ERR;
+         }
+#endif
+      }
+   }
+   printf("total: ");
+   mp_fwrite(&total,10,stdout);
+   putchar('\textbackslash{}n');
+
+   mp_clear_multi(&total, &t, NULL);
+   mp_sieve_clear(&sieve);
+   exit(EXIT_SUCCESS);
+LTM_ERR:
+   mp_clear_multi(&total, &t, NULL);
+   mp_sieve_clear(&sieve);
+   exit(EXIT_FAILURE);
+}
+\end{alltt}
+It took about a minute on the authors machine from 2015 to get the expected $425\,649\,736\,193\,687\,430$ for the sum of all primes up to $2^{32}$, about the same runtime as Pari/GP version 2.9.4 (with a GMP-5.1.3 kernel).
+
+
 
 \subsection{From ASCII}
 \index{mp\_read\_radix}

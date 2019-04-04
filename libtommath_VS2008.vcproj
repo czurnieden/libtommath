@@ -581,7 +581,15 @@
 			>
 		</File>
 		<File
+			RelativePath="bn_mp_next_small_prime.c"
+			>
+		</File>
+		<File
 			RelativePath="bn_mp_or.c"
+			>
+		</File>
+		<File
+			RelativePath="bn_mp_prec_small_prime.c"
 			>
 		</File>
 		<File
@@ -686,6 +694,18 @@
 		</File>
 		<File
 			RelativePath="bn_mp_shrink.c"
+			>
+		</File>
+		<File
+			RelativePath="bn_mp_sieve.c"
+			>
+		</File>
+		<File
+			RelativePath="bn_mp_sieve_clear.c"
+			>
+		</File>
+		<File
+			RelativePath="bn_mp_sieve_init.c"
 			>
 		</File>
 		<File
