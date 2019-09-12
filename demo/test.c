@@ -2410,6 +2410,7 @@ LBL_ERR:
    return EXIT_FAILURE;
 }
 
+
 static int test_mp_pack_unpack(void)
 {
    mp_int a, b;
@@ -2450,6 +2451,127 @@ LBL_ERR:
    return EXIT_FAILURE;
 }
 
+
+#define LTM_BILLION 1000000000
+static uint64_t gettime(void) {
+  struct timespec ts;
+  /* TODO: Sets errno in case of error. Use? */
+  clock_gettime(CLOCK_MONOTONIC, &ts);
+  return (((uint64_t)ts.tv_sec) * LTM_BILLION + (uint64_t)ts.tv_nsec);
+}
+
+
+#include <string.h>
+static int test_mp_get_str(void)
+{
+   mp_int a;
+   mp_err err;
+   int size;
+   char *string, *str_cmp;
+   uint64_t start, stop, time;
+
+   if ((err = mp_init(&a)) != MP_OKAY) {
+      return EXIT_FAILURE;
+   }
+   size = 10000;
+   /* Yes, that is large and def. not for production */
+   if ((err = mp_rand(&a, size)) != MP_OKAY) {
+      return EXIT_FAILURE;
+   }
+   if ((err = mp_radix_size(&a, 10, &size)) != MP_OKAY) {
+      return EXIT_FAILURE;
+   }
+
+   string = malloc((size_t) size);
+   if (string == NULL) {
+      return EXIT_FAILURE;
+   }
+   str_cmp = malloc((size_t) size);
+   if (str_cmp == NULL) {
+      free(string);
+      return EXIT_FAILURE;
+   }
+   /* only one base for now */
+   start = gettime();
+   if ((err = mp_get_str(&a, string, 10)) != MP_OKAY)                    goto LBL_ERR;
+   stop = gettime();
+   time = stop - start;
+   printf("mp_get_str  (%d decimal digits) timing: %"PRIu64" sec %"PRIu64" usec\n",
+          size, time/LTM_BILLION, time%LTM_BILLION);
+   start = gettime();
+   if ((err = mp_to_radix(&a, str_cmp, SIZE_MAX, 10)) != MP_OKAY)        goto LBL_ERR;
+   stop = gettime();
+   time = stop - start;
+   printf("mp_to_radix (%d decimal digits) timing: %"PRIu64" sec %"PRIu64" usec\n",
+          size, time/LTM_BILLION, time%LTM_BILLION);
+   if (strcmp(string, str_cmp) != 0) {
+      fprintf(stderr, "mp_get_str failed\n");
+      goto LBL_ERR;
+   }
+
+   free(string);
+   free(str_cmp);
+   mp_clear(&a);
+   return EXIT_SUCCESS;
+LBL_ERR:
+   free(string);
+   free(str_cmp);
+   mp_clear(&a);
+   return EXIT_FAILURE;
+}
+static int test_mp_set_str(void)
+{
+   mp_int a, b;
+   mp_err err;
+   int size;
+   char *string;
+   uint64_t start, stop, time;
+
+   size = 10000;
+
+   if ((err = mp_init_multi(&a, &b, NULL)) != MP_OKAY) {
+      return EXIT_FAILURE;
+   }
+   if ((err = mp_rand(&a, size)) != MP_OKAY) {
+      return EXIT_FAILURE;
+   }
+   if ((err = mp_radix_size(&a, 10, &size)) != MP_OKAY) {
+      return EXIT_FAILURE;
+   }
+
+   string = malloc((size_t) size);
+   if (string == NULL) {
+      return EXIT_FAILURE;
+   }
+
+   if ((err = mp_to_radix(&a, string, SIZE_MAX, 10)) != MP_OKAY)        goto LBL_ERR;
+   start = gettime();
+   if ((err = mp_set_str(&a, string, 10)) != MP_OKAY)                   goto LBL_ERR;
+   stop = gettime();
+   time = stop - start;
+   printf("mp_set_str    (%d decimal digits) timing: %"PRIu64" sec %"PRIu64" usec\n",
+          size, time/LTM_BILLION, time%LTM_BILLION);
+   start = gettime();
+   if ((err = mp_read_radix(&b, string, 10)) != MP_OKAY)                goto LBL_ERR;
+   stop = gettime();
+   time = stop - start;
+   printf("mp_read_radix (%d decimal digits) timing: %"PRIu64" sec %"PRIu64" usec\n",
+          size, time/LTM_BILLION, time%LTM_BILLION);
+
+   if (mp_cmp(&a, &b) != MP_EQ) {
+      fprintf(stderr, "mp_set_str failed\n");
+      goto LBL_ERR;
+   }
+
+   free(string);
+   mp_clear_multi(&a, &b, NULL);
+   return EXIT_SUCCESS;
+LBL_ERR:
+   free(string);
+   mp_clear_multi(&a, &b, NULL);
+   return EXIT_FAILURE;
+}
+
 static int unit_tests(int argc, char **argv)
 {
    static const struct {
@@ -2461,6 +2583,8 @@ static int unit_tests(int argc, char **argv)
 #define T2(n, o1, o2)   { #n, MP_HAS(o1) && MP_HAS(o2) ? test_##n : NULL }
       T0(feature_detection),
       T0(trivial_stuff),
+      T1(mp_get_str, MP_GET_STR),
+      T1(mp_set_str, MP_SET_STR),
       T2(mp_get_set_i32, MP_GET_I32, MP_GET_MAG_U32),
       T2(mp_get_set_i64, MP_GET_I64, MP_GET_MAG_U64),
       T1(mp_and, MP_AND),

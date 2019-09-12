@@ -51,6 +51,7 @@ EXPORTS
     mp_get_mag_u64
     mp_get_mag_ul
     mp_get_mag_ull
+    mp_get_str
     mp_grow
     mp_incr
     mp_init
@@ -118,6 +119,7 @@ EXPORTS
     mp_set_i64
     mp_set_l
     mp_set_ll
+    mp_set_str
     mp_set_u32
     mp_set_u64
     mp_set_ul
