@@ -2545,12 +2545,14 @@ static int test_mp_set_str(void)
    }
 
    if ((err = mp_to_radix(&a, string, SIZE_MAX, 10)) != MP_OKAY)        goto LBL_ERR;
+
    start = gettime();
    if ((err = mp_set_str(&a, string, 10)) != MP_OKAY)                   goto LBL_ERR;
    stop = gettime();
    time = stop - start;
    printf("mp_set_str    (%d decimal digits) timing: %"PRIu64" sec %"PRIu64" usec\n",
           size, time/LTM_BILLION, time%LTM_BILLION);
+
    start = gettime();
    if ((err = mp_read_radix(&b, string, 10)) != MP_OKAY)                goto LBL_ERR;
    stop = gettime();
@@ -2638,6 +2640,7 @@ static int unit_tests(int argc, char **argv)
    ok = fail = nop = 0;
 
    t = (uint64_t)time(NULL);
+   //t = 0xdeadbeefull;
    printf("SEED: 0x%"PRIx64"\n\n", t);
    s_mp_rand_jenkins_init(t);
    mp_rand_source(s_mp_rand_jenkins);
