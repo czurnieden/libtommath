@@ -2453,11 +2453,12 @@ LBL_ERR:
 
 
 #define LTM_BILLION 1000000000
-static uint64_t gettime(void) {
-  struct timespec ts;
-  /* TODO: Sets errno in case of error. Use? */
-  clock_gettime(CLOCK_MONOTONIC, &ts);
-  return (((uint64_t)ts.tv_sec) * LTM_BILLION + (uint64_t)ts.tv_nsec);
+static uint64_t gettime(void)
+{
+   struct timespec ts;
+   /* TODO: Sets errno in case of error. Use? */
+   clock_gettime(CLOCK_MONOTONIC, &ts);
+   return (((uint64_t)ts.tv_sec) * LTM_BILLION + (uint64_t)ts.tv_nsec);
 }
 
 
@@ -2466,51 +2467,59 @@ static int test_mp_get_str(void)
 {
    mp_int a;
    mp_err err;
-   int size;
+   int num_size, size, bases;
    char *string, *str_cmp;
    uint64_t start, stop, time;
+   size_t written;
 
    if ((err = mp_init(&a)) != MP_OKAY) {
       return EXIT_FAILURE;
    }
-   size = 10000;
-   /* Yes, that is large and def. not for production */
-   if ((err = mp_rand(&a, size)) != MP_OKAY) {
-      return EXIT_FAILURE;
-   }
-   if ((err = mp_radix_size(&a, 10, &size)) != MP_OKAY) {
-      return EXIT_FAILURE;
-   }
 
-   string = malloc((size_t) size);
-   if (string == NULL) {
-      return EXIT_FAILURE;
-   }
-   str_cmp = malloc((size_t) size);
-   if (str_cmp == NULL) {
-      free(string);
-      return EXIT_FAILURE;
-   }
-   /* only one base for now */
-   start = gettime();
-   if ((err = mp_get_str(&a, string, 10)) != MP_OKAY)                    goto LBL_ERR;
-   stop = gettime();
-   time = stop - start;
-   printf("mp_get_str  (%d decimal digits) timing: %"PRIu64" sec %"PRIu64" usec\n",
-          size, time/LTM_BILLION, time%LTM_BILLION);
-   start = gettime();
-   if ((err = mp_to_radix(&a, str_cmp, SIZE_MAX, 10)) != MP_OKAY)        goto LBL_ERR;
-   stop = gettime();
-   time = stop - start;
-   printf("mp_to_radix (%d decimal digits) timing: %"PRIu64" sec %"PRIu64" usec\n",
-          size, time/LTM_BILLION, time%LTM_BILLION);
-   if (strcmp(string, str_cmp) != 0) {
-      fprintf(stderr, "mp_get_str failed\n");
-      goto LBL_ERR;
-   }
+   for (num_size = 10; num_size < 1000000; num_size *= 10) {
+      size = num_size;
+      /* Yes, that is large and def. not for production */
+      if ((err = mp_rand(&a, size)) != MP_OKAY) {
+         return EXIT_FAILURE;
+      }
+      printf("SIZE = %d\n", size);
+      for (bases = 2; bases < 65; bases++) {
+         if ((err = mp_radix_size(&a, bases, &size)) != MP_OKAY) {
+            return EXIT_FAILURE;
+         }
 
-   free(string);
-   free(str_cmp);
+         string = MP_MALLOC((size_t) size);
+         if (string == NULL) {
+            return EXIT_FAILURE;
+         }
+         str_cmp = MP_MALLOC((size_t) size);
+         if (str_cmp == NULL) {
+            free(string);
+            return EXIT_FAILURE;
+         }
+
+         start = gettime();
+         if ((err = mp_get_str(&a, string, size, &written, bases)) != MP_OKAY)                    goto LBL_ERR;
+         stop = gettime();
+         time = stop - start;
+         printf("\nmp_get_str size = %d, written = %zu\n", size, written);
+         printf("mp_get_str  (%d digits of base %d) timing: %"PRIu64" sec %"PRIu64" usec\n",
+                size, bases, time/LTM_BILLION, time%LTM_BILLION);
+         start = gettime();
+         if ((err = mp_to_radix(&a, str_cmp, SIZE_MAX, bases)) != MP_OKAY)        goto LBL_ERR;
+         stop = gettime();
+         time = stop - start;
+         printf("mp_to_radix (%d digits of base %d) timing: %"PRIu64" sec %"PRIu64" usec\n\n",
+                size, bases, time/LTM_BILLION, time%LTM_BILLION);
+         if (strcmp(string, str_cmp) != 0) {
+            fprintf(stderr, "mp_get_str failed\n");
+            goto LBL_ERR;
+         }
+         free(string);
+         free(str_cmp);
+         fflush(stdout);
+      }
+   }
    mp_clear(&a);
    return EXIT_SUCCESS;
 LBL_ERR:
@@ -2640,7 +2649,7 @@ static int unit_tests(int argc, char **argv)
    ok = fail = nop = 0;
 
    t = (uint64_t)time(NULL);
-   //t = 0xdeadbeefull;
+   /*t = 0xdeadbeefull;*/
    printf("SEED: 0x%"PRIx64"\n\n", t);
    s_mp_rand_jenkins_init(t);
    mp_rand_source(s_mp_rand_jenkins);

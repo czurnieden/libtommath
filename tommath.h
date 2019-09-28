@@ -590,7 +590,7 @@ mp_err mp_read_radix(mp_int *a, const char *str, int radix) MP_WUR;
 mp_err mp_to_radix(const mp_int *a, char *str, size_t maxlen, size_t *written, int radix) MP_WUR;
 mp_err mp_radix_size(const mp_int *a, int radix, int *size) MP_WUR;
 
-mp_err mp_get_str(const mp_int *a, char *string, int base);
+mp_err mp_get_str(const mp_int *a, char *string, size_t maxlen, size_t *written, int base);
 mp_err mp_set_str(mp_int *a, const char *string, int base);
 
 #ifndef MP_NO_FILE

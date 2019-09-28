@@ -8,7 +8,7 @@
    Stand-alone, can replace mp_read_radix.
 */
 
-/* TODO: change to "size_t" when the type of "mpint.size" changes to "size_t" */
+/* TODO: change to "size_t" when the type of "mp_int.size" changes to "size_t" */
 static int s_mp_strlen(const char *s)
 {
    const char *p;
