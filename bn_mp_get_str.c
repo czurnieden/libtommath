@@ -71,6 +71,9 @@ char *s_mp_strncat(char *s1, const char *s2, size_t n)
 /* There is a possibility of a bit of tune-ability here, I may note. */
 #define SCHOENHAGE_CONVERSION_CUT  600
 
+/* Tune-able! */
+#define BARRETT_CUT 1000000
+
 /* based on SCHOENHAGE_CONVERSION_CUT=600 */
 /*
    Computed with (Pari/GP)
@@ -80,8 +83,8 @@ char *s_mp_strncat(char *s1, const char *s2, size_t n)
     Although the table is hardcoded for 600 bit a change to SCHOENHAGE_CONVERSION_CUT
     is directly proportional to the sizes in the table, e.g.: a raise of
     the SCHOENHAGE_CONVERSION_CUT value by 10% gives rise to the values in the table by
-    10%, too. To add some angst-allowance for the unavoidable rounding errors is
-    recommended nevertheless.
+    10%, too.
+    Adding some angst-allowance for the unavoidable rounding errors is highly recommended.
 */
 
 static const size_t buf_size[] = {
@@ -106,10 +109,95 @@ static const int log_table[65] = {
    6
 };
 
+/* Cache */
+typedef struct s_mp_schoenhage {
+   mp_int entry;
+   mp_int reciprocal;
+   int shift_value;
+   mp_bool is_reciprocal;
+} s_mp_schoenhage;
+
+static mp_err s_mp_cache_entry_init(s_mp_schoenhage *entry){
+    mp_err err = MP_OKAY;
+
+    mp_init(&(entry->entry));
+    mp_init(&(entry->reciprocal));
+    entry->shift_value = 0;
+    entry->is_reciprocal = MP_NO;
+    return err;
+}
+
+static void s_mp_cache_entry_clear(s_mp_schoenhage *entry){
+    mp_clear(&(entry->entry));
+}
+
+/* Barrett division as described in Brent/Zimmernman "Modern Computer Arithmetic" p. 64f */
+/* Computes reciprocal c = floor((2^(k))/a) for Barrett division */
+static mp_err s_mp_barrett_reciprocal(const mp_int *a, int beta2, mp_int *c) {
+   mp_err err = MP_OKAY;
+   mp_int t;
+
+   mp_init(&t);
+   /* I = floor(beta^2/B) */
+   /* Here beta stands for 2^n and beta^2 = 2^(2n) which the caller must take care of! */
+   mp_2expt(&t, beta2);
+   /* 
+      This division is quite expensive, so Barrett division is useful only for repeated
+      division with the same divisor, which is clearly the case here.
+   */
+   mp_div(&t, a, c, NULL);
+   mp_clear(&t);
+   return err;
+}
+
+/* Barrett division with correction: compute A*I/beta and correct the result */
+/* 0 >= A < beta^2  and beta/2 < B < beta */
+static mp_err s_mp_barrett_division(const mp_int *A, const mp_int *I, const mp_int *B,
+                                    int beta, mp_int *q, mp_int *r) {
+   mp_err err = MP_OKAY;
+   /* TODO: use q,r directly */
+   mp_int Q, R, A1;
+
+   mp_init_multi(&Q, &R, &A1, NULL);
+
+   /* Q = floor( (A_1 * I) / beta) where A = A_1 * beta + A_0 with 0 <= A_0 < beta */
+   /* 
+       Reduces a 2n*n magnitude multiplication to a n*n magnitude one for the price
+       of loosing a small bit of accuracy. It is then in the ideal ratio for most of the
+       fast multiplication algorithms, too.
+       mp_div_2d(A, beta, &A1, NULL);
+    */
+   mp_mul(A, I, &Q);
+   /* The beta here is the same beta as the beta in beta^2 in s_mp_barrett_reciprocal */
+   mp_div_2d(&Q, 2 * beta, &Q, NULL);
+   /* R = A - Q*B */
+   mp_mul(&Q, B, &R);
+   mp_sub(A, &R, &R);
+   /*
+      If done correctly, this loop does not run more than three times.
+      The input is not always *exactly* in the necessary ranges but the number
+      of iterations should be in the single digits.
+    */
+   /* while R >= B */
+   while ( mp_cmp(&R, B) != MP_LT ) {
+       /* Q = Q + 1 */
+       mp_incr(&Q);
+       /* R = R - B */
+       mp_sub(&R, B, &R);
+   }
+   mp_exch(&Q, q);
+   mp_exch(&R, r);
+   mp_clear_multi(&Q, &R, &A1, NULL);
+   return err;
+}
+
+
+
 static mp_err s_mp_get_str_intern(mp_int *a, char *string, int digits, int base,
-                                  size_t size, mp_int *s_schoenhagecache)
+                                  size_t size, s_mp_schoenhage *s_schoenhagecache,
+                                  mp_bool use_barrett)
 {
-   int b, n, i;
+   int b, beta, n, i;
    int ed;
    mp_err err;
    mp_int q, r;
@@ -153,15 +241,37 @@ static mp_err s_mp_get_str_intern(mp_int *a, char *string, int digits, int base,
    }
    /*
        Divide a chunk of the input by the correct basepower from the cache.
-       This is the point where a fast division algorithm would come handy.
+       This is the point where a fast division algorithm does come handy.
     */
-   if ((err = mp_div(a, &(s_schoenhagecache[n]), &q, &r)) != MP_OKAY)                goto LBL_ERR;
+   if ( (use_barrett == MP_YES)) {
+      if( s_schoenhagecache[n].is_reciprocal == MP_NO) {
+         b = (b * 3 ) / 2;
+         beta = (b)/ 2;
+         /* We need b = 2*beta an 2^b > a*/
+         if ((2*beta) < b) {
+            beta++;
+         }
+         s_mp_barrett_reciprocal(&(s_schoenhagecache[n].entry),
+                                 2*beta,
+                                 &(s_schoenhagecache[n].reciprocal));
+         s_schoenhagecache[n].shift_value = beta;
+         s_schoenhagecache[n].is_reciprocal = MP_YES;
+      }
+      s_mp_barrett_division(a, &(s_schoenhagecache[n].reciprocal),
+                               &(s_schoenhagecache[n].entry),
+                               s_schoenhagecache[n].shift_value, &q, &r);
+   }
+   else {
+      if ((err = mp_div(a, &(s_schoenhagecache[n].entry), &q, &r)) != MP_OKAY)       goto LBL_ERR;
+   }
    ed = 1 << n;
    /* Rinse and repeat with quotient and remainder */
    if ((err = s_mp_get_str_intern(&q, string, digits - ed,
-                                  base, size, s_schoenhagecache)) != MP_OKAY)    goto LBL_ERR;
+                                  base, size, s_schoenhagecache,
+                                  use_barrett)) != MP_OKAY)                 goto LBL_ERR;
    if ((err = s_mp_get_str_intern(&r, string, ed,
-                                  base, size, s_schoenhagecache)) != MP_OKAY)             goto LBL_ERR;
+                                  base, size, s_schoenhagecache,
+                                  use_barrett)) != MP_OKAY)                 goto LBL_ERR;
 
 LBL_ERR:
    mp_clear_multi(&q, &r, NULL);
@@ -174,12 +284,13 @@ mp_err mp_get_str(const mp_int *a, char *string, size_t maxlen, size_t *written,
 {
    mp_sign sign;
    mp_err err = MP_OKAY;
+   mp_bool use_barrett = MP_NO;
    mp_int a_bis;
 
    int s_schoenhagecache_len = 0, i, n, b;
    size_t buffer_size, wrote = 0u;
 
-   mp_int s_schoenhagecache[(sizeof(int) * CHAR_BIT) * sizeof(mp_int)];
+   s_mp_schoenhage s_schoenhagecache[(sizeof(int) * CHAR_BIT) * sizeof(s_mp_schoenhage)];
 
    /* check range of the maxlen, radix */
    if ((maxlen < 2u) || (base < 2) || (base > 64)) {
@@ -246,24 +357,28 @@ mp_err mp_get_str(const mp_int *a, char *string, size_t maxlen, size_t *written,
        s_schoenhagecache[2] = s_schoenhagecache[1]^2 = 10000
        ...
 
-       TODO: we don't need the entries of size < (SCHOENHAGE_CONVERSION_CUT)
-             (in their respective bases, of course)
+       TODO: we don't need the smaller entries (in their respective bases, of course),
+             they are not used.
 
-       TODO: The entries get used multiple times, so it is a good idea to replace the entries
-             with their approximate reciprocals and use Barrett division.
-
+       A Q&D benchmark gave some values around half a million to a million bits as a cut-off
+       to use Barrett-divisions but YMMV, as always, so it needs a tuning mechanism.
     */
-   if ((err = mp_init_set(&(s_schoenhagecache[0]), (mp_digit)(base))) != MP_OKAY) goto LBL_ERR;
+   use_barrett = (b >= BARRETT_CUT)? MP_YES: MP_NO;
+
+   s_mp_cache_entry_init(&(s_schoenhagecache[0]));
+   mp_set(&(s_schoenhagecache[0].entry), (mp_digit)(base));
+   s_schoenhagecache[0].is_reciprocal = MP_NO;
+   
    for (i = 1; i <= n; i++) {
-      if ((err = mp_init(&(s_schoenhagecache[i]))) != MP_OKAY) {
+      if ((err = s_mp_cache_entry_init(&(s_schoenhagecache[i]))) != MP_OKAY) {
          return err;
       }
-      if ((err = mp_sqr(&(s_schoenhagecache[i - 1]),  &(s_schoenhagecache[i]))) != MP_OKAY) {
+      if ((err = mp_sqr(&(s_schoenhagecache[i - 1].entry),  &(s_schoenhagecache[i].entry))) != MP_OKAY) {
          return err;
       }
+      s_schoenhagecache[n].is_reciprocal = MP_NO;
    }
    s_schoenhagecache_len = i;
-
 
    /* we need a defined starting point */
    string = (char *)s_mp_memset(string, '\0', maxlen);
@@ -277,14 +392,13 @@ mp_err mp_get_str(const mp_int *a, char *string, size_t maxlen, size_t *written,
    a_bis.sign = MP_ZPOS;
 
    if ((err = s_mp_get_str_intern(&a_bis, string, 0, base, buffer_size,
-                                  s_schoenhagecache)) != MP_OKAY)   goto LBL_ERR;
-
+                                  s_schoenhagecache, use_barrett)) != MP_OKAY)   goto LBL_ERR;
    if (written != NULL) {
       *written = (size_t)s_mp_strlen(string) + 1;
    }
 LBL_ERR:
    for (i = 0; i < s_schoenhagecache_len; i++) {
-      mp_clear(&(s_schoenhagecache[i]));
+      s_mp_cache_entry_clear(&(s_schoenhagecache[i]));
    }
    return err;
 }

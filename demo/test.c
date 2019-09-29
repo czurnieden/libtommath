@@ -2476,17 +2476,16 @@ static int test_mp_get_str(void)
       return EXIT_FAILURE;
    }
 
-   for (num_size = 10; num_size < 1000000; num_size *= 10) {
+   for (num_size = 10000; num_size < 1000000; num_size += 10000) {
       size = num_size;
       /* Yes, that is large and def. not for production */
       if ((err = mp_rand(&a, size)) != MP_OKAY) {
          return EXIT_FAILURE;
       }
       printf("SIZE = %d\n", size);
-      for (bases = 2; bases < 65; bases++) {
-         if ((err = mp_radix_size(&a, bases, &size)) != MP_OKAY) {
-            return EXIT_FAILURE;
-         }
+      for (bases = 10; bases < 11; bases++) {
+        if ((err = mp_radix_size(&a, bases, &size)) != MP_OKAY) {            return EXIT_FAILURE;         }
+        // size = 3612478u;
 
          string = MP_MALLOC((size_t) size);
          if (string == NULL) {
@@ -2506,7 +2505,7 @@ static int test_mp_get_str(void)
          printf("mp_get_str  (%d digits of base %d) timing: %"PRIu64" sec %"PRIu64" usec\n",
                 size, bases, time/LTM_BILLION, time%LTM_BILLION);
          start = gettime();
-         if ((err = mp_to_radix(&a, str_cmp, SIZE_MAX, bases)) != MP_OKAY)        goto LBL_ERR;
+         //if ((err = mp_to_radix(&a, str_cmp, SIZE_MAX, bases)) != MP_OKAY)        goto LBL_ERR;
          stop = gettime();
          time = stop - start;
          printf("mp_to_radix (%d digits of base %d) timing: %"PRIu64" sec %"PRIu64" usec\n\n",
