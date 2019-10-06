@@ -2461,7 +2461,7 @@ static uint64_t gettime(void)
    return (((uint64_t)ts.tv_sec) * LTM_BILLION + (uint64_t)ts.tv_nsec);
 }
 
-
+#include <math.h>
 #include <string.h>
 static int test_mp_get_str(void)
 {
@@ -2476,17 +2476,20 @@ static int test_mp_get_str(void)
       return EXIT_FAILURE;
    }
 
-   for (num_size = 10000; num_size < 1000000; num_size += 10000) {
+   for (num_size = 10; num_size < 10000; num_size *= 10) {
       size = num_size;
       /* Yes, that is large and def. not for production */
       if ((err = mp_rand(&a, size)) != MP_OKAY) {
          return EXIT_FAILURE;
       }
       printf("SIZE = %d\n", size);
-      for (bases = 10; bases < 11; bases++) {
+      for (bases = 2; bases < 64; bases++) {
+         /*
          if ((err = mp_radix_size(&a, bases, &size)) != MP_OKAY) {
             return EXIT_FAILURE;
          }
+         */
+         size = (size_t)( ((mp_count_bits(&a) + 1)/( log((double)bases)/log(2.0) ) )  + 100 );
          string = MP_MALLOC((size_t) size);
          if (string == NULL) {
             return EXIT_FAILURE;
@@ -2498,25 +2501,24 @@ static int test_mp_get_str(void)
          }
 
          start = gettime();
-         if ((err = mp_get_str(&a, string, size, &written, bases)) != MP_OKAY)                    goto LBL_ERR;
+         if ((err = mp_get_str(&a, string, size, &written, bases)) != MP_OKAY)    goto LBL_ERR;
          stop = gettime();
          time = stop - start;
          printf("\nmp_get_str size = %d, written = %zu\n", size, written);
          printf("mp_get_str  (%d digits of base %d) timing: %"PRIu64" sec %"PRIu64" usec\n",
-                size, bases, time/LTM_BILLION, time%LTM_BILLION);
+                size, bases, time/LTM_BILLION, time%LTM_BILLION);fflush(stdout);
          start = gettime();
          if ((err = mp_to_radix(&a, str_cmp, SIZE_MAX, bases)) != MP_OKAY)        goto LBL_ERR;
          stop = gettime();
          time = stop - start;
          printf("mp_to_radix (%d digits of base %d) timing: %"PRIu64" sec %"PRIu64" usec\n\n",
-                size, bases, time/LTM_BILLION, time%LTM_BILLION);
+                size, bases, time/LTM_BILLION, time%LTM_BILLION);fflush(stdout);
          if (strcmp(string, str_cmp) != 0) {
             fprintf(stderr, "mp_get_str failed\n");
             goto LBL_ERR;
          }
          free(string);
          free(str_cmp);
-         fflush(stdout);
       }
    }
    mp_clear(&a);
@@ -2594,7 +2596,7 @@ static int unit_tests(int argc, char **argv)
       T0(feature_detection),
       T0(trivial_stuff),
       T1(mp_get_str, MP_GET_STR),
-      T1(mp_set_str, MP_SET_STR),
+/*      T1(mp_set_str, MP_SET_STR),
       T2(mp_get_set_i32, MP_GET_I32, MP_GET_MAG_U32),
       T2(mp_get_set_i64, MP_GET_I64, MP_GET_MAG_U64),
       T1(mp_and, MP_AND),
@@ -2637,7 +2639,8 @@ static int unit_tests(int argc, char **argv)
       T1(s_mp_karatsuba_mul, S_MP_KARATSUBA_MUL),
       T1(s_mp_karatsuba_sqr, S_MP_KARATSUBA_SQR),
       T1(s_mp_toom_mul, S_MP_TOOM_MUL),
-      T1(s_mp_toom_sqr, S_MP_TOOM_SQR)
+      T1(s_mp_toom_sqr, S_MP_TOOM_SQR),*/
+
 #undef T2
 #undef T1
    };
