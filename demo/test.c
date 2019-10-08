@@ -2489,7 +2489,7 @@ static int test_mp_get_str(void)
             return EXIT_FAILURE;
          }
          */
-         size = (size_t)( ((mp_count_bits(&a) + 1)/( log((double)bases)/log(2.0) ) )  + 100 );
+         size = (size_t)(((mp_count_bits(&a) + 1)/(log((double)bases)/log(2.0)))  + 100);
          string = MP_MALLOC((size_t) size);
          if (string == NULL) {
             return EXIT_FAILURE;
@@ -2506,13 +2506,15 @@ static int test_mp_get_str(void)
          time = stop - start;
          printf("\nmp_get_str size = %d, written = %zu\n", size, written);
          printf("mp_get_str  (%d digits of base %d) timing: %"PRIu64" sec %"PRIu64" usec\n",
-                size, bases, time/LTM_BILLION, time%LTM_BILLION);fflush(stdout);
+                size, bases, time/LTM_BILLION, time%LTM_BILLION);
+         fflush(stdout);
          start = gettime();
          if ((err = mp_to_radix(&a, str_cmp, SIZE_MAX, bases)) != MP_OKAY)        goto LBL_ERR;
          stop = gettime();
          time = stop - start;
          printf("mp_to_radix (%d digits of base %d) timing: %"PRIu64" sec %"PRIu64" usec\n\n",
-                size, bases, time/LTM_BILLION, time%LTM_BILLION);fflush(stdout);
+                size, bases, time/LTM_BILLION, time%LTM_BILLION);
+         fflush(stdout);
          if (strcmp(string, str_cmp) != 0) {
             fprintf(stderr, "mp_get_str failed\n");
             goto LBL_ERR;
@@ -2640,7 +2642,6 @@ static int unit_tests(int argc, char **argv)
       T1(s_mp_karatsuba_sqr, S_MP_KARATSUBA_SQR),
       T1(s_mp_toom_mul, S_MP_TOOM_MUL),
       T1(s_mp_toom_sqr, S_MP_TOOM_SQR),*/
-
 #undef T2
 #undef T1
    };

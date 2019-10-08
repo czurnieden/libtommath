@@ -149,7 +149,7 @@ static mp_err s_mp_barrett_reciprocal(const mp_int *a, int beta2, mp_int *c, int
    /* I = floor(beta^2/B) */
 
    mp_2expt(&t, beta2);
-   /* 
+   /*
      This is a very naive approach but is already a magnitude faster than mp_to_radix.
      You'll get another speed-up with fast division, obviously, but only if the denominator
      is larger than the Karatsuba cut-off.
@@ -163,15 +163,15 @@ static mp_err s_mp_barrett_reciprocal(const mp_int *a, int beta2, mp_int *c, int
            mp_err err = MP_OKAY;
            mp_int xn, twokp1, t1, t2;
            int start_value, i = 0;
-        
-           
+
+
            mp_init_multi(&xn, &t1, &t2, &twokp1, NULL);
-        
+
            start_value = exp - mp_count_bits(a);
-           
+
            mp_2expt(&xn, start_value);
            mp_2expt(&twokp1, exp + 1);
-        
+
            for (;;) {
               mp_copy(&xn, &t1);
               mp_mul(&xn, a, &t2);
@@ -186,7 +186,7 @@ static mp_err s_mp_barrett_reciprocal(const mp_int *a, int beta2, mp_int *c, int
            }
           mp_exch(&xn, inverse);
           *shift_value = exp;
-        
+
           mp_clear_multi(&xn, &t1, &t2, &twokp1,  NULL);
           return err;
         }
@@ -197,7 +197,7 @@ static mp_err s_mp_barrett_reciprocal(const mp_int *a, int beta2, mp_int *c, int
      has the habit to get stuck between floor(result) and ceil(result) and loops).
    */
    mp_div(&t, a, &c1, NULL);
- 
+
    *shift_value = beta2;
 
    mp_exch(&c1, c);
