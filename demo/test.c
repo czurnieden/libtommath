@@ -2509,7 +2509,7 @@ static int test_mp_get_str(void)
                 size, bases, time/LTM_BILLION, time%LTM_BILLION);
          fflush(stdout);
          start = gettime();
-         if ((err = mp_to_radix(&a, str_cmp, SIZE_MAX, bases)) != MP_OKAY)        goto LBL_ERR;
+         if ((err = mp_to_radix(&a, str_cmp, SIZE_MAX, &written, bases)) != MP_OKAY)        goto LBL_ERR;
          stop = gettime();
          time = stop - start;
          printf("mp_to_radix (%d digits of base %d) timing: %"PRIu64" sec %"PRIu64" usec\n\n",
@@ -2538,6 +2538,7 @@ static int test_mp_set_str(void)
    int size;
    char *string;
    uint64_t start, stop, time;
+   size_t written;
 
    size = 10000;
 
@@ -2556,7 +2557,7 @@ static int test_mp_set_str(void)
       return EXIT_FAILURE;
    }
 
-   if ((err = mp_to_radix(&a, string, SIZE_MAX, 10)) != MP_OKAY)        goto LBL_ERR;
+   if ((err = mp_to_radix(&a, string, SIZE_MAX, &written, 10)) != MP_OKAY)        goto LBL_ERR;
 
    start = gettime();
    if ((err = mp_set_str(&a, string, 10)) != MP_OKAY)                   goto LBL_ERR;
@@ -2598,7 +2599,7 @@ static int unit_tests(int argc, char **argv)
       T0(feature_detection),
       T0(trivial_stuff),
       T1(mp_get_str, MP_GET_STR),
-/*      T1(mp_set_str, MP_SET_STR),
+      T1(mp_set_str, MP_SET_STR),
       T2(mp_get_set_i32, MP_GET_I32, MP_GET_MAG_U32),
       T2(mp_get_set_i64, MP_GET_I64, MP_GET_MAG_U64),
       T1(mp_and, MP_AND),
@@ -2607,12 +2608,11 @@ static int unit_tests(int argc, char **argv)
       T1(mp_decr, MP_DECR),
       T1(mp_div_3, MP_DIV_3),
       T1(mp_dr_reduce, MP_DR_REDUCE),
-      T2(mp_pack_unpack,MP_PACK, MP_UNPACK),
       T2(mp_fread_fwrite, MP_FREAD, MP_FWRITE),
       T1(mp_get_u32, MP_GET_I32),
       T1(mp_get_u64, MP_GET_I64),
       T1(mp_get_ul, MP_GET_L),
-      T1(mp_log_u32, MP_LOG_U32),
+      T1(mp_ilogb, MP_ILOGB),
       T1(mp_incr, MP_INCR),
       T1(mp_invmod, MP_INVMOD),
       T1(mp_is_square, MP_IS_SQUARE),
@@ -2629,7 +2629,6 @@ static int unit_tests(int argc, char **argv)
       T1(mp_read_write_sbin, MP_TO_SBIN),
       T1(mp_reduce_2k, MP_REDUCE_2K),
       T1(mp_reduce_2k_l, MP_REDUCE_2K_L),
-      T1(mp_radix_size, MP_RADIX_SIZE),
 #if defined(__STDC_IEC_559__) || defined(__GCC_IEC_559)
       T1(mp_set_double, MP_SET_DOUBLE),
 #endif
@@ -2641,7 +2640,7 @@ static int unit_tests(int argc, char **argv)
       T1(s_mp_karatsuba_mul, S_MP_KARATSUBA_MUL),
       T1(s_mp_karatsuba_sqr, S_MP_KARATSUBA_SQR),
       T1(s_mp_toom_mul, S_MP_TOOM_MUL),
-      T1(s_mp_toom_sqr, S_MP_TOOM_SQR),*/
+      T1(s_mp_toom_sqr, S_MP_TOOM_SQR)
 #undef T2
 #undef T1
    };

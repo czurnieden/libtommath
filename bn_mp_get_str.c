@@ -250,10 +250,11 @@ static mp_err s_mp_get_str_intern(mp_int *a, char *string, int digits, int base,
    mp_err err;
    mp_int q, r;
    char *_s, buf[size + 1];
+   size_t written;
 
    /* Use naive method for the leaves */
    if ((a->used * MP_DIGIT_BIT) < SCHOENHAGE_CONVERSION_CUT) {
-      if ((err = mp_to_radix(a, buf, SIZE_MAX, base)) != MP_OKAY) {
+      if ((err = mp_to_radix(a, buf, SIZE_MAX, &written, base)) != MP_OKAY) {
          return err;
       }
       /*
@@ -335,7 +336,7 @@ mp_err mp_get_str(const mp_int *a, char *string, size_t maxlen, size_t *written,
    mp_int a_bis;
 
    int s_schoenhagecache_len = 0, i, n, b;
-   size_t buffer_size, wrote = 0u;
+   size_t buffer_size, wrote = 0u, rwritten;
 
    s_mp_schoenhage s_schoenhagecache[(sizeof(int) * CHAR_BIT) * sizeof(s_mp_schoenhage)];
 
@@ -361,7 +362,7 @@ mp_err mp_get_str(const mp_int *a, char *string, size_t maxlen, size_t *written,
    b = mp_count_bits(a);
    if (b <= (SCHOENHAGE_CONVERSION_CUT)) {
       /* TODO: adapt to new mp_to_radix */
-      if ((err = mp_to_radix(a, string, SIZE_MAX, base)) != MP_OKAY) {
+      if ((err = mp_to_radix(a, string, SIZE_MAX, &rwritten, base)) != MP_OKAY) {
          return err;
       }
       if (written != NULL) {
