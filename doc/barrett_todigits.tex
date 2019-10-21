@@ -302,20 +302,20 @@ This artikel describes the algorithm behind the function \smalltt{Barret\_todeci
     \Ensure{$b$ filled with the value of $a$ converted to a decimal number}
     \Function{Barret\_todecimal}{$a$}
       \CommentInlineMulti{Setup and zero out three buffers that are able to hold 20 bigints each}
-      \Let{$n^l$}{$\{20,0\}$}
-      \Let{$s^l$}{$\{20,0\}$}
-      \Let{$m^l$}{$\{20,0\}$}
+      \Let{$n^\ell$}{$\{20,0\}$}
+      \Let{$s^\ell$}{$\{20,0\}$}
+      \Let{$m^\ell$}{$\{20,0\}$}
 
       \CommentInlineMulti{Set initial values: radix, shift and reciprocal}
       \Let{$n$}{$1000$}
-      \Let{$n^l_0$}{$n$}
+      \Let{$n^\ell_0$}{$n$}
       \Let{$s$}{$20$}
-      \Let{$s^l_0$}{$s$}
+      \Let{$s^\ell_0$}{$s$}
 
-      \Let{$M$}{$8389$}\Comment{$\ceil{ \left(8 * 2^20\right)/1000}$}
-      \Let{$m^l_0$}{$1049$}\Comment{$\ceil{M/8}$}
+      \Let{$M$}{$8389$}\Comment{$\ceil{ \left(8 \cdot 2^{20}\right)/1000}$}
+      \Let{$m^\ell_0$}{$1049$}\Comment{$\ceil{M/8}$}
 
-      \Let{$\rho$}{$1$}\Comment{Index into the buffers $n^l, s^l, m^l$}
+      \Let{$\rho$}{$1$}\Comment{Index into the buffers $n^\ell, s^\ell, m^\ell$}
       \While{$p \le h$}
         \Let{$n$}{$n^2$}
         \If{$n > a$}
@@ -325,7 +325,7 @@ This artikel describes the algorithm behind the function \smalltt{Barret\_todeci
         \Let{$M_2$}{$2M^2$}
         \Let{$M_4$}{$\floor{\frac{nM^4}{2^{s + 6}}}$}
         \Let{$M$}{$\floor{\frac{\left(M_2 - M_4\right)}{2^6}} + 1$}
-        \Let{$m^l_\rho$}{$M$}
+        \Let{$m^\ell_\rho$}{$M$}
         \Let{$\rho$}{$\rho + 1$}
         \Let{$M$}{$8M$}
       \EndWhile
@@ -333,7 +333,7 @@ This artikel describes the algorithm behind the function \smalltt{Barret\_todeci
          \RETURN error
       \EndIf
       \CommentInlineMulti{Use the pre-computed reciprocals recursively}
-      \State \Call{Barrett\_todecimalRecursion}{$a, n^l, s^l, m^l, \rho - 1, 1, b$}
+      \State \Call{Barrett\_todecimalRecursion}{$a, n^\ell, s^\ell, m^\ell, \rho - 1, 1, b$}
     \EndFunction
   \end{algorithmic}
 \end{center}
@@ -415,25 +415,25 @@ with $b_a = \floor{\log_2 a} + 1$ the number of bits in $a$, assuming $1\,000$ a
 \begin{center}
   \captionof{algorithm}{Barret\_todecimalRecursion\label{alg:barrettodecimalrecursion}}
   \begin{algorithmic}[1]
-    \Require{$a > 0$, big-integer, $n^l, s^l, m^l, \rho, L, b$, from Barret\_todecimal}
+    \Require{$a > 0$, big-integer, $n^\ell, s^\ell, m^\ell, \rho, L, b$, from Barret\_todecimal}
     \Ensure{$b$ filled with the value of $a$ converted to a decimal number}
-    \Function{Barret\_todecimalRecusive}{$a,n^l, s^l, m^l, \rho, L, b$}
+    \Function{Barret\_todecimalRecusive}{$a,n^\ell, s^\ell, m^\ell, \rho, L, b$}
     \If{$\rho < 0$}
       \Let{$b$}{$b | a$}\Comment{Convert $a$ to a decimal string and add to $b$. See text for details}
       \RETURN
     \Else
-      \Let{$q$}{$\floor{\left(a\cdot m^l_\rho\right) / 2^{s^l_\rho}}$}\Comment{Quotient}
-      \Let{$r$}{$ a - n^l_\rho \cdot q$}
+      \Let{$q$}{$\floor{\left(a\cdot m^\ell_\rho\right) / 2^{s^\ell_\rho}}$}\Comment{Quotient}
+      \Let{$r$}{$ a - n^\ell_\rho \cdot q$}
       \If{$r < 0$}
         \Let{$q$}{$q - 1$}
-        \Let{$r$}{$r + n^l_\rho$}
+        \Let{$r$}{$r + n^\ell_\rho$}
       \EndIf
       \Let{$\rho$}{$\rho + 1$}
       \If{$\left(L = 1\right) \AND \left(q = 0\right) $}
-        \State \Call{Barret\_todecimalRecusive}{$r,n^l, s^l, m^l, \rho, 1, b$}
+        \State \Call{Barret\_todecimalRecusive}{$r,n^\ell, s^\ell, m^\ell, \rho, 1, b$}
       \Else
-        \State \Call{Barret\_todecimalRecusive}{$q,n^l, s^l, m^l, \rho, L, b$}
-        \State \Call{Barret\_todecimalRecusive}{$r,n^l, s^l, m^l, \rho, 0, b$}
+        \State \Call{Barret\_todecimalRecusive}{$q,n^\ell, s^\ell, m^\ell, \rho, L, b$}
+        \State \Call{Barret\_todecimalRecusive}{$r,n^\ell, s^\ell, m^\ell, \rho, 0, b$}
       \EndIf
     \EndIf
     \EndFunction
