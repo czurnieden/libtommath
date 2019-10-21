@@ -404,6 +404,12 @@ The next entries in the list are be
 \captionof{table}{Results of rounds 21-34)}\label{tab:rounds21to34}
 \end{center}
 
+To save some stack memory compute the upper limit of the number $n$ of reciprocals needed calculate
+\begin{equation}
+n = 1 + \floor{\log_2 \left( \floor{\frac{b_a}{2\floor{\log_2 10}}} + 2 \right)  }
+\end{equation}
+with $b_a = \floor{\log_2 a} + 1$ the number of bits in $a$, assuming $1\,000$ as the start-value and allocate the memory for the lists on the heap instead.
+
 \subsection{Recursion}
 
 \begin{center}
