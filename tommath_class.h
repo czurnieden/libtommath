@@ -11,8 +11,6 @@
 #endif
 #define LTM1
 #if defined(LTM_ALL)
-#   define BN_MP_GET_STR_C
-#   define BN_MP_SET_STR_C
 #   define MP_2EXPT_C
 #   define MP_ABS_C
 #   define MP_ADD_C
@@ -58,6 +56,7 @@
 #   define MP_GET_MAG_U64_C
 #   define MP_GET_MAG_UL_C
 #   define MP_GET_MAG_ULL_C
+#   define MP_GET_STR_C
 #   define MP_GROW_C
 #   define MP_INCR_C
 #   define MP_INIT_C
@@ -126,6 +125,7 @@
 #   define MP_SET_I64_C
 #   define MP_SET_L_C
 #   define MP_SET_LL_C
+#   define MP_SET_STR_C
 #   define MP_SET_U32_C
 #   define MP_SET_U64_C
 #   define MP_SET_UL_C
@@ -173,31 +173,6 @@
 #   define S_MP_TOOM_SQR_C
 #endif
 #endif
-#if defined(BN_MP_GET_STR_C)
-#   define MP_CLEAR_C
-#   define MP_CLEAR_MULTI_C
-#   define MP_COUNT_BITS_C
-#   define MP_DIV_C
-#   define MP_INIT_C
-#   define MP_INIT_MULTI_C
-#   define MP_INIT_SET_C
-#   define MP_SQR_C
-#   define MP_TO_RADIX_C
-#   define S_MP_GET_STR_INTERN_C
-#endif
-
-#if defined(BN_MP_SET_STR_C)
-#   define MP_ADD_C
-#   define MP_CLEAR_C
-#   define MP_CLEAR_MULTI_C
-#   define MP_EXPT_U32_C
-#   define MP_INIT_MULTI_C
-#   define MP_INIT_SET_C
-#   define MP_MUL_C
-#   define MP_READ_RADIX_C
-#   define S_MP_SET_STR_INTERN_C
-#endif
-
 #if defined(MP_2EXPT_C)
 #   define MP_GROW_C
 #   define MP_ZERO_C
@@ -441,6 +416,34 @@
 #endif
 
 #if defined(MP_GET_MAG_ULL_C)
+#endif
+
+#if defined(MP_GET_STR_C)
+#   define MP_2EXPT_C
+#   define MP_CLEAR_C
+#   define MP_CLEAR_MULTI_C
+#   define MP_CMP_C
+#   define MP_COUNT_BITS_C
+#   define MP_DIV_2D_C
+#   define MP_DIV_C
+#   define MP_EXCH_C
+#   define MP_INCR_C
+#   define MP_INIT_C
+#   define MP_INIT_MULTI_C
+#   define MP_MUL_C
+#   define MP_SET_C
+#   define MP_SQR_C
+#   define MP_SUB_C
+#   define MP_TO_RADIX_C
+#   define S_MP_BARRETT_DIVISION_C
+#   define S_MP_BARRETT_RECIPROCAL_C
+#   define S_MP_CACHE_ENTRY_CLEAR_C
+#   define S_MP_CACHE_ENTRY_INIT_C
+#   define S_MP_GET_STR_INTERN_C
+#   define S_MP_MEMSET_C
+#   define S_MP_SCHOENHAGE_C
+#   define S_MP_STRLEN_C
+#   define S_MP_STRNCAT_C
 #endif
 
 #if defined(MP_GROW_C)
@@ -910,6 +913,22 @@
 
 #if defined(MP_SET_LL_C)
 #   define MP_SET_ULL_C
+#endif
+
+#if defined(MP_SET_STR_C)
+#   define MP_ADD_C
+#   define MP_ADD_D_C
+#   define MP_CLEAR_C
+#   define MP_CLEAR_MULTI_C
+#   define MP_EXPT_U32_C
+#   define MP_INIT_MULTI_C
+#   define MP_INIT_SET_C
+#   define MP_MUL_C
+#   define MP_MUL_D_C
+#   define MP_ZERO_C
+#   define S_MP_SET_STR_CHUNK_C
+#   define S_MP_SET_STR_INTERN_C
+#   define S_MP_STRLEN_C
 #endif
 
 #if defined(MP_SET_U32_C)

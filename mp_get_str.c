@@ -1,5 +1,5 @@
 #include "tommath_private.h"
-#ifdef BN_MP_GET_STR_C
+#ifdef MP_GET_STR_C
 /* LibTomMath, multiple-precision integer library -- Tom St Denis */
 /* SPDX-License-Identifier: Unlicense */
 
@@ -433,5 +433,6 @@ LBL_ERR:
    }
    return err;
 }
+
 
 #endif

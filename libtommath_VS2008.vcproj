@@ -313,14 +313,6 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="bn_mp_get_str.c"
-			>
-		</File>
-		<File
-			RelativePath="bn_mp_set_str.c"
-			>
-		</File>
-		<File
 			RelativePath="mp_2expt.c"
 			>
 		</File>
@@ -498,6 +490,10 @@
 		</File>
 		<File
 			RelativePath="mp_get_mag_ull.c"
+			>
+		</File>
+		<File
+			RelativePath="mp_get_str.c"
 			>
 		</File>
 		<File
@@ -770,6 +766,10 @@
 		</File>
 		<File
 			RelativePath="mp_set_ll.c"
+			>
+		</File>
+		<File
+			RelativePath="mp_set_str.c"
 			>
 		</File>
 		<File

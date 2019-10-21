@@ -1,7 +1,9 @@
 #include "tommath_private.h"
-#ifdef BN_MP_SET_STR_C
+#ifdef MP_SET_STR_C
 /* LibTomMath, multiple-precision integer library -- Tom St Denis */
 /* SPDX-License-Identifier: Unlicense */
+
+
 
 /*
    Simple D&C algorithm to speed up number conversion. ( O(log(n) * M(n))) )
@@ -177,5 +179,6 @@ mp_err mp_set_str(mp_int *a, const char *string, int base)
 
    return MP_OKAY;
 }
+
 
 #endif
