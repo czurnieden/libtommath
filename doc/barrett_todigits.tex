@@ -1,0 +1,451 @@
+\documentclass[a4paper,10pt]{article}
+
+% This bunch of macros grew to that size in a couple of years,
+% some parts are even decades old, so be aware of the risks of diving in!
+
+\usepackage{palatino}
+%\usepackage{lmodern}
+
+% Narrow the margins a bit to fit in the code
+\usepackage[margin=1.2in]{geometry}
+\usepackage{amsmath, amsthm,amsfonts,amssymb}
+\usepackage{graphicx}
+\usepackage{fixltx2e}
+\usepackage{listings}
+\usepackage{algorithm}
+
+\usepackage{hyperref}
+\usepackage{longtable}
+\usepackage{siunitx}
+
+
+% pseudocode
+\usepackage[end]{algpseudocode}
+\newcommand*\Let[2]{\State #1 $\gets$ #2}
+\algrenewcommand\alglinenumber[1]{{\sf\scriptsize#1}}
+\algrenewcommand\algorithmicrequire{\textbf{Input:}}
+\algrenewcommand\algorithmicensure{\textbf{Output:}}
+
+\makeatletter
+\let\OldStatex\Statex
+\renewcommand{\Statex}[1][3]{%
+  \setlength\@tempdima{\algorithmicindent}%
+  \OldStatex\hskip\dimexpr#1\@tempdima\relax}
+\makeatother
+
+\algnewcommand\algorithmicblackcomment[1]{\hfill\(\blacktriangleright\) #1}
+\algnewcommand{\CommentMulti}[1]{ \(\blacktriangleright\) #1}
+\makeatletter
+\algnewcommand{\CommentInlineMulti}[1]{\Statex[\theALG@nested] \(\triangleright\) #1}
+
+% "algorithmic" without "algorithm" lacks all of the horizontal lines
+% The top lines are in the  "captionof" redefinition below and the trailing
+% line is here
+\algrenewcommand\ALG@endalgorithmic{\Statex[-1]\hrulefill}
+
+\usepackage{xpatch}
+% too many fractions in the algorithms
+% TODO: do it individually per case
+\xpatchcmd{\algorithmic}{\itemsep\z@}{\itemsep=.25ex}{}{}
+\makeatother
+
+
+% shamelessly stolen from http://tex.stackexchange.com/questions/53357/switch-cases-in-algorithmic
+% New definitions
+\algnewcommand\algorithmicswitch{\textbf{switch}}
+\algnewcommand\algorithmiccase{\textbf{case}}
+\algnewcommand\algorithmicdefault{\textbf{default}}
+
+\newcommand{\longsub}[1]{\text{\textit{\scriptsize{#1}}}}
+\newcommand{\RETURN}{\State \textbf{return} }
+\newcommand{\Break}{\State \textbf{break} }
+\newcommand{\Continue}{\State \textbf{break} }
+
+% New "environments"
+\algdef{SE}[SWITCH]{Switch}{EndSwitch}[1]{\algorithmicswitch\ #1\ \algorithmicdo}{\algorithmicend\ \algorithmicswitch}%
+\algdef{SE}[CASE]{Case}{EndCase}[1]{\algorithmiccase\ #1}{\algorithmicend\ \algorithmiccase}%
+\algdef{SE}[DEFAULT]{Default}{EndDefault}[1]{\algorithmicdefault\ #1}{\algorithmicend\ \algorithmicdefault}%
+\algtext*{EndSwitch}%
+\algtext*{EndCase}%
+
+\algdef{SE}[DOWHILE]{Do}{doWhile}{\algorithmicdo}[1]{\algorithmicwhile\ #1}
+
+
+\makeatletter
+\def\hrulefillthick{\leavevmode\leaders\hrule height .85pt\hfill\kern\z@}
+\makeatother
+% shamelessly stolen from http://tex.stackexchange.com/questions/33866/algorithm-tag-and-page-break
+\usepackage[font=small,labelfont=bf,width=.8\linewidth]{caption}
+\DeclareCaptionFormat{algor}{%
+  \hrulefillthick\par\offinterlineskip\vskip2pt%
+     \textbf{#1#2}#3\offinterlineskip\hrulefill}
+\DeclareCaptionStyle{algori}{singlelinecheck=off,format=algor,labelsep=space}
+\captionsetup[algorithm]{style=algori}
+%Still necessary?
+\MakeRobust{\Call}
+
+% http://tex.stackexchange.com/questions/77996/how-to-show-a-hint-when-lstlisting-is-breaking-page
+\usepackage[framemethod=tikz]{mdframed}
+% define the frame style for the listing:
+\mdfdefinestyle{note}
+  {
+    hidealllines = true,
+    skipabove    = .5\baselineskip,
+    skipbelow    = .5\baselineskip,
+    singleextra  = {},
+    firstextra   = {
+      \node[below right,overlay,align=center,font=\continuingfont]
+        at (O) {\continuingtext};
+    },
+    secondextra  = {
+      \node[above right,overlay,align=center,font=\continuingfont]
+        at (O |- P) {\continuedtext};
+    },
+    middleextra  = {
+      \node[below right,overlay,align=center,font=\continuingfont]
+        at (O) {\continuingtext};
+      \node[above right,overlay,align=center,font=\continuingfont]
+        at (O |- P) {\continuedtext};
+    }
+  }
+\newcommand*\continuingfont{\footnotesize\itshape}
+\newcommand*\continuingtext{\hspace{2em}Listing continues on next page}
+\newcommand*\continuedtext{\hspace{2em}Continuing from last page}
+% the trick with mdframed writes over the footnote-line,
+% this lowers the footnote
+\setlength{\skip\footins}{5ex}
+
+\ifpdf
+\pdfcompresslevel=9
+\pdfinfo{
+   /Title      (LibTomMath's Algorithms: Lars Helmström's Barret\_todecimal)
+   /Author     (Editor: Christoph Zurnieden)
+   /Keywords   (arbitrary-precision algorithm libtommath libtom)
+}
+\fi
+
+
+\providecommand{\abs}[1]{\left\lvert#1\right\rvert}
+\providecommand{\floor}[1]{\left\lfloor#1\right\rfloor}
+\providecommand{\ceil}[1]{\left\lceil#1\right\rceil}
+
+\DeclareMathOperator{\AND}{\wedge}
+\DeclareMathOperator{\OR}{\vee}
+\DeclareMathOperator{\sgn}{sgn}
+
+% don't forget to add an empty statement {} after that command to get a space
+% I did not want to add another package to this already very heavy prelude
+% but you can include the package "xspace" and change the macro to
+% \newcommand{\nthroot}{$n^{\text{\tiny th}}$-root\xspace}
+% some say that xspace produces more problems than it solves, vid.:
+% https://tex.stackexchange.com/questions/86565/drawbacks-of-xspace
+% where you'll find out that its own creator does not recommend it.
+\newcommand{\nthroot}{$n^{\text{\tiny th}}$-root}
+
+\newcommand{\RaiseNum}[2]{\raisebox{#1}{$\scriptstyle #2$}}
+
+% wonder if I'll ever need it
+% C&P from the amsthm documentation
+\theoremstyle{plain} % is said to be the default
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{prop}[thm]{Proposition}
+
+\theoremstyle{definition}
+\newtheorem{defn}{Definition}[section]
+\newtheorem{conj}{Conjecture}[section]
+\newtheorem{exmp}{Example}[section]
+
+\theoremstyle{remark}
+\newtheorem*{rem}{Remark}
+\newtheorem*{note}{Note}
+\newtheorem{case}{Case}
+
+% to get the notes a counter (lacks internationalization)
+%\newcounter{notice}
+%\newenvironment{notice}{
+%\stepcounter{notice}
+%\par\bigskip\noindent{\bfseries Note \arabic{notice}}
+%\par\medskip}{\par\medskip}
+
+% shamelessly stolen from https://tex.stackexchange.com/a/94466
+% still lacks internationalization
+\global\mdfdefinestyle{notice}{%
+linecolor=gray,linewidth=1pt,%
+leftmargin=1cm,rightmargin=1cm,
+}
+\newenvironment{fnotice}[1]{%
+\mdfsetup{%
+frametitle={\colorbox{white}{\,#1\,}},
+%frametitle={\tikz\node[fill=white,rectangle,inner sep=0pt,outer sep=0pt]{#1};},
+frametitleaboveskip=-\ht\strutbox,
+%frametitleaboveskip=-0.5\ht\strutbox,
+frametitlealignment=\raggedright
+}%
+\begin{mdframed}[style=notice]
+}{\end{mdframed}}
+
+\definecolor{lightgray}{rgb}{.9,.9,.9}
+\definecolor{darkgray}{rgb}{.4,.4,.4}
+\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
+
+\lstdefinelanguage{parigp}{
+  alsoletter={\\},
+  keywords={ for, forcomposite, fordiv, fordivfactored, forell, forfactored, forpart, forperm,%
+             forprime, forsquarefree, forstep, forsubgroup, forsubset, forvec,%
+             if, iferr, next, return, until, while, %
+             local,%
+             alias, allocatemem, apply, call, default,%
+             extern, externstr, fold, getabstime, getenv, getheap, getrand, getstack, gettime,%
+             getwalltime, global, inline, input%
+             localbitprec, localprec,%
+             print, print1, printf, printp, printsep, printsep1, printtex,%
+             quit, read, readstr, readvec, self, setrand, system, type, uninline,%
+             version, write, write1, writebin, writetex},
+  keywordstyle=\bfseries,
+  morekeywords={[2]{log, floor, ceil,gcd, lcm,sqrt, sqrtn,sqrtint,%
+              sin,cos,tan,asin,acos,atan,sinh,cosh,tanh, asinh,acosh,atanh,%
+              gamma,lngamma,psi,dilog,%
+              % own functions
+              flog2, newton, halley, bisection}},
+  keywordstyle={[2]{\color{darkgray}\bfseries}},
+  sensitive=false,
+  comment=[l]{\\\\},
+  commentstyle=\ttfamily,
+  stringstyle=\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstdefinestyle{code}{
+   extendedchars=true,
+   basicstyle=\footnotesize\ttfamily,
+   showstringspaces=false,
+   showspaces=false,
+   tabsize=2,
+   breaklines=true,
+   showtabs=false,
+   xleftmargin=.2\textwidth, xrightmargin=.2\textwidth,
+   frame=lines
+%   texcl= true
+}
+
+\lstdefinestyle{widercode}{
+   extendedchars=true,
+   basicstyle=\footnotesize\ttfamily,
+   showstringspaces=false,
+   showspaces=false,
+   tabsize=2,
+   breaklines=true,
+   showtabs=false,
+   xleftmargin=.05\textwidth, xrightmargin=.05\textwidth,
+   frame=lines
+}
+
+\lstnewenvironment{pblisting}[1]
+  {%
+    \lstset{style=widercode,#1}%
+    \mdframed[style=note]%
+  }
+  {%
+    \endmdframed
+  }
+% to get subsubsection numbered, too
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+% Boxes with the gray background
+% shamelessly stolen from https://tex.stackexchange.com/a/7545
+\usepackage{calc}
+\newlength{\DepthReference}
+\settodepth{\DepthReference}{g}
+\newlength{\HeightReference}
+\settoheight{\HeightReference}{T}
+\newlength{\Width}
+\newcommand{\newcolorbox}[2][gray!30] {%
+  \settowidth{\Width}{#2}%
+  \setlength{\fboxsep}{.9pt}%
+  \fcolorbox{black}{#1}{%
+    \raisebox{-\DepthReference} {%
+      \parbox[b][\HeightReference+\DepthReference][c]{\Width}{\centering#2}%
+    }%
+  }%
+}
+\setlength{\fboxsep}{1pt}
+%no, a framed ox with grey background is just too much here
+%\newcommand*{\ttchar}[1]{\newcolorbox{\texttt{\strut#1}}}
+\newcommand*{\ttchar}[1]{\texttt{\textbf{\strut#1}}}
+\newcommand*{\smalltt}[1]{\small\texttt{#1}}
+
+\begin{document}
+\title{LibTomMath's Algorithms: Lars Helmstr\"om's Barret\_todecimal}
+\author{Current editor: Christoph Zurnieden\\
+        \small{\texttt{$<$czurnieden@gmx.de$>$}}}
+\date{Last change: \today}
+\maketitle
+
+%\tableofcontents
+% Courier because Computer Modern has no boldface
+\renewcommand{\ttdefault}{pcr}
+
+\begin{abstract}
+This artikel describes the algorithm behind the function \smalltt{Barret\_todecimal} in Lars Helmstr\"om's post to the TCL list\footnote{Available online at: \url{https://sourceforge.net/p/tcl/mailman/message/31972670/}}.
+\end{abstract}
+
+\section{Pseudocode}
+
+\subsection{Setup}
+\begin{center}
+  \captionof{algorithm}{Barret\_todecimal\label{alg:barrettodecimal}}
+  \begin{algorithmic}[1]
+    \Require{$a > 0$, big-integer, $b$, a buffer of suitable size}
+    \Ensure{$b$ filled with the value of $a$ converted to a decimal number}
+    \Function{Barret\_todecimal}{$a$}
+      \CommentInlineMulti{Setup and zero out three buffers that are able to hold 20 bigints each}
+      \Let{$n^l$}{$\{20,0\}$}
+      \Let{$s^l$}{$\{20,0\}$}
+      \Let{$m^l$}{$\{20,0\}$}
+
+      \CommentInlineMulti{Set initial values: radix, shift and reciprocal}
+      \Let{$n$}{$1000$}
+      \Let{$n^l_0$}{$n$}
+      \Let{$s$}{$20$}
+      \Let{$s^l_0$}{$s$}
+
+      \Let{$M$}{$8389$}\Comment{$\ceil{ \left(8 * 2^20\right)/1000}$}
+      \Let{$m^l_0$}{$1049$}\Comment{$\ceil{M/8}$}
+
+      \Let{$\rho$}{$1$}\Comment{Index into the buffers $n^l, s^l, m^l$}
+      \While{$p \le h$}
+        \Let{$n$}{$n^2$}
+        \If{$n > a$}
+           \Break
+        \EndIf
+        \CommentInlineMulti{Compute $M = \ceil{\left(2^{2s}\right)/n^2}$}
+        \Let{$M_2$}{$2M^2$}
+        \Let{$M_4$}{$\floor{\frac{nM^4}{2^{s + 6}}}$}
+        \Let{$M$}{$\floor{\frac{\left(M_2 - M_4\right)}{2^6}} + 1$}
+        \Let{$m^l_\rho$}{$M$}
+        \Let{$\rho$}{$\rho + 1$}
+        \Let{$M$}{$8M$}
+      \EndWhile
+      \If{$\rho \ge 20$}
+         \RETURN error
+      \EndIf
+      \CommentInlineMulti{Use the pre-computed reciprocals recursively}
+      \State \Call{Barrett\_todecimalRecursion}{$a, n^l, s^l, m^l, \rho - 1, 1, b$}
+    \EndFunction
+  \end{algorithmic}
+\end{center}
+
+The first five rounds and the last one result in the following values
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{c l r l }
+\textbf{Index}&\textbf{$\mathbf{n}$}&\textbf{Shift}&\textbf{$\mathbf{M}$}\\
+1  & $n^1$  &  20 & $1049$\\
+2  & $n^2$  &  40 & $1099512$\\
+3  & $n^4$  &  80 & $1208925819615$\\
+4  & $n^8$  & 160 & $1461501637330902918203685$\\
+5  & $n^{16}$ & 320 & $2135987035920910082395021706169552114602704522357$\\
+\multicolumn{4}{c}{\textellipsis}\\
+20 & $n^{\left({2^{20}}\right)}$ & 20971520 & $\approx 3.7554941942\,e3167328$
+\end{tabular}
+\captionof{table}{Results of first five rounds and the last one}\label{tab:firstfiveloops}
+\end{center}
+\end{table}
+
+Are $3\,167\,329$ decimal digits sufficient?
+The largest number possible in LTM is\\
+ \-\hspace{1cm}\smalltt{(1<<(sizeof(int) * CHAR\_BIT) - 1) * MP\_DIGIT\_MAX}\\
+ bits large. That is for 32 bit integers and \smalltt{MP\_64BIT}: $2^{31} \cdot 60 = 128\,849\,018\,880$ ($38\,787\,419\,594$ decimal digits) which overflows several functions in LTM, so the actually possible largest value is only\\
+ \-\hspace{1cm}\smalltt{(1<<(sizeof(int) * CHAR\_BIT - 1)) / MP\_DIGIT\_MAX}\\
+ bits large: $\floor{2^{31}/60} = 35\,791\,394$ under the same conditions as above. In decimal digits: $\floor{35\,791\,394\log_{10}(2)} = 10\,774\,283$ which is a bit more than 3 times larger than $3\,167\,329$, so the answer is: no, it is not sufficient.
+
+The next entries in the list are be
+\begin{center}
+\begin{longtable}{c c l l l}
+\multicolumn{1}{c}{\textbf{Index}}&
+\multicolumn{1}{c}{\textbf{$\mathbf{n}$}}&
+\multicolumn{1}{c}{\textbf{Shift}}&
+\multicolumn{1}{c}{\textbf{$\mathbf{M}$}}&
+\multicolumn{1}{l}{\textbf{Comment}}\\
+\endfirsthead
+%
+
+\multicolumn{1}{c}{\textbf{Index}}&
+\multicolumn{1}{c}{\textbf{$\mathbf{n}$}}&
+\multicolumn{1}{c}{\textbf{Shift}}&
+\multicolumn{1}{c}{\textbf{$\mathbf{M}$}}&
+\multicolumn{1}{l}{\textbf{Comment}}\\
+\endhead
+% To get a bit more "headroom"
+\rule{0pt}{1ex}\\
+\multicolumn{5}{c}{{\footnotesize{\textit{Continued on next page}}}} \\
+\endfoot
+\endlastfoot
+21 & $n^{\left(2^{21}\right)}$ & 41943040      & $1.4103736642\,e6334657$     & \\
+22 & $n^{\left(2^{22}\right)}$ & 83886080      & $1.9891538728\,e12669314$  
+                                                                      & $> 10^{10\,774\,283}$ \\
+23 & $n^{\left(2^{23}\right)}$ & 167772160     & $3.9567331296\,e25338628$    &  \\
+24 & $n^{\left(2^{24}\right)}$ & 335544320     & $1.5655737058\,e50677257$    &  \\
+25 & $n^{\left(2^{25}\right)}$ & 671088640     & $2.4510210284\,e101354514$   &  \\
+26 & $n^{\left(2^{26}\right)}$ & 1342177280    & $6.0075040819\,e202709028$   &  \\
+27 & $n^{\left(2^{27}\right)}$ & 2684354560    & $3.6090105294\,e405418057$   &  \\
+28 & $n^{\left(2^{28}\right)}$ & 5368709120    & $1.3024957001\,e810836115$   &  \\
+29 & $n^{\left(2^{29}\right)}$ & 10737418240   & $1.6964950488\,e1621672230$  &  \\
+30 & $n^{\left(2^{30}\right)}$ & 21474836480   & $2.8780954507\,e3243344460$  &  \\
+31 & $n^{\left(2^{31}\right)}$ & 42949672960   & $8.2834334231\,e6486688920$  &  \\
+32 & $n^{\left(2^{32}\right)}$ & 85899345920   & $6.8615269276\,e12973377841$ &  \\
+33 & $n^{\left(2^{33}\right)}$ & 171798691840  & $4.7080551778\,e25946755683$ &  \\
+34 & $n^{\left(2^{34}\right)}$ & 343597383680  & $2.2165783558\,e51893511367$ 
+                                                                      & $> 10^{38\,787\,419\,594}$ \\
+\end{longtable}
+\captionof{table}{Results of rounds 21-34)}\label{tab:rounds21to34}
+\end{center}
+
+\subsection{Recursion}
+
+\begin{center}
+  \captionof{algorithm}{Barret\_todecimalRecursion\label{alg:barrettodecimalrecursion}}
+  \begin{algorithmic}[1]
+    \Require{$a > 0$, big-integer, $n^l, s^l, m^l, \rho, L, b$, from Barret\_todecimal}
+    \Ensure{$b$ filled with the value of $a$ converted to a decimal number}
+    \Function{Barret\_todecimalRecusive}{$a,n^l, s^l, m^l, \rho, L, b$}
+    \If{$\rho < 0$}
+      \Let{$b$}{$b | a$}\Comment{Convert $a$ to a decimal string and add to $b$. See text for details}
+      \RETURN
+    \Else
+      \Let{$q$}{$\floor{\left(a\cdot m^l_\rho\right) / 2^{s^l_\rho}}$}\Comment{Quotient}
+      \Let{$r$}{$ a - n^l_\rho \cdot q$}
+      \If{$r < 0$}
+        \Let{$q$}{$q - 1$}
+        \Let{$r$}{$r + n^l_\rho$}
+      \EndIf
+      \Let{$\rho$}{$\rho + 1$}
+      \If{$\left(L = 1\right) \AND \left(q = 0\right) $}
+        \State \Call{Barret\_todecimalRecusive}{$r,n^l, s^l, m^l, \rho, 1, b$}
+      \Else
+        \State \Call{Barret\_todecimalRecusive}{$q,n^l, s^l, m^l, \rho, L, b$}
+        \State \Call{Barret\_todecimalRecusive}{$r,n^l, s^l, m^l, \rho, 0, b$}
+      \EndIf
+    \EndIf
+    \EndFunction
+  \end{algorithmic}
+\end{center}
+
+If the chunk is small enough ($\rho < 0$ for 0-based lists) we can build that part of the output.
+The smallest chunk has 4 decimal digits in our case ($n^1 = 1000$) so we need up to three leading zeros if the parameter ``left'' is true or just build the decimal number without any further ado.
+This is also a place where a bit of optimization can take place because four decimal digits is a rather small chunk and has most probably been chosen to be fit for \smalltt{MP\_8BIT} ($\log_{10}(2^{16}) \approx 4.8$).
+If we want a bigger chunk we can stop at a higher index and use \smalltt{mp\_to\_radix} to convert\footnote{Or strip the relevant part out of \smalltt{mp\_to\_radix} which is just the inner loop. All the checks are not needed because they have already been done}. Handling leading zeros is a bit more complicated in that case but not much.
+
+\section{Computing the Reciprocals}
+
+The code to calculate the elements of the sequence $\ceil{\left(2^{2^ks}\right)/n^{\left(2^k\right)}}$ (with $k = \{0,1,2,3,\dots\}$, $s = 20$, and $n = 1\,000$) looks quite complicated because it needs to compute the sequence with integer math only. After peeling all of the many layers off we get
+\begin{equation}
+\floor{\frac{2^{2^ks + 1}}{n^{\left(2^k\right)}}} - \floor{\frac{2^{2^ks}}{n^{\left(2^k\right)}}}
+\end{equation}
+By pre-computing the value at $k=0$ and some clever scaling to replace the expensive division $n^{\left(2^k\right)}$ by a much cheaper shift (with the additional cost of one multiplication and two squarings) we get the code as listed in algorithm \ref{alg:barrettodecimal}.
+
+
+\end{document}
