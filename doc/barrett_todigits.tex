@@ -480,9 +480,6 @@ By substituting $x_n = \ceil{2^s/n}^2$ and\footnote{Here $\odiv$ stands for ``us
 x_{n+1} = 2\ceil{2^s/n}^2 - \floor{\frac{\ceil{2^s/n}^4n^2}{2^{2s}}}
 \end{equation}
 
-\begin{equation}
-x_{n+1} = 2\left\lceil 2^s/n\right\rceil^2 - \left\lfloor\frac{\left\lceil 2^s/n\right\rceil^4 n^2}{2^{2s}}\right\rfloor
-\end{equation}
 
 The error $\left(1- Dx_n\right)^2$ is $1$, assuming the same substitutions as above, but that is misleading. The error without the truncating division is about \num{2e-34} and a simple addition of $1$ will not do. The following short and highly unoptimized Pari/\kern-1.2pt gp script will wet this dry theory with some numbers:
 
@@ -526,21 +523,16 @@ $3$ &$0$& $0$& $0$& $0$& $0$& $0$& $0$&  $0$& $0$& $0$& $0$& $0$& $0$& $0$& $0$&
 
 \subsection{Expanding to other bases}
 
-The largest problem for other bases is generating a good fitting $s$. With base $10$ it is sufficient to use a simple $s = 2s$ and come close to what is actually needed. The upper limit of the of $n$ in the table \ref{tab:startvaluesn} is set to $\log_2(n) \le 20$.
-
-The little script used to generate the values for the table \ref{tab:startvaluesn} is:
-
+The largest problem for other bases is generating a good fitting $s$. With base $10$ it is sufficient to use a simple $s = 2s$ and come close to what is actually needed.
 \lstset{language=parigp}
-\begin{pblisting}{caption={Find start values for $n$},label=lst:parigpsizebases3510}
+\begin{pblisting}{caption={Find start values for $n$ for table \ref{tab:startvaluesn}},label=lst:startvaluesn}
 max_size_n(limit_s) = {
    local(t, n);
    for(k= 2, 63,
       for(m = 1, limit_s + 1,
-         n = k^m;
-         t = ceil(log(n)/log(2));
+         n = k^m; t = ceil(log(n)/log(2));
          if( t > limit_s,
-            t = m-1;
-            n = k^t;
+            t = m-1; n = k^t;
             print(k ", " t ", " n);
             break(1);
          );
@@ -550,7 +542,10 @@ max_size_n(limit_s) = {
 
 \end{pblisting}
 \begin{center}
-\begin{longtable}{r r r}
+\begin{longtable}{r r r | r r r}
+\multicolumn{1}{r}{$\mathbf{b}$}&
+\multicolumn{1}{r}{$\mathbf{k}$}&
+\multicolumn{1}{r}{$\mathbf{n = b^k}$}&
 \multicolumn{1}{r}{$\mathbf{b}$}&
 \multicolumn{1}{r}{$\mathbf{k}$}&
 \multicolumn{1}{r}{$\mathbf{n = b^k}$} \\
@@ -558,76 +553,48 @@ max_size_n(limit_s) = {
 %
 \multicolumn{1}{r}{$\mathbf{b}$}&
 \multicolumn{1}{r}{$\mathbf{k}$}&
+\multicolumn{1}{r}{$\mathbf{n = b^k}$}&
+\multicolumn{1}{r}{$\mathbf{b}$}&
+\multicolumn{1}{r}{$\mathbf{k}$}&
 \multicolumn{1}{r}{$\mathbf{n = b^k}$} \\
 \endhead
 % To get a bit more "headroom"
 \rule{0pt}{1ex}\\
-\multicolumn{3}{c}{{\footnotesize{\textit{Continued on next page}}}} \\
+\multicolumn{6}{c}{{\footnotesize{\textit{Continued on next page}}}} \\
 \endfoot
 \endlastfoot
 % TODO: make use of the whole textwidth
-2 & 20 & 1048576\\
-3 & 12 & 531441\\
-4 & 10 & 1048576\\
-5 & 8 & 390625\\
-6 & 7 & 279936\\
-7 & 7 & 823543\\
-8 & 6 & 262144\\
-9 & 6 & 531441\\
-10 & 6 & 1000000\\
-11 & 5 & 161051\\
-12 & 5 & 248832\\
-13 & 5 & 371293\\
-14 & 5 & 537824\\
-15 & 5 & 759375\\
-16 & 5 & 1048576\\
-17 & 4 & 83521\\
-18 & 4 & 104976\\
-19 & 4 & 130321\\
-20 & 4 & 160000\\
-21 & 4 & 194481\\
-22 & 4 & 234256\\
-23 & 4 & 279841\\
-24 & 4 & 331776\\
-25 & 4 & 390625\\
-26 & 4 & 456976\\
-27 & 4 & 531441\\
-28 & 4 & 614656\\
-29 & 4 & 707281\\
-30 & 4 & 810000\\
-31 & 4 & 923521\\
-32 & 4 & 1048576\\
-33 & 3 & 35937\\
-34 & 3 & 39304\\
-35 & 3 & 42875\\
-36 & 3 & 46656\\
-37 & 3 & 50653\\
-38 & 3 & 54872\\
-39 & 3 & 59319\\
-40 & 3 & 64000\\
-41 & 3 & 68921\\
-42 & 3 & 74088\\
-43 & 3 & 79507\\
-44 & 3 & 85184\\
-45 & 3 & 91125\\
-46 & 3 & 97336\\
-47 & 3 & 103823\\
-48 & 3 & 110592\\
-49 & 3 & 117649\\
-50 & 3 & 125000\\
-51 & 3 & 132651\\
-52 & 3 & 140608\\
-53 & 3 & 148877\\
-54 & 3 & 157464\\
-55 & 3 & 166375\\
-56 & 3 & 175616\\
-57 & 3 & 185193\\
-58 & 3 & 195112\\
-59 & 3 & 205379\\
-60 & 3 & 216000\\
-61 & 3 & 226981\\
-62 & 3 & 238328\\
-63 & 3 & 250047\\
+2 & 20 & 1048576  &  33 & 3 & 35937 \\
+3 & 12 & 531441  &   34 & 3 & 39304 \\
+4 & 10 & 1048576  &  35 & 3 & 42875 \\
+5 & 8 & 390625  &    36 & 3 & 46656 \\
+6 & 7 & 279936  &    37 & 3 & 50653 \\
+7 & 7 & 823543  &    38 & 3 & 54872 \\
+8 & 6 & 262144  &    39 & 3 & 59319 \\
+9 & 6 & 531441  &    40 & 3 & 64000 \\
+10 & 6 & 1000000  &  41 & 3 & 68921 \\
+11 & 5 & 161051  &   42 & 3 & 74088 \\
+12 & 5 & 248832  &   43 & 3 & 79507 \\
+13 & 5 & 371293  &   44 & 3 & 85184 \\
+14 & 5 & 537824  &   45 & 3 & 91125 \\
+15 & 5 & 759375  &   46 & 3 & 97336 \\
+16 & 5 & 1048576  &  47 & 3 & 103823 \\
+17 & 4 & 83521  &    48 & 3 & 110592 \\
+18 & 4 & 104976  &   49 & 3 & 117649 \\
+19 & 4 & 130321  &   50 & 3 & 125000 \\
+20 & 4 & 160000  &   51 & 3 & 132651 \\
+21 & 4 & 194481  &   52 & 3 & 140608 \\
+22 & 4 & 234256  &   53 & 3 & 148877 \\
+23 & 4 & 279841  &   54 & 3 & 157464 \\
+24 & 4 & 331776  &   55 & 3 & 166375 \\
+25 & 4 & 390625  &   56 & 3 & 175616 \\
+26 & 4 & 456976  &   57 & 3 & 185193 \\
+27 & 4 & 531441  &   58 & 3 & 195112 \\
+28 & 4 & 614656  &   59 & 3 & 205379 \\
+29 & 4 & 707281  &   60 & 3 & 216000 \\
+30 & 4 & 810000  &   61 & 3 & 226981 \\
+31 & 4 & 923521  &   62 & 3 & 238328 \\
+32 & 4 & 1048576  &  63 & 3 & 250047
 \end{longtable}
 \captionof{table}{Startvalues for $n$ for assorted bases $b$}\label{tab:startvaluesn}
 \end{center}
@@ -710,7 +677,7 @@ If the input of the function \smalltt{Barret\_todecimal} is restricted to base $
 T.\kern-.2pt b\kern-.5pt.d.
 
 
-\section{\smalltt{from_decimal}
+\section{\smalltt{from\_decimal}}
 T.\kern-.2pt b\kern-.5pt.d.
 
 
