@@ -385,17 +385,17 @@ The next entries in the list are be
 \begin{center}
 \begin{longtable}{c c l l l}
 \multicolumn{1}{c}{\textbf{Index}}&
-\multicolumn{1}{c}{\textbf{$\mathbf{n}$}}&
+\multicolumn{1}{c}{$\mathbf{n}$}&
 \multicolumn{1}{c}{\textbf{Shift}}&
-\multicolumn{1}{c}{\textbf{$\mathbf{M}$}}&
+\multicolumn{1}{c}{$\mathbf{M}$}&
 \multicolumn{1}{l}{\textbf{Comment}}\\
 \endfirsthead
 %
 
 \multicolumn{1}{c}{\textbf{Index}}&
-\multicolumn{1}{c}{\textbf{$\mathbf{n}$}}&
+\multicolumn{1}{c}{$\mathbf{n}$}&
 \multicolumn{1}{c}{\textbf{Shift}}&
-\multicolumn{1}{c}{\textbf{$\mathbf{M}$}}&
+\multicolumn{1}{c}{$\mathbf{M}$}&
 \multicolumn{1}{l}{\textbf{Comment}}\\
 \endhead
 % To get a bit more "headroom"
@@ -524,6 +524,194 @@ $3$ &$0$& $0$& $0$& $0$& $0$& $0$& $0$&  $0$& $0$& $0$& $0$& $0$& $0$& $0$& $0$&
 \end{center}
 \end{table}
 
+\subsection{Expanding to other bases}
+
+The largest problem for other bases is generating a good fitting $s$. With base $10$ it is sufficient to use a simple $s = 2s$ and come close to what is actually needed. The upper limit of the of $n$ in the table \ref{tab:startvaluesn} is set to $\log_2(n) \le 20$.
+
+The little script used to generate the values for the table \ref{tab:startvaluesn} is:
+
+\lstset{language=parigp}
+\begin{pblisting}{caption={Find start values for $n$},label=lst:parigpsizebases3510}
+max_size_n(limit_s) = {
+   local(t, n);
+   for(k= 2, 63,
+      for(m = 1, limit_s + 1,
+         n = k^m;
+         t = ceil(log(n)/log(2));
+         if( t > limit_s,
+            t = m-1;
+            n = k^t;
+            print(k ", " t ", " n);
+            break(1);
+         );
+      );
+   );
+}
+
+\end{pblisting}
+\begin{center}
+\begin{longtable}{r r r}
+\multicolumn{1}{r}{$\mathbf{b}$}&
+\multicolumn{1}{r}{$\mathbf{k}$}&
+\multicolumn{1}{r}{$\mathbf{n = b^k}$} \\
+\endfirsthead
+%
+\multicolumn{1}{r}{$\mathbf{b}$}&
+\multicolumn{1}{r}{$\mathbf{k}$}&
+\multicolumn{1}{r}{$\mathbf{n = b^k}$} \\
+\endhead
+% To get a bit more "headroom"
+\rule{0pt}{1ex}\\
+\multicolumn{3}{c}{{\footnotesize{\textit{Continued on next page}}}} \\
+\endfoot
+\endlastfoot
+% TODO: make use of the whole textwidth
+2 & 20 & 1048576\\
+3 & 12 & 531441\\
+4 & 10 & 1048576\\
+5 & 8 & 390625\\
+6 & 7 & 279936\\
+7 & 7 & 823543\\
+8 & 6 & 262144\\
+9 & 6 & 531441\\
+10 & 6 & 1000000\\
+11 & 5 & 161051\\
+12 & 5 & 248832\\
+13 & 5 & 371293\\
+14 & 5 & 537824\\
+15 & 5 & 759375\\
+16 & 5 & 1048576\\
+17 & 4 & 83521\\
+18 & 4 & 104976\\
+19 & 4 & 130321\\
+20 & 4 & 160000\\
+21 & 4 & 194481\\
+22 & 4 & 234256\\
+23 & 4 & 279841\\
+24 & 4 & 331776\\
+25 & 4 & 390625\\
+26 & 4 & 456976\\
+27 & 4 & 531441\\
+28 & 4 & 614656\\
+29 & 4 & 707281\\
+30 & 4 & 810000\\
+31 & 4 & 923521\\
+32 & 4 & 1048576\\
+33 & 3 & 35937\\
+34 & 3 & 39304\\
+35 & 3 & 42875\\
+36 & 3 & 46656\\
+37 & 3 & 50653\\
+38 & 3 & 54872\\
+39 & 3 & 59319\\
+40 & 3 & 64000\\
+41 & 3 & 68921\\
+42 & 3 & 74088\\
+43 & 3 & 79507\\
+44 & 3 & 85184\\
+45 & 3 & 91125\\
+46 & 3 & 97336\\
+47 & 3 & 103823\\
+48 & 3 & 110592\\
+49 & 3 & 117649\\
+50 & 3 & 125000\\
+51 & 3 & 132651\\
+52 & 3 & 140608\\
+53 & 3 & 148877\\
+54 & 3 & 157464\\
+55 & 3 & 166375\\
+56 & 3 & 175616\\
+57 & 3 & 185193\\
+58 & 3 & 195112\\
+59 & 3 & 205379\\
+60 & 3 & 216000\\
+61 & 3 & 226981\\
+62 & 3 & 238328\\
+63 & 3 & 250047\\
+\end{longtable}
+\captionof{table}{Startvalues for $n$ for assorted bases $b$}\label{tab:startvaluesn}
+\end{center}
+
+The little script used to generate the values for the table \ref{tab:baserelations} is:
+
+\lstset{language=parigp}
+\begin{pblisting}{caption={Find sizes of bases 3, 5, and 10},label=lst:parigpsizebases3510}
+sizes_of_bases(limit) = {
+   local(s, n3, n5, n10, t3, t5, t10);
+   s = 10;
+   n3 = 729;
+   n5 = 625;
+   n10 = 1000;
+   for(k=0, limit,
+      t3 = ceil(log(n3)/log(2));
+      t5 = ceil(log(n5)/log(2));
+      t10 = ceil(log(n10)/log(2));
+      print(k ": " s ", " t3 ", " t5 ", " t10);
+      s = 2*s;
+      n3 = n3^2;
+      n5 = n5^2;
+      n10 = n10^2;
+  );
+}
+\end{pblisting}
+
+
+\begin{center}
+\begin{longtable}{r r r r}
+\multicolumn{1}{r}{$\mathbf{s/2}$}&
+\multicolumn{1}{r}{$\mathbf{3^6}$}&
+\multicolumn{1}{r}{$\mathbf{5^4}$}&
+\multicolumn{1}{r}{$\mathbf{10^3}$} \\
+\endfirsthead
+%
+\multicolumn{1}{r}{$\mathbf{s}$}&
+\multicolumn{1}{r}{$\mathbf{3^6}$}&
+\multicolumn{1}{r}{$\mathbf{5^4}$}&
+\multicolumn{1}{r}{$\mathbf{10^3}$} \\
+\endhead
+% To get a bit more "headroom"
+\rule{0pt}{1ex}\\
+\multicolumn{4}{c}{{\footnotesize{\textit{Continued on next page}}}} \\
+\endfoot
+\endlastfoot
+10 & 10 & 10 & 10 \\
+20 & 20 & 19 & 20 \\
+40 & 39 & 38 & 40 \\
+80 & 77 & 75 & 80 \\
+160 & 153 & 149 & 160 \\
+320 & 305 & 298 & 319 \\
+640 & 609 & 595 & 638 \\
+1280 & 1218 & 1189 & 1276 \\
+2560 & 2435 & 2378 & 2552 \\
+5120 & 4870 & 4756 & 5103 \\
+10240 & 9739 & 9511 & 10205 \\
+20480 & 19477 & 19022 & 20410 \\
+40960 & 38953 & 38043 & 40820 \\
+81920 & 77905 & 76085 & 81640 \\
+163840 & 155809 & 152170 & 163280 \\
+327680 & 311617 & 304340 & 326559 \\
+655360 & 623233 & 608680 & 653118 \\
+1310720 & 1246466 & 1217360 & 1306236 \\
+2621440 & 2492931 & 2434719 & 2612471 \\
+5242880 & 4985861 & 4869437 & 5224942 \\
+10485760 & 9971722 & 9738873 & 10449883 \\
+20971520 & 19943444 & 19477745 & 20899765 \\
+41943040 & 39886888 & 38955490 & 41799529
+\end{longtable}
+\captionof{table}{Relation of $s = 2s$ to bases $3$, $5$ and $10$}\label{tab:baserelations}
+\end{center}
+
+The difference between the behaviour of base $10$ and $s$ is relatively similar but it gets quite large with the other bases. It is a bit complicated to generate the values programmatically but as all of the numbers up to $k=28$ stay below $2^{32}$ a small table would be enough.
+
+If the input of the function \smalltt{Barret\_todecimal} is restricted to base $10$, base $5$ can be used for optimization by observing that $10 = 2\cdot5$ which can safe about a third ($\log(2)/\log(5) \approx 0.4307$) of the magnitude in multiplication.
+
+\section{Convert \smalltt{Barret\_todecimal} to an iterative algorithm}
+
+T.\kern-.2pt b\kern-.5pt.d.
+
+
+\section{\smalltt{from_decimal}
+T.\kern-.2pt b\kern-.5pt.d.
 
 
 
