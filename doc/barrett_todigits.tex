@@ -17,7 +17,7 @@
 \usepackage{hyperref}
 \usepackage{longtable}
 \usepackage{siunitx}
-
+\usepackage{graphicx}
 
 % pseudocode
 \usepackage[end]{algpseudocode}
@@ -277,6 +277,25 @@ frametitlealignment=\raggedright
 \newcommand*{\ttchar}[1]{\texttt{\textbf{\strut#1}}}
 \newcommand*{\smalltt}[1]{\small\texttt{#1}}
 
+\makeatletter
+% Idea shamlessly stolen from Stephan Lehmke in
+% https://tex.stackexchange.com/a/53716
+\newcommand\circled
+{%
+  \mathpalette\@circled
+}
+\newcommand\@circled[2]
+{%
+  \mathbin%
+  {%
+    \ooalign{\hidewidth$#1#2$\hidewidth\crcr$#1\bigcirc$}%
+  }%
+}
+\newcommand{\odiv}{\circled{\div}}
+\makeatother
+
+\sisetup{output-exponent-marker=\ensuremath{\mathrm{e}}}
+
 \begin{document}
 \title{LibTomMath's Algorithms: Lars Helmstr\"om's Barret\_todecimal}
 \author{Current editor: Christoph Zurnieden\\
@@ -447,15 +466,66 @@ If we want a bigger chunk we can stop at a higher index and use \smalltt{mp\_to\
 
 \section{Computing the Reciprocals}
 
-The code to calculate the elements of the sequence $\ceil{\left(2^{2^ks}\right)/n^{\left(2^k\right)}}$ (with $k = \{0,1,2,3,\dots\}$, $s = 20$, and $n = 1\,000$) looks quite complicated because it needs to compute the sequence with integer math only. After peeling all of the many layers off we get
+The reciprocals are the values of the sequence
+$\ceil{\left(2^s/n\right)^{\left(2^k\right)}}  =  \ceil{\left(2^{2^ks}\right)/n^{\left(2^k\right)}}$
+(with $k = \{0,1,2,3,\dots\}$, $s = 20$, and $n = 1\,000$). We cannot simply square because $2^s \nmid n$ and hence $\ceil{\left(2^s/n\right)}^{\left(2^k\right)} \not= \ceil{\left(2^s/n\right)^{\left(2^k\right)}}$ but we can use one round of Newton-Raphson to overcome this inconvenient obstacle.
+
 \begin{equation}
-\floor{\frac{2^{2^ks + 1}}{n^{\left(2^k\right)}}} - \floor{\frac{2^{2^ks}}{n^{\left(2^k\right)}}}
+x_{n+1} = x_n\left(2 - Dx_n\right) = 2x_n - Dx_n^2
 \end{equation}
-which is slightly off, we need a bit more meat to avoid that rounding error, Lars Helmstr\"om used 8 extra bits to pre-compute the value at $k=0$. The last layer with the scaling included is now
+
+By substituting $x_n = \ceil{2^s/n}^2$ and\footnote{Here $\odiv$ stands for ``use truncating division (rounding to next integer in direction of zero) later in the algebraic transformations because truncating division is all we have in big--integer land''} $D = \left(n \odiv 2^s\right)^2$ we get
+
+\begin{equation}\label{eq:newtonraphson01}
+x_{n+1} = 2\ceil{2^s/n}^2 - \floor{\frac{\ceil{2^s/n}^4n^2}{2^{2s}}}
+\end{equation}
+
 \begin{equation}
-\floor{\frac{2^{2^ks + 7}}{n^{\left(2^k\right)}}} - \floor{\frac{2^{2^ks + 6}}{n^{\left(2^k\right)}}}\cdot 2^{-6} + 1
+x_{n+1} = 2\left\lceil 2^s/n\right\rceil^2 - \left\lfloor\frac{\left\lceil 2^s/n\right\rceil^4 n^2}{2^{2s}}\right\rfloor
 \end{equation}
-That together with some clever scaling to replace the expensive division $n^{\left(2^k\right)}$ by a much cheaper shift (with the additional cost of one multiplication and two squarings) we get the code as listed in algorithm \ref{alg:barrettodecimal}.
+
+The error $\left(1- Dx_n\right)^2$ is $1$, assuming the same substitutions as above, but that is misleading. The error without the truncating division is about \num{2e-34} and a simple addition of $1$ will not do. The following short and highly unoptimized Pari/\kern-1.2pt gp script will wet this dry theory with some numbers:
+
+\lstset{language=parigp}
+\begin{pblisting}{caption={Print error},label=lst:parigperror}
+NR_error(extra, limit) = {
+   local(n, s, M, t);
+   for(m=0,extra,
+      n = 1000;
+      s= 20;
+      for(k=0,limit,
+         M = (2*ceil(2^(s+m)/n)^2 - ( ceil(2^(s+m)/n)^4*n^2)\2^(2*(s+m)))\2^(2*m) + 1;
+         t = ceil(2^(2*s)/n^2);
+         t = M-t;
+         printf(t);
+         if( k != limit,
+            printf(", ")
+         );
+         n = n^2;
+         s = 2*s;
+      );
+       print("");
+   );
+}
+\end{pblisting}
+
+Running \texttt{NR\_error(3, 22)} lasts a long time and needs a lot of memory but eventually prints:
+
+\begin{table}[h]
+\begin{center}\resizebox{\textwidth}{!}{%
+\begin{tabular}{c | c  c  c  c  c  c  c  c  c  c  c  c  c  c  c  c  c  c  c  c  c c c}
+\multicolumn{1}{c}{\texttt{\textbf{extra}}}&\multicolumn{18}{c}{\textbf{Error}}\\
+$0$ & $0$& $1$& $1$& $1$& $0$& $0$& $1$& $0$& $-$$2$& $1$& $0$& $1$& $-$$2$& $1$& $-$$1$& $0$& $-$$3$& $0$& $0$& $0$ & $0$& $1$& $0$ \\
+$1$ & $0$& $0$& $0$& $0$& $0$& $1$& $0$& $-$$1$& $0$& $0$& $1$& $0$& $0$& $0$& $0$& $-$$1$& $-$$1$& $-$$1$& $0$& $0$& $0$& $0$& $0$ \\
+$2$ &  $0$& $0$& $0$& $0$& $0$& $0$& $0$&  $0$& $0$& $0$& $0$& $0$& $0$& $0$& $0$&  $0$&  $0$&  $0$& $0$& $0$& $0$& $0$& $0$ \\
+$3$ &$0$& $0$& $0$& $0$& $0$& $0$& $0$&  $0$& $0$& $0$& $0$& $0$& $0$& $0$& $0$&  $0$&  $0$&  $0$& $0$& $0$& $0$& $0$& $0$   
+\end{tabular}}
+\captionof{table}{Results of \texttt{NR\_error(3, 22)}}\label{tab:nr_error_3_22}
+\end{center}
+\end{table}
+
+
+
 
 
 \end{document}
