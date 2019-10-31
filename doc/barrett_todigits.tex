@@ -19,6 +19,7 @@
 \usepackage{siunitx}
 \usepackage{graphicx}
 
+\usepackage{float}
 % pseudocode
 \usepackage[end]{algpseudocode}
 \newcommand*\Let[2]{\State #1 $\gets$ #2}
@@ -191,17 +192,14 @@ frametitlealignment=\raggedright
 
 \lstdefinelanguage{parigp}{
   alsoletter={\\},
-  keywords={ for, forcomposite, fordiv, fordivfactored, forell, forfactored, forpart, forperm,%
-             forprime, forsquarefree, forstep, forsubgroup, forsubset, forvec,%
-             if, iferr, next, return, until, while, %
-             local,%
-             alias, allocatemem, apply, call, default,%
-             extern, externstr, fold, getabstime, getenv, getheap, getrand, getstack, gettime,%
-             getwalltime, global, inline, input%
-             localbitprec, localprec,%
-             print, print1, printf, printp, printsep, printsep1, printtex,%
-             quit, read, readstr, readvec, self, setrand, system, type, uninline,%
-             version, write, write1, writebin, writetex},
+  keywords={ for, forcomposite, fordiv, fordivfactored, forell, forfactored, forpart,%
+             forperm, forprime, forsquarefree, forstep, forsubgroup, forsubset,%
+             forvec, if, iferr, next, return, until, while, local, alias, allocatemem,%
+             apply, call, default, extern, externstr, fold, getabstime, getenv,%
+             getheap, getrand, getstack, gettime, getwalltime, global, inline, input,%
+             localbitprec, localprec, print, print1, printf, printp, printsep,%
+             printsep1, printtex, quit, read, readstr, readvec, self, setrand,%
+             system, type, uninline, version, write, write1, writebin, writetex},
   keywordstyle=\bfseries,
   morekeywords={[2]{log, floor, ceil,gcd, lcm,sqrt, sqrtn,sqrtint,%
               sin,cos,tan,asin,acos,atan,sinh,cosh,tanh, asinh,acosh,atanh,%
@@ -314,6 +312,7 @@ This artikel describes the algorithm behind the function \smalltt{Barret\_todeci
 \section{Pseudocode}
 
 \subsection{Setup}
+% TODO: no minipage enclosure to reduce width, it is put on the next page if it is in one.
 \begin{center}
   \captionof{algorithm}{Barret\_todecimal\label{alg:barrettodecimal}}
   \begin{algorithmic}[1]
@@ -361,11 +360,11 @@ The first five rounds and the last one result in the following values
 \begin{table}[h]
 \begin{center}
 \begin{tabular}{c l r l }
-\textbf{Index}&\textbf{$\mathbf{n}$}&\textbf{Shift}&\textbf{$\mathbf{M}$}\\
-1  & $n^1$  &  20 & $1049$\\
-2  & $n^2$  &  40 & $1099512$\\
-3  & $n^4$  &  80 & $1208925819615$\\
-4  & $n^8$  & 160 & $1461501637330902918203685$\\
+\textbf{Index}&$\mathbf{n}$&\textbf{Shift}&$\mathbf{M}$\\
+1  & $n^1$    &  20 & $1049$\\
+2  & $n^2$    &  40 & $1099512$\\
+3  & $n^4$    &  80 & $1208925819615$\\
+4  & $n^8$    & 160 & $1461501637330902918203685$\\
 5  & $n^{16}$ & 320 & $2135987035920910082395021706169552114602704522357$\\
 \multicolumn{4}{c}{\textellipsis}\\
 20 & $n^{\left({2^{20}}\right)}$ & 20971520 & $\approx 3.7554941942\,e3167328$
@@ -418,7 +417,7 @@ The next entries in the list are be
 32 & $n^{\left(2^{32}\right)}$ & 85899345920   & $6.8615269276\,e12973377841$ &  \\
 33 & $n^{\left(2^{33}\right)}$ & 171798691840  & $4.7080551778\,e25946755683$ &  \\
 34 & $n^{\left(2^{34}\right)}$ & 343597383680  & $2.2165783558\,e51893511367$ 
-                                                                      & $> 10^{38\,787\,419\,594}$ \\
+                                                                  & $> 10^{38\,787\,419\,594}$ \\
 \end{longtable}
 \captionof{table}{Results of rounds 21-34)}\label{tab:rounds21to34}
 \end{center}
@@ -432,6 +431,7 @@ with $b_a = \floor{\log_2 a} + 1$ the number of bits in $a$, assuming $1\,000$ a
 \subsection{Recursion}
 
 \begin{center}
+\begin{minipage}{.9\linewidth}
   \captionof{algorithm}{Barret\_todecimalRecursion\label{alg:barrettodecimalrecursion}}
   \begin{algorithmic}[1]
     \Require{$a > 0$, big-integer, $n^\ell, s^\ell, m^\ell, \rho, L, b$, from Barret\_todecimal}
@@ -457,6 +457,7 @@ with $b_a = \floor{\log_2 a} + 1$ the number of bits in $a$, assuming $1\,000$ a
     \EndIf
     \EndFunction
   \end{algorithmic}
+ \end{minipage}
 \end{center}
 
 If the chunk is small enough ($\rho < 0$ for 0-based lists) we can build that part of the output.
@@ -512,10 +513,14 @@ Running \texttt{NR\_error(3, 22)} lasts a long time and needs a lot of memory bu
 \begin{center}\resizebox{\textwidth}{!}{%
 \begin{tabular}{c | c  c  c  c  c  c  c  c  c  c  c  c  c  c  c  c  c  c  c  c  c c c}
 \multicolumn{1}{c}{\texttt{\textbf{extra}}}&\multicolumn{18}{c}{\textbf{Error}}\\
-$0$ & $0$& $1$& $1$& $1$& $0$& $0$& $1$& $0$& $-$$2$& $1$& $0$& $1$& $-$$2$& $1$& $-$$1$& $0$& $-$$3$& $0$& $0$& $0$ & $0$& $1$& $0$ \\
-$1$ & $0$& $0$& $0$& $0$& $0$& $1$& $0$& $-$$1$& $0$& $0$& $1$& $0$& $0$& $0$& $0$& $-$$1$& $-$$1$& $-$$1$& $0$& $0$& $0$& $0$& $0$ \\
-$2$ &  $0$& $0$& $0$& $0$& $0$& $0$& $0$&  $0$& $0$& $0$& $0$& $0$& $0$& $0$& $0$&  $0$&  $0$&  $0$& $0$& $0$& $0$& $0$& $0$ \\
-$3$ &$0$& $0$& $0$& $0$& $0$& $0$& $0$&  $0$& $0$& $0$& $0$& $0$& $0$& $0$& $0$&  $0$&  $0$&  $0$& $0$& $0$& $0$& $0$& $0$   
+$0$ & $0$& $1$& $1$& $1$& $0$& $0$& $1$& $0$& $-$$2$& $1$& $0$&
+   $1$& $-$$2$& $1$& $-$$1$& $0$& $-$$3$& $0$& $0$& $0$ & $0$& $1$& $0$ \\
+$1$ & $0$& $0$& $0$& $0$& $0$& $1$& $0$& $-$$1$& $0$& $0$& $1$&
+   $0$& $0$& $0$& $0$& $-$$1$& $-$$1$& $-$$1$& $0$& $0$& $0$& $0$& $0$ \\
+$2$ &  $0$& $0$& $0$& $0$& $0$& $0$& $0$&  $0$& $0$& $0$& $0$&
+   $0$& $0$& $0$& $0$&  $0$&  $0$&  $0$& $0$& $0$& $0$& $0$& $0$ \\
+$3$ &$0$& $0$& $0$& $0$& $0$& $0$& $0$&  $0$& $0$& $0$& $0$& $0$&
+   $0$& $0$& $0$&  $0$&  $0$&  $0$& $0$& $0$& $0$& $0$& $0$   
 \end{tabular}}
 \captionof{table}{Results of \texttt{NR\_error(3, 22)}}\label{tab:nr_error_3_22}
 \end{center}
@@ -527,13 +532,13 @@ The largest problem for other bases is generating a good fitting $s$. With base 
 \lstset{language=parigp}
 \begin{pblisting}{caption={Find start values for $n$ for table \ref{tab:startvaluesn}},label=lst:startvaluesn}
 max_size_n(limit_s) = {
-   local(t, n);
+   local(t, n, s = 40, ro8);
    for(k= 2, 63,
       for(m = 1, limit_s + 1,
          n = k^m; t = ceil(log(n)/log(2));
          if( t > limit_s,
-            t = m-1; n = k^t;
-            print(k ", " t ", " n);
+            t = m-1; n = k^t;ro8 = ceil(ceil(2^(s+3)/n)/8);
+            print(k ", " t ", " n ", " ro8);
             break(1);
          );
       );
@@ -542,62 +547,71 @@ max_size_n(limit_s) = {
 
 \end{pblisting}
 \begin{center}
-\begin{longtable}{r r r | r r r}
+\begin{longtable}{r r r r | r r r r}
 \multicolumn{1}{r}{$\mathbf{b}$}&
 \multicolumn{1}{r}{$\mathbf{k}$}&
 \multicolumn{1}{r}{$\mathbf{n = b^k}$}&
+\multicolumn{1}{r}{$\mathbf{M = \ceil{\ceil{2^{s+3}/n}/8}}$}&
 \multicolumn{1}{r}{$\mathbf{b}$}&
 \multicolumn{1}{r}{$\mathbf{k}$}&
-\multicolumn{1}{r}{$\mathbf{n = b^k}$} \\
+\multicolumn{1}{r}{$\mathbf{n = b^k}$}&
+\multicolumn{1}{r}{$\mathbf{M = \ceil{\ceil{2^{s+3}/n}/8}}$}\\
 \endfirsthead
 %
 \multicolumn{1}{r}{$\mathbf{b}$}&
 \multicolumn{1}{r}{$\mathbf{k}$}&
 \multicolumn{1}{r}{$\mathbf{n = b^k}$}&
+\multicolumn{1}{r}{$\mathbf{M = \ceil{\ceil{2^{s+3}/n}/8}}$}&
 \multicolumn{1}{r}{$\mathbf{b}$}&
 \multicolumn{1}{r}{$\mathbf{k}$}&
-\multicolumn{1}{r}{$\mathbf{n = b^k}$} \\
+\multicolumn{1}{r}{$\mathbf{n = b^k}$}&
+\multicolumn{1}{r}{$\mathbf{M = \ceil{\ceil{2^{s+3}/n}/8}}$}\\
 \endhead
 % To get a bit more "headroom"
 \rule{0pt}{1ex}\\
 \multicolumn{6}{c}{{\footnotesize{\textit{Continued on next page}}}} \\
 \endfoot
 \endlastfoot
-% TODO: make use of the whole textwidth
-2 & 20 & 1048576  &  33 & 3 & 35937 \\
-3 & 12 & 531441  &   34 & 3 & 39304 \\
-4 & 10 & 1048576  &  35 & 3 & 42875 \\
-5 & 8 & 390625  &    36 & 3 & 46656 \\
-6 & 7 & 279936  &    37 & 3 & 50653 \\
-7 & 7 & 823543  &    38 & 3 & 54872 \\
-8 & 6 & 262144  &    39 & 3 & 59319 \\
-9 & 6 & 531441  &    40 & 3 & 64000 \\
-10 & 6 & 1000000  &  41 & 3 & 68921 \\
-11 & 5 & 161051  &   42 & 3 & 74088 \\
-12 & 5 & 248832  &   43 & 3 & 79507 \\
-13 & 5 & 371293  &   44 & 3 & 85184 \\
-14 & 5 & 537824  &   45 & 3 & 91125 \\
-15 & 5 & 759375  &   46 & 3 & 97336 \\
-16 & 5 & 1048576  &  47 & 3 & 103823 \\
-17 & 4 & 83521  &    48 & 3 & 110592 \\
-18 & 4 & 104976  &   49 & 3 & 117649 \\
-19 & 4 & 130321  &   50 & 3 & 125000 \\
-20 & 4 & 160000  &   51 & 3 & 132651 \\
-21 & 4 & 194481  &   52 & 3 & 140608 \\
-22 & 4 & 234256  &   53 & 3 & 148877 \\
-23 & 4 & 279841  &   54 & 3 & 157464 \\
-24 & 4 & 331776  &   55 & 3 & 166375 \\
-25 & 4 & 390625  &   56 & 3 & 175616 \\
-26 & 4 & 456976  &   57 & 3 & 185193 \\
-27 & 4 & 531441  &   58 & 3 & 195112 \\
-28 & 4 & 614656  &   59 & 3 & 205379 \\
-29 & 4 & 707281  &   60 & 3 & 216000 \\
-30 & 4 & 810000  &   61 & 3 & 226981 \\
-31 & 4 & 923521  &   62 & 3 & 238328 \\
-32 & 4 & 1048576  &  63 & 3 & 250047
+2  & 20 & 1048576 & 1048576  &  33 & 3  & 35937   & 30595532 \\
+3  & 12 & 531441  & 2068926  &  34 & 3  & 39304   & 27974548 \\
+4  & 10 & 1048576 & 1048576  &  35 & 3  & 42875   & 25644587 \\
+5  & 8  & 390625  & 2814750  &  36 & 3  & 46656   & 23566351 \\
+6  & 7  & 279936  & 3927726  &  37 & 3  & 50653   & 21706743 \\
+7  & 7  & 823543  & 1335100  &  38 & 3  & 54872   & 20037754 \\
+8  & 6  & 262144  & 4194304  &  39 & 3  & 59319   & 18535573 \\
+9  & 6  & 531441  & 2068926  &  40 & 3  & 64000   & 17179870 \\
+10 & 6  & 1000000 & 1099512  &  41 & 3  & 68921   & 15953217 \\
+11 & 5  & 161051  & 6827103  &  42 & 3  & 74088   & 14840617 \\
+12 & 5  & 248832  & 4418691  &  43 & 3  & 79507   & 13829118 \\
+13 & 5  & 371293  & 2961305  &  44 & 3  & 85184   & 12907490 \\
+14 & 5  & 537824  & 2044371  &  45 & 3  & 91125   & 12065972 \\
+15 & 5  & 759375  & 1447917  &  46 & 3  & 97336   & 11296043 \\
+16 & 5  & 1048576 & 1048576  &  47 & 3  & 103823  & 10590251 \\
+17 & 4  & 83521   & 13164494 &  48 & 3  & 110592  & 9942054  \\
+18 & 4  & 104976  & 10473934 &  49 & 3  & 117649  & 9345695  \\
+19 & 4  & 130321  & 8436949  &  50 & 3  & 125000  & 8796094  \\
+20 & 4  & 160000  & 6871948  &  51 & 3  & 132651  & 8288755  \\
+21 & 4  & 194481  & 5653569  &  52 & 3  & 140608  & 7819695  \\
+22 & 4  & 234256  & 4693633  &  53 & 3  & 148877  & 7385370  \\
+23 & 4  & 279841  & 3929059  &  54 & 3  & 157464  & 6982623  \\
+24 & 4  & 331776  & 3314018  &  55 & 3  & 166375  & 6608635  \\
+25 & 4  & 390625  & 2814750  &  56 & 3  & 175616  & 6260886  \\
+26 & 4  & 456976  & 2406060  &  57 & 3  & 185193  & 5937113  \\
+27 & 4  & 531441  & 2068926  &  58 & 3  & 195112  & 5635285  \\
+28 & 4  & 614656  & 1788825  &  59 & 3  & 205379  & 5353574  \\
+29 & 4  & 707281  & 1554562  &  60 & 3  & 216000  & 5090332  \\
+30 & 4  & 810000  & 1357422  &  61 & 3  & 226981  & 4844070  \\
+31 & 4  & 923521  & 1190565  &  62 & 3  & 238328  & 4613439  \\
+32 & 4  & 1048576 & 1048576  &  63 & 3  & 250047  & 4397220
+
 \end{longtable}
-\captionof{table}{Startvalues for $n$ for assorted bases $b$}\label{tab:startvaluesn}
+\captionof{table}{Start--values for $n$ for assorted bases $b$ with $s = 40$}\label{tab:startvaluesn}
 \end{center}
+
+If we start with $s = 20$ for all bases the start--values for $n$ in table \ref{tab:startvaluesn} the exponents $k$ would need to be halved and be way too small for all values above base $10$. There are no need for changes in algorithm \ref{alg:barrettodecimal} (\smalltt{Barrett\_todecimal}, just plug in the values from the table above for $n$ and $M$ and set $s = 80$ instead.
+
+Nothing needs to be changed in algorithm \ref{alg:barrettodecimalrecursion} (\smalltt{Barret\_todecimalRecursion}) but the number of digits produced in the leafs which are represented by the exponent $k$. With e.g.: base $10$ the algorithm produces $6$ digits now instead of $3$.
+
 
 The little script used to generate the values for the table \ref{tab:baserelations} is:
 
@@ -641,27 +655,27 @@ sizes_of_bases(limit) = {
 \multicolumn{4}{c}{{\footnotesize{\textit{Continued on next page}}}} \\
 \endfoot
 \endlastfoot
-10 & 10 & 10 & 10 \\
-20 & 20 & 19 & 20 \\
-40 & 39 & 38 & 40 \\
-80 & 77 & 75 & 80 \\
-160 & 153 & 149 & 160 \\
-320 & 305 & 298 & 319 \\
-640 & 609 & 595 & 638 \\
-1280 & 1218 & 1189 & 1276 \\
-2560 & 2435 & 2378 & 2552 \\
-5120 & 4870 & 4756 & 5103 \\
-10240 & 9739 & 9511 & 10205 \\
-20480 & 19477 & 19022 & 20410 \\
-40960 & 38953 & 38043 & 40820 \\
-81920 & 77905 & 76085 & 81640 \\
-163840 & 155809 & 152170 & 163280 \\
-327680 & 311617 & 304340 & 326559 \\
-655360 & 623233 & 608680 & 653118 \\
-1310720 & 1246466 & 1217360 & 1306236 \\
-2621440 & 2492931 & 2434719 & 2612471 \\
-5242880 & 4985861 & 4869437 & 5224942 \\
-10485760 & 9971722 & 9738873 & 10449883 \\
+10       & 10       & 10       & 10       \\
+20       & 20       & 19       & 20       \\
+40       & 39       & 38       & 40       \\
+80       & 77       & 75       & 80       \\
+160      & 153      & 149      & 160      \\
+320      & 305      & 298      & 319      \\
+640      & 609      & 595      & 638      \\
+1280     & 1218     & 1189     & 1276     \\
+2560     & 2435     & 2378     & 2552     \\
+5120     & 4870     & 4756     & 5103     \\
+10240    & 9739     & 9511     & 10205    \\
+20480    & 19477    & 19022    & 20410    \\
+40960    & 38953    & 38043    & 40820    \\
+81920    & 77905    & 76085    & 81640    \\
+163840   & 155809   & 152170   & 163280   \\
+327680   & 311617   & 304340   & 326559   \\
+655360   & 623233   & 608680   & 653118   \\
+1310720  & 1246466  & 1217360  & 1306236  \\
+2621440  & 2492931  & 2434719  & 2612471  \\
+5242880  & 4985861  & 4869437  & 5224942  \\
+10485760 & 9971722  & 9738873  & 10449883 \\
 20971520 & 19943444 & 19477745 & 20899765 \\
 41943040 & 39886888 & 38955490 & 41799529
 \end{longtable}
@@ -670,15 +684,189 @@ sizes_of_bases(limit) = {
 
 The difference between the behaviour of base $10$ and $s$ is relatively similar but it gets quite large with the other bases. It is a bit complicated to generate the values programmatically but as all of the numbers up to $k=28$ stay below $2^{32}$ a small table would be enough.
 
+\subsection{Some optimizations}\label{subsec:optimizations}
+
 If the input of the function \smalltt{Barret\_todecimal} is restricted to base $10$, base $5$ can be used for optimization by observing that $10 = 2\cdot5$ which can safe about a third ($\log(2)/\log(5) \approx 0.4307$) of the magnitude in multiplication.
 
-\section{Convert \smalltt{Barret\_todecimal} to an iterative algorithm}
+Factoring all of the other even bases (table \ref{tab:factoreven}) gives a hint of another way to reduce the amount of necessary computation: the bases that are powers of two need shifts only. This can be done, without a lot of effort and memory, in \smalltt{mp\_to\_radix}, too.
+
+Using all of the factors is less attractive because every other additional factor needs its own large cache and a method to use it. Most of the odd bases are prime already, none of the rest has more than two factors and all the work and memory for the three bases $30$, $42$, and $60$ that would need such a special treatment is just not economical.
+% TODO: Nuh, still way too much white. Make three columns?
+\begin{table}[H]
+\begin{center}
+\begin{tabular}{l c c c l c c c}
+\textbf{base}&\multicolumn{3}{c}{\textbf{factors}}&\textbf{base}&\multicolumn{3}{c}{\textbf{factors}} \\
+2  & $ 2^1 $&        &         & 34 & $ 2^1 $&$ 17^1 $& 	       \\
+4  & $ 2^2 $&        &         & 36 & $ 2^2 $&$ 3^2 $ & 	       \\
+6  & $ 2^1 $&$ 3^1 $ &         & 38 & $ 2^1 $&$ 19^1 $& 	       \\
+8  & $ 2^3 $&        &         & 40 & $ 2^3 $&$ 5^1 $ & 	       \\
+10 & $ 2^1 $&$ 5^1 $ &         & 42 & $ 2^1 $&$ 3^1 $ &$  7^1 $        \\
+12 & $ 2^2 $&$ 3^1 $ &         & 44 & $ 2^2 $&$ 11^1 $& 	       \\
+14 & $ 2^1 $&$ 7^1 $ &         & 46 & $ 2^1 $&$ 23^1 $& 	       \\
+16 & $ 2^4 $&        &         & 48 & $ 2^4 $&$ 3^1 $ & 	       \\
+18 & $ 2^1 $&$ 3^2 $ &         & 50 & $ 2^1 $&$ 5^2 $ & 	       \\
+20 & $ 2^2 $&$ 5^1 $ &         & 52 & $ 2^2 $&$ 13^1 $& 	       \\
+22 & $ 2^1 $&$ 11^1 $&         & 54 & $ 2^1 $&$ 3^3 $ & 	       \\
+24 & $ 2^3 $&$ 3^1 $ &         & 56 & $ 2^3 $&$ 7^1 $ & 	       \\
+26 & $ 2^1 $&$ 13^1 $&         & 58 & $ 2^1 $&$ 29^1 $& 	       \\
+28 & $ 2^2 $&$ 7^1 $ &         & 60 & $ 2^2 $&$ 3^1 $ &$  5^1 $        \\
+30 & $ 2^1 $&$ 3^1 $ &$  5^1 $ & 62 & $ 2^1 $&$ 31^1 $& 	       \\
+32 & $ 2^5 $&&                 & 64 & $ 2^6 $&         &
+\end{tabular}
+\captionof{table}{Factors of the even bases}\label{tab:factoreven}
+\end{center}
+\end{table}
+
+\section{Convert {\texttt{Barret\_todecimal}} to an iterative algorithm}
 
 T.\kern-.2pt b\kern-.5pt.d.
 
 
-\section{\smalltt{from\_decimal}}
-T.\kern-.2pt b\kern-.5pt.d.
+\section{Convert a decimal string to a big integer}
+The \smalltt{mp\_from\_decimal} is a much less complicated method. For simplicity only the recursive algorithm is given here.
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+  \captionof{algorithm}{from\_decimal\label{alg:fromdecimal}}
+  \begin{algorithmic}[1]
+    \Require{$a$, big--integer, $b_{10}$, decimal string}
+    \Ensure{$a$ filled with the value of $b_{10}$ converted from a decimal number}
+    \Function{from\_decimal}{$a$}
+    \Let{$\ell$}{$\#b_{10}$} \Comment{Number of bytes (characters) in the string}
+    \If{The first character in $b_{10}$ is a minus--sign}
+       \Let{$\ell$}{$\ell - 1$}
+       \If{$\ell = 0$} \Comment{No digits beside the minus--sign}
+          \RETURN {$\quad$error}
+       \EndIf
+       \Let{$a$}{$-a$}
+       \State{Strip the byte for the character representing the sign from $b_{10}$}
+    \EndIf
+    \If{$\ell < C$}\Comment{$C$ is a (tunable) cut--off value. $C = 100$ seems reasonable.}
+      \Let{$a$}{$b_{10} \to b_\beta$}\Comment{Convert the decimal number in $b$ to the bigint $a$.}
+    \Else
+      \State \Call{from\_decimal\_recursion}{$a$, $b_{10}$, $0$, $\ell$}
+    \EndIf
+    \EndFunction
+  \end{algorithmic}
+\end{minipage}
+\end{center}
+
+The recursion itself is as straight forward as a recursion can be.\newpage
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+  \captionof{algorithm}{from\_decimal\_recursion\label{alg:fromdecimalrecursion}}
+  \begin{algorithmic}[1]
+    \Require{$a$, big--integer, $b_{10}$ decimal string, $s$ start, $e$ end, given by from\_decimal}
+    \Ensure{$a$ filled with the value of $b_{10}$ converted from a decimal number}
+    \Function{from\_decimal\_recursion}{$a$,$b_{10}$, $s$, $e$}
+    \Let{$\ell$}{$e - s$ }
+    \If{$\ell < C$}\Comment{$C$ is the cut--off value from algorithm\ref{alg:fromdecimal}}
+      \Let{$a$}{$b_{10} \to b_\beta$}\Comment{Convert the decimal number in $b_{10}$ from bytes $s$ to $e$ %
+                                              to the bigint $a$.}
+      \RETURN
+    \Else
+      \Let{$m$}{$\floor{\frac{\ell}{2}}$}
+      \State \Call{from\_decimal\_recursion}{$A$, $b_{10}$, $s$, $s + m + 1$}
+      \State \Call{from\_decimal\_recursion}{$B$, $b_{10}$, $s + m + 1$, $e$}
+      \Let{$T$}{$10^{\ell - m - 1}$}\label{alg:fromdecimalrecursion:line:T}
+      \Let{$a$}{$A \cdot T + B$}
+    \EndIf
+    \EndFunction
+  \end{algorithmic}
+\end{minipage}
+\end{center}
+
+The same optimization described in section \ref{subsec:optimizations} is applicable here, too. Change the line \ref{alg:fromdecimalrecursion:line:T} in algorithm \ref{alg:fromdecimalrecursion} from $T = 10^{\ell - m - 1}$ to $T = 5^{\ell - m - 1} \cdot 2^{\ell - m - 1}$.
+
+\subsection{Extending to other bases}
+
+The algorithms \ref{alg:fromdecimal} \smalltt{from\_decimal} and \ref{alg:fromdecimalrecursion} \smalltt{from\_decimal\_recursion} can be extended to all other bases with minimal effort.
+
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+  \captionof{algorithm}{from\_string\label{alg:fromstring}}
+  \begin{algorithmic}[1]
+    \Require{$a$, big--integer, $b_r$, string, $r$, the base}
+    \Ensure{$a$ filled with the value of $b_r$ converted from a number in base $r$}
+    \Function{from\_string}{$a$}
+    \If{$r < 2 \and r > 64$}
+       \RETURN {$\quad$error}
+    \EndIf
+    \Let{$\ell$}{$\#b_r$} \Comment{Number of bytes (characters) in the string}
+    \If{The first character in $b_r$ is a minus--sign}
+       \Let{$\ell$}{$\ell - 1$}
+       \If{$\ell = 0$} \Comment{No digits following the minus--sign}
+          \RETURN {$\quad$error}
+       \EndIf
+       \Let{$a$}{$-a$}
+       \State{Strip the byte for the character representing the sign from $b_r$}
+    \EndIf
+    \If{$\ell < C$}\Comment{$C$ is a (tunable) cut--off value.}
+      \Let{$a$}{$b_r \to b_\beta$}\Comment{Convert the number in $b_r$ to the bigint $a$.}
+    \Else
+      \State \Call{from\_number\_recursion}{$a$, $b_r$, $0$, $\ell$, $r$}
+    \EndIf
+    \EndFunction
+  \end{algorithmic}
+\end{minipage}
+\end{center}
+
+The changes needed for the recursion are also minimal.
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+  \captionof{algorithm}{from\_string\_recursion\label{alg:fromstringrecursion}}
+  \begin{algorithmic}[1]
+    \Require{$a$, big--integer, $b_r$ decimal string, $s$ start, $e$ end, $r$, the base, given by from\_string}
+    \Ensure{$a$ filled with the value of $b_r$ converted from a number of base $r$}
+    \Function{from\_string\_recursion}{$a$,$b_r$, $s$, $e$, $r$}
+    \Let{$\ell$}{$e - s$ }
+    \If{$\ell < C$}\Comment{$C$ is the cut--off value from algorithm\ref{alg:fromstring}}
+      \Let{$a$}{$b_r \to b_\beta$}\Comment{Convert the number in $b_r$ from bytes $s$ to $e$ %
+                                              to the bigint $a$.}
+      \RETURN
+    \Else
+      \Let{$m$}{$\floor{\frac{\ell}{2}}$}
+      \State \Call{from\_decimal\_recursion}{$A$, $b_r$, $s$, $s + m + 1$, $r$}
+      \State \Call{from\_decimal\_recursion}{$B$, $b_r$, $s + m + 1$, $e$, $r$}
+      \Let{$T$}{$r^{\ell - m - 1}$}
+      \Let{$a$}{$A \cdot T + B$}
+    \EndIf
+    \EndFunction
+  \end{algorithmic}
+\end{minipage}
+\end{center}
+
+\subsection{Partial string conversion}
+Both recursive algorithms to convert a string to a big--integer need a method for the last mile, the actual conversion. This can be done with an already existing iterative algorithm. It would need a copy of the part of the string it is supposed to convert which would double the amount of memory needed for the input--string.
+But with almost all checks and balances already done, all we need is the inner loop of the actual conversion.
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+  \captionof{algorithm}{from\_string\_small\label{alg:fromstringsmall}}
+  \begin{algorithmic}[1]
+    \Require{$a$, big--integer, $b_r$ decimal string, $s$ start, $e$ end, $r$, the base}
+    \Ensure{$a$ filled with the value of $b_r$ from byte $s$ to byte $e$ converted from a number of base $r$}
+    \Function{from\_string\_small}{$a$,$b_r$, $s$, $e$, $r$}
+    \For{character (byte) $c$ in $b_r$ from byte $s$ to byte $e$}
+       \If{$c < 0x28$}\Comment{Rough check if we have a usable ASCII character}
+          \RETURN {$quad$ error}
+       \EndIf
+       \Let{$p$}{$c - 0x28$}\Comment{Make the position $p$ $0$--based to be able to use a table}
+       \State \CommentMulti{ Here $t$ is a small table for a fast a character--value map}
+       \Let{$v$}{$t_p$}
+       \If{$v \ge base$} \Comment{Wrong character?}
+          \RETURN {$\quad$ error}
+       \EndIf
+       \Let{$a$}{$a \cdot r + v$}
+    \EndFor
+    \EndFunction
+  \end{algorithmic}
+\end{minipage}
+\end{center}
+
 
 
 
