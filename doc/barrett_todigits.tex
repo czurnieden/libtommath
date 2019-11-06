@@ -686,6 +686,7 @@ The difference between the behaviour of base $10$ and $s$ is relatively similar 
 
 \subsection{Some optimizations}\label{subsec:optimizations}
 
+\subsubsection{Factoring the bases}
 If the input of the function \smalltt{Barret\_todecimal} is restricted to base $10$, base $5$ can be used for optimization by observing that $10 = 2\cdot5$ which can safe about a third ($\log(2)/\log(5) \approx 0.4307$) of the magnitude in multiplication.
 
 Factoring all of the other even bases (table \ref{tab:factoreven}) gives a hint of another way to reduce the amount of necessary computation: the bases that are powers of two need shifts only. This can be done, without a lot of effort and memory, in \smalltt{mp\_to\_radix}, too.
@@ -717,9 +718,47 @@ Using all of the factors is less attractive because every other additional facto
 \end{center}
 \end{table}
 
-\section{Convert {\texttt{Barret\_todecimal}} to an iterative algorithm}
 
-T.\kern-.2pt b\kern-.5pt.d.
+\subsubsection{Larger Leafs}
+The algorithm as it is now goes to the very end of the recursion until the actual number conversion is done. The amount of converted digits is very small down there, just the number of digits in $n^1-1$ which is a mere $\ceil{\log_{10}(999)} = 3$ digits in case of base $10$.
+To get more digits we need to stop at an earlier stage $k > 0$ of the recursion to do the conversion instead of $k = 0$. The maximum number of digits needed for the base $\beta$is
+\begin{equation}
+\ceil{\log_\beta\left(n^{\left(2^k\right)}-1\right)}\quad\text{with}\quad n = \beta^\kappa
+\end{equation}
+Here $\beta$ is the base and the value of $\kappa$ can be taken from table \ref{tab:startvaluesn} but keep in mind that the shift--value is $s = 40$ there instead of the original $s = 20$.
+
+The algorithm itself needs more information than the algorithm \smalltt{Barret\_todecimalRecursion} in \ref{alg:barrettodecimalrecursion} offers. We also need the base $\beta$ and the exponent of the start--value $\kappa$.
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+  \captionof{algorithm}{to\_string\label{alg:tostring}}
+  \begin{algorithmic}[1]
+    \Require{$a$, big--integer, $b$, buffer, $\beta$, $\kappa$, $k$, $L$, bool (is left?)}
+    \Ensure{$b$ filled with the value of $a$ converted to base $\beta$}
+    \Function{to\_string}{$a$, $b$,$\beta$, $\kappa$, $k$, $L$}
+    \Let{$K$}{$\kappa + 2^k - 1$}\Comment{Cut--off at $k=5$ on the authors machine, around 600 bits.}
+    \Let{$S$}{A temporary buffer of size $K$}
+    \Let{$S$}{Fill the whole buffer with the ASCII digit zero, \smalltt{0x30}}
+    \Let{$d$}{$0$}
+    \While{$a \not= 0$}
+       \Let{$q$}{$\floor{\frac{a}{\beta}}$} \Comment{Big--integer division}
+       \Let{$r$}{$a - \left(q \cdot \beta\right)$}
+       \Let{$c$}{$T_r$}\Comment{$T$ a table mapping $r$ to a character}
+       \Let{$S_{K-d}$}{$c$}\Comment{Fill buffer $S$ from the end}
+       \Let{$d$}{$d + 1$}
+       \Let{$a$}{$q$}
+    \EndWhile
+    \EndFunction
+  \end{algorithmic}
+\end{minipage}
+\end{center}
+
+
+
+
+% \section{Convert {\texttt{Barret\_todecimal}} to an iterative algorithm}
+
+% T.\kern-.2pt b\kern-.5pt.d.
 
 
 \section{Convert a decimal string to a big integer}
@@ -751,7 +790,7 @@ The \smalltt{mp\_from\_decimal} is a much less complicated method. For simplicit
 \end{minipage}
 \end{center}
 
-The recursion itself is as straight forward as a recursion can be.\newpage
+The recursion itself is as straight forward as a recursion can be.
 
 \begin{center}
 \begin{minipage}{.9\linewidth}
