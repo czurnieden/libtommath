@@ -830,7 +830,7 @@ The algorithms \ref{alg:fromdecimal} \smalltt{from\_decimal} and \ref{alg:fromde
     \Require{$a$, big--integer, $b_r$, string, $r$, the base}
     \Ensure{$a$ filled with the value of $b_r$ converted from a number in base $r$}
     \Function{from\_string}{$a$}
-    \If{$r < 2 \and r > 64$}
+    \If{$r < 2 \OR r > 64$}
        \RETURN {$\quad$error}
     \EndIf
     \Let{$\ell$}{$\#b_r$} \Comment{Number of bytes (characters) in the string}
@@ -891,10 +891,10 @@ But with almost all checks and balances already done, all we need is the inner l
     \Function{from\_string\_small}{$a$,$b_r$, $s$, $e$, $r$}
     \For{character (byte) $c$ in $b_r$ from byte $s$ to byte $e$}
        \If{$c < 0x28$}\Comment{Rough check if we have a usable ASCII character}
-          \RETURN {$quad$ error}
+          \RETURN {$\quad$ error}
        \EndIf
        \Let{$p$}{$c - 0x28$}\Comment{Make the position $p$ $0$--based to be able to use a table}
-       \State \CommentMulti{ Here $t$ is a small table for a fast a character--value map}
+       \State \CommentMulti{ Here $t$ is a small table for fast character--value mapping}
        \Let{$v$}{$t_p$}
        \If{$v \ge base$} \Comment{Wrong character?}
           \RETURN {$\quad$ error}
