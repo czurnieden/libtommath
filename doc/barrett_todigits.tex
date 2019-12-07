@@ -133,6 +133,7 @@
 \DeclareMathOperator{\AND}{\wedge}
 \DeclareMathOperator{\OR}{\vee}
 \DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\flog}{flog}
 
 % don't forget to add an empty statement {} after that command to get a space
 % I did not want to add another package to this already very heavy prelude
@@ -273,7 +274,10 @@ frametitlealignment=\raggedright
 %no, a framed ox with grey background is just too much here
 %\newcommand*{\ttchar}[1]{\newcolorbox{\texttt{\strut#1}}}
 \newcommand*{\ttchar}[1]{\texttt{\textbf{\strut#1}}}
-\newcommand*{\smalltt}[1]{\small\texttt{#1}}
+\newcommand*{\smalltt}[1]{{\small\texttt{#1}}}
+% tried several alternatives but a simple boldface seems to do it
+\newcommand{\List}[1]{\mathbf{#1}}
+
 
 \makeatletter
 % Idea shamlessly stolen from Stephan Lehmke in
@@ -310,166 +314,117 @@ This artikel describes the algorithm behind the function \smalltt{Barret\_todeci
 \end{abstract}
 
 \section{Pseudocode}
-
 \subsection{Setup}
+
+The setup does nothing more than to check the input, compute the reciprocals and fill the cache with them.
+
 % TODO: no minipage enclosure to reduce width, it is put on the next page if it is in one.
 \begin{center}
-  \captionof{algorithm}{Barret\_todecimal\label{alg:barrettodecimal}}
+  \captionof{algorithm}{mp\_get\_str\label{alg:mpgetstr}}
   \begin{algorithmic}[1]
-    \Require{$a > 0$, big-integer, $b$, a buffer of suitable size}
-    \Ensure{$b$ filled with the value of $a$ converted to a decimal number}
-    \Function{Barret\_todecimal}{$a$}
-      \CommentInlineMulti{Setup and zero out three buffers that are able to hold 20 bigints each}
-      \Let{$n^\ell$}{$\{20,0\}$}
-      \Let{$s^\ell$}{$\{20,0\}$}
-      \Let{$m^\ell$}{$\{20,0\}$}
+    \Require{$a > 0$, big--integer; $b$, a buffer of size $\floor{\log(a)/\log(r)} + 1$; $2 \le r \le 64$ the radix}
+    \Ensure{$b$ filled with the value of $a$ converted to a string with radix $r$}
+    \Function{mp\_get\_str}{$a$}
+      \If{$a < C_{\textnormal{\textit{cut--off}}}$}\Comment{Exact value of $C_{\textnormal{\textit{cut--off}}}$ depends on individual hardware}
+         \State\Call{mp\_get\_str\_naive}{$a,b,r$}
+      \EndIf
+      \CommentInlineMulti{Here $t$ is a table with the start--values. Examples in table \ref{tab:startvalues}}
+      \Let{$n$}{$t_n$}
+      \Let{$M$}{$t_M$}
+      \CommentInlineMulti{If the unmodified values of the table \ref{tab:startvalues} are used, $s = 40$ for all $t_n$}
+      \Let{$s$}{$t_s$}
+      \CommentInlineMulti{Here $\flog_2(x) = \floor{\log_2(x)}$ for simplicity}
+      \Let{$c$}{$\flog_2\left(\floor{\frac{\flog_2\left(a\right)}{2\flog_2\left(n\right)}}\right)$}%
+      \Comment{$n^{2^c} < a$, number of squarings such that $\log_2(n) \approx \log_2(a)/2$}
+      \CommentInlineMulti{The lists $x^\ell$ need to be able to hold $c$ big--integers each.}
+      \Let{$\List{n}_0$}{$n$}
+      \Let{$\List{s}_0$}{$s$}
+      \Let{$\List{m}_0$}{$\ceil{M/2^\gamma}$}
 
-      \CommentInlineMulti{Set initial values: radix, shift and reciprocal}
-      \Let{$n$}{$1000$}
-      \Let{$n^\ell_0$}{$n$}
-      \Let{$s$}{$20$}
-      \Let{$s^\ell_0$}{$s$}
-
-      \Let{$M$}{$8389$}\Comment{$\ceil{ \left(8 \cdot 2^{20}\right)/1000}$}
-      \Let{$m^\ell_0$}{$1049$}\Comment{$\ceil{M/8}$}
-
-      \Let{$\rho$}{$1$}\Comment{Index into the buffers $n^\ell, s^\ell, m^\ell$}
-      \While{$p \le h$}
-        \Let{$n$}{$n^2$}
-        \If{$n > a$}
-           \Break
-        \EndIf
-        \CommentInlineMulti{Compute $M = \ceil{\left(2^{2s}\right)/n^2}$}
-        \Let{$M_2$}{$2M^2$}
-        \Let{$M_4$}{$\floor{\frac{nM^4}{2^{s + 6}}}$}
-        \Let{$M$}{$\floor{\frac{\left(M_2 - M_4\right)}{2^6}} + 1$}
+      \Let{$\rho$}{$1$}
+      \While{$\rho < c$}
+        \Let{$M$}{$\displaystyle{\floor{\left(2M^2-\floor{\frac{nM^4}{2^{2\left(s+\gamma\right)}}}\right)\frac{1}{2^\gamma}}+1}$}
         \Let{$m^\ell_\rho$}{$M$}
         \Let{$\rho$}{$\rho + 1$}
-        \Let{$M$}{$8M$}
+        \Let{$M$}{$2^\gamma M$}
       \EndWhile
-      \If{$\rho \ge 20$}
-         \RETURN error
-      \EndIf
-      \CommentInlineMulti{Use the pre-computed reciprocals recursively}
-      \State \Call{Barrett\_todecimalRecursion}{$a, n^\ell, s^\ell, m^\ell, \rho - 1, 1, b$}
+      \State \Call{mp\_get\_str\_recursion}{$a, r, \List{n}, \List{s}, \List{m}, \rho - 1, 1, b$}
     \EndFunction
   \end{algorithmic}
 \end{center}
 
-The first five rounds and the last one result in the following values
-\begin{table}[h]
-\begin{center}
-\begin{tabular}{c l r l }
-\textbf{Index}&$\mathbf{n}$&\textbf{Shift}&$\mathbf{M}$\\
-1  & $n^1$    &  20 & $1049$\\
-2  & $n^2$    &  40 & $1099512$\\
-3  & $n^4$    &  80 & $1208925819615$\\
-4  & $n^8$    & 160 & $1461501637330902918203685$\\
-5  & $n^{16}$ & 320 & $2135987035920910082395021706169552114602704522357$\\
-\multicolumn{4}{c}{\textellipsis}\\
-20 & $n^{\left({2^{20}}\right)}$ & 20971520 & $\approx 3.7554941942\,e3167328$
-\end{tabular}
-\captionof{table}{Results of first five rounds and the last one}\label{tab:firstfiveloops}
-\end{center}
-\end{table}
 
-Are $3\,167\,329$ decimal digits sufficient?
-The largest number possible in LTM is\\
- \-\hspace{1cm}\smalltt{(1<<(sizeof(int) * CHAR\_BIT) - 1) * MP\_DIGIT\_MAX}\\
- bits large. That is for 32 bit integers and \smalltt{MP\_64BIT}: $2^{31} \cdot 60 = 128\,849\,018\,880$ ($38\,787\,419\,594$ decimal digits) which overflows several functions in LTM, so the actually possible largest value is only\\
- \-\hspace{1cm}\smalltt{(1<<(sizeof(int) * CHAR\_BIT - 1)) / MP\_DIGIT\_MAX}\\
- bits large: $\floor{2^{31}/60} = 35\,791\,394$ under the same conditions as above. In decimal digits: $\floor{35\,791\,394\log_{10}(2)} = 10\,774\,283$ which is a bit more than 3 times larger than $3\,167\,329$, so the answer is: no, it is not sufficient.
-
-The next entries in the list are be
 \begin{center}
-\begin{longtable}{c c l l l}
-\multicolumn{1}{c}{\textbf{Index}}&
-\multicolumn{1}{c}{$\mathbf{n}$}&
-\multicolumn{1}{c}{\textbf{Shift}}&
-\multicolumn{1}{c}{$\mathbf{M}$}&
-\multicolumn{1}{l}{\textbf{Comment}}\\
+\begin{longtable}{r r r r c | r r r r c}
+\multicolumn{1}{r}{$\mathbf{b}$}&
+\multicolumn{1}{r}{$\mathbf{k}$}&
+\multicolumn{1}{r}{$\mathbf{\gamma}$}&
+\multicolumn{1}{r}{$\mathbf{n = b^k}$}&
+\multicolumn{1}{c}{$\mathbf{M = \ceil{\ceil{2^{s+\gamma}/n}/2^\gamma}}$}&
+\multicolumn{1}{r}{$\mathbf{b}$}&
+\multicolumn{1}{r}{$\mathbf{k}$}&
+\multicolumn{1}{r}{$\mathbf{\gamma}$}&
+\multicolumn{1}{r}{$\mathbf{n = b^k}$}&
+\multicolumn{1}{c}{$\mathbf{M = \ceil{\ceil{2^{s+\gamma}/n}/2^\gamma}}$}\\
 \endfirsthead
 %
-
-\multicolumn{1}{c}{\textbf{Index}}&
-\multicolumn{1}{c}{$\mathbf{n}$}&
-\multicolumn{1}{c}{\textbf{Shift}}&
-\multicolumn{1}{c}{$\mathbf{M}$}&
-\multicolumn{1}{l}{\textbf{Comment}}\\
+\multicolumn{1}{r}{$\mathbf{b}$}&
+\multicolumn{1}{r}{$\mathbf{k}$}&
+\multicolumn{1}{r}{$\mathbf{\gamma}$}&
+\multicolumn{1}{r}{$\mathbf{n = b^k}$}&
+\multicolumn{1}{c}{$\mathbf{M = \ceil{\ceil{2^{s+\gamma}/n}/2^\gamma}}$}&
+\multicolumn{1}{r}{$\mathbf{b}$}&
+\multicolumn{1}{r}{$\mathbf{k}$}&
+\multicolumn{1}{r}{$\mathbf{\gamma}$}&
+\multicolumn{1}{r}{$\mathbf{n = b^k}$}&
+\multicolumn{1}{c}{$\mathbf{M = \ceil{\ceil{2^{s+\gamma}/n}/2^\gamma}}$}\\
 \endhead
 % To get a bit more "headroom"
 \rule{0pt}{1ex}\\
-\multicolumn{5}{c}{{\footnotesize{\textit{Continued on next page}}}} \\
+\multicolumn{6}{c}{{\footnotesize{\textit{Continued on next page}}}} \\
 \endfoot
 \endlastfoot
-21 & $n^{\left(2^{21}\right)}$ & 41943040      & $1.4103736642\,e6334657$     & \\
-22 & $n^{\left(2^{22}\right)}$ & 83886080      & $1.9891538728\,e12669314$  
-                                                                      & $> 10^{10\,774\,283}$ \\
-23 & $n^{\left(2^{23}\right)}$ & 167772160     & $3.9567331296\,e25338628$    &  \\
-24 & $n^{\left(2^{24}\right)}$ & 335544320     & $1.5655737058\,e50677257$    &  \\
-25 & $n^{\left(2^{25}\right)}$ & 671088640     & $2.4510210284\,e101354514$   &  \\
-26 & $n^{\left(2^{26}\right)}$ & 1342177280    & $6.0075040819\,e202709028$   &  \\
-27 & $n^{\left(2^{27}\right)}$ & 2684354560    & $3.6090105294\,e405418057$   &  \\
-28 & $n^{\left(2^{28}\right)}$ & 5368709120    & $1.3024957001\,e810836115$   &  \\
-29 & $n^{\left(2^{29}\right)}$ & 10737418240   & $1.6964950488\,e1621672230$  &  \\
-30 & $n^{\left(2^{30}\right)}$ & 21474836480   & $2.8780954507\,e3243344460$  &  \\
-31 & $n^{\left(2^{31}\right)}$ & 42949672960   & $8.2834334231\,e6486688920$  &  \\
-32 & $n^{\left(2^{32}\right)}$ & 85899345920   & $6.8615269276\,e12973377841$ &  \\
-33 & $n^{\left(2^{33}\right)}$ & 171798691840  & $4.7080551778\,e25946755683$ &  \\
-34 & $n^{\left(2^{34}\right)}$ & 343597383680  & $2.2165783558\,e51893511367$ 
-                                                                  & $> 10^{38\,787\,419\,594}$ \\
+2  & 20 & 0 & 1048576 & 1048576  &  33 & 3  & 3 & 35937   & 30595532 \\
+3  & 12 & 3 & 531441  & 2068926  &  34 & 3  & 5 & 39304   & 27974548 \\
+4  & 10 & 0 & 1048576 & 1048576  &  35 & 3  & 4 & 42875   & 25644587 \\
+5  & 8  & 3 & 390625  & 2814750  &  36 & 3  & 4 & 46656   & 23566351 \\
+6  & 7  & 5 & 279936  & 3927726  &  37 & 3  & 5 & 50653   & 21706743 \\
+7  & 7  & 5 & 823543  & 1335100  &  38 & 3  & 4 & 54872   & 20037754 \\
+8  & 6  & 0 & 262144  & 4194304  &  39 & 3  & 6 & 59319   & 18535573 \\
+9  & 6  & 3 & 531441  & 2068926  &  40 & 3  & 4 & 64000   & 17179870 \\
+10 & 6  & 3 & 1000000 & 1099512  &  41 & 3  & 4 & 68921   & 15953217 \\
+11 & 5  & 4 & 161051  & 6827103  &  42 & 3  & 5 & 74088   & 14840617 \\
+12 & 5  & 4 & 248832  & 4418691  &  43 & 3  & 5 & 79507   & 13829118 \\
+13 & 5  & 4 & 371293  & 2961305  &  44 & 3  & 4 & 85184   & 12907490\\
+14 & 5  & 4 & 537824  & 2044371  &  45 & 3  & 5 & 91125   & 12065972 \\
+15 & 5  & 3 & 759375  & 1447917  &  46 & 3  & 5 & 97336   & 11296043 \\
+16 & 5  & 0 & 1048576 & 1048576  &  47 & 3  & 5 & 103823  & 10590251 \\
+17 & 4  & 8 & 83521   & 13164494 &  48 & 3  & 4 & 110592  & 9942054  \\
+18 & 4  & 3 & 104976  & 10473934 &  49 & 3  & 6 & 117649  & 9345695  \\
+19 & 4  & 5 & 130321  & 8436949  &  50 & 3  & 5 & 125000  & 8796094  \\
+20 & 4  & 5 & 160000  & 6871948  &  51 & 3  & 4 & 132651  & 8288755  \\
+21 & 4  & 5 & 194481  & 5653569  &  52 & 3  & 3 & 140608  & 7819695  \\
+22 & 4  & 3 & 234256  & 4693633  &  53 & 3  & 4 & 148877  & 7385370  \\
+23 & 4  & 4 & 279841  & 3929059  &  54 & 3  & 4 & 157464  & 6982623  \\
+24 & 4  & 6 & 331776  & 3314018  &  55 & 3  & 4 & 166375  & 6608635  \\
+25 & 4  & 3 & 390625  & 2814750  &  56 & 3  & 4 & 175616  & 6260886  \\
+26 & 4  & 5 & 456976  & 2406060  &  57 & 3  & 6 & 185193  & 5937113  \\
+27 & 4  & 3 & 531441  & 2068926  &  58 & 3  & 4 & 195112  & 5635285  \\
+28 & 4  & 4 & 614656  & 1788825  &  59 & 3  & 5 & 205379  & 5353574  \\
+29 & 4  & 4 & 707281  & 1554562  &  60 & 3  & 5 & 216000  & 5090332  \\
+30 & 4  & 5 & 810000  & 1357422  &  61 & 3  & 4 & 226981  & 4844070  \\
+31 & 4  & 3 & 923521  & 1190565  &  62 & 3  & 4 & 238328  & 4613439  \\
+32 & 4  & 0 & 1048576 & 1048576  &  63 & 3  & 4 & 250047  & 4397220 \\
+   &    &   &         &          &  64 & 3  & 0 & 262144  & 4194304
 \end{longtable}
-\captionof{table}{Results of rounds 21-34)}\label{tab:rounds21to34}
+\captionof{table}{Start--values with $s = 40$. Corrector $\gamma$ valid for up to $n^{2^{22}}$}\label{tab:startvalues}
 \end{center}
-
-To save some stack memory compute the upper limit of the number $n$ of reciprocals needed calculate
-\begin{equation}
-n = \floor{\log_2 \left( \floor{\frac{b_a}{2\floor{\log_2 10}}} + 2 \right)  }
-\end{equation}
-with $b_a = \floor{\log_2 a} + 1$ the number of bits in $a$, assuming $1\,000$ as the start-value and allocate the memory for the lists on the heap instead.
-
-\subsection{Recursion}
-
-\begin{center}
-\begin{minipage}{.9\linewidth}
-  \captionof{algorithm}{Barret\_todecimalRecursion\label{alg:barrettodecimalrecursion}}
-  \begin{algorithmic}[1]
-    \Require{$a > 0$, big-integer, $n^\ell, s^\ell, m^\ell, \rho, L, b$, from Barret\_todecimal}
-    \Ensure{$b$ filled with the value of $a$ converted to a decimal number}
-    \Function{Barret\_todecimalRecusive}{$a,n^\ell, s^\ell, m^\ell, \rho, L, b$}
-    \If{$\rho < 0$}
-      \Let{$b$}{$b | a$}\Comment{Convert $a$ to a decimal string and add to $b$. See text for details}
-      \RETURN
-    \Else
-      \Let{$q$}{$\floor{\left(a\cdot m^\ell_\rho\right) / 2^{s^\ell_\rho}}$}\Comment{Quotient}
-      \Let{$r$}{$ a - n^\ell_\rho \cdot q$}
-      \If{$r < 0$}
-        \Let{$q$}{$q - 1$}
-        \Let{$r$}{$r + n^\ell_\rho$}
-      \EndIf
-      \Let{$\rho$}{$\rho + 1$}
-      \If{$\left(L = 1\right) \AND \left(q = 0\right) $}
-        \State \Call{Barret\_todecimalRecusive}{$r,n^\ell, s^\ell, m^\ell, \rho, 1, b$}
-      \Else
-        \State \Call{Barret\_todecimalRecusive}{$q,n^\ell, s^\ell, m^\ell, \rho, L, b$}
-        \State \Call{Barret\_todecimalRecusive}{$r,n^\ell, s^\ell, m^\ell, \rho, 0, b$}
-      \EndIf
-    \EndIf
-    \EndFunction
-  \end{algorithmic}
- \end{minipage}
-\end{center}
-
-If the chunk is small enough ($\rho < 0$ for 0-based lists) we can build that part of the output.
-The smallest chunk has 4 decimal digits in our case ($n^1 = 1000$) so we need up to three leading zeros if the parameter ``left'' is true or just build the decimal number without any further ado.
-This is also a place where a bit of optimization can take place because four decimal digits is a rather small chunk and has most probably been chosen to be fit for \smalltt{MP\_8BIT} ($\log_{10}(2^{16}) \approx 4.8$).
-If we want a bigger chunk we can stop at a higher index and use \smalltt{mp\_to\_radix} to convert\footnote{Or strip the relevant part out of \smalltt{mp\_to\_radix} which is just the inner loop. All the checks are not needed because they have already been done}. Handling leading zeros is a bit more complicated in that case but not much.
 
 \section{Computing the Reciprocals}
 
 The reciprocals are the values of the sequence
 $\ceil{\left(2^s/n\right)^{\left(2^k\right)}}  =  \ceil{\left(2^{2^ks}\right)/n^{\left(2^k\right)}}$
-(with $k = \{0,1,2,3,\dots\}$, $s = 20$, and $n = 1\,000$). We cannot simply square because $2^s \nmid n$ and hence $\ceil{\left(2^s/n\right)}^{\left(2^k\right)} \not= \ceil{\left(2^s/n\right)^{\left(2^k\right)}}$ but we can use one round of Newton-Raphson to overcome this inconvenient obstacle.
+(with $k = \{0,1,2,3,\dots\}$, $s, n$ as described above). We cannot simply square if $2^s \nmid n$ and hence $\ceil{\left(2^s/n\right)}^{\left(2^k\right)} \not= \ceil{\left(2^s/n\right)^{\left(2^k\right)}}$ but we can use one round of Newton-Raphson to overcome this inconvenient obstacle.
 
 \begin{equation}
 x_{n+1} = x_n\left(2 - Dx_n\right) = 2x_n - Dx_n^2
@@ -478,287 +433,120 @@ x_{n+1} = x_n\left(2 - Dx_n\right) = 2x_n - Dx_n^2
 By substituting $x_n = \ceil{2^s/n}^2$ and\footnote{Here $\odiv$ stands for ``use truncating division (rounding to next integer in direction of zero) later in the algebraic transformations because truncating division is all we have in big--integer land''} $D = \left(n \odiv 2^s\right)^2$ we get
 
 \begin{equation}\label{eq:newtonraphson01}
-x_{n+1} = 2\ceil{2^s/n}^2 - \floor{\frac{\ceil{2^s/n}^4n^2}{2^{2s}}}
+M = 2\ceil{2^s/n}^2 - \floor{\frac{\ceil{2^s/n}^4n^2}{2^{2s}}}
 \end{equation}
 
+If $n$ is not of the form $n = 2^j$, that is not a power of two $2^j \nmid n$ and the small adjustment $\gamma$ is needed.
+\begin{equation}\label{eq:newtonraphson02}
+M = 2\ceil{2^{s+\gamma}/n}^2 - \floor{\frac{\ceil{2^{s+\gamma}/n}^4n^2}{2^{2\left(s+\gamma\right)}}}
+\end{equation}
+See table \ref{tab:startvalues} for the exact values of $\gamma$.
 
-The error $\left(1- Dx_n\right)^2$ is $1$, assuming the same substitutions as above, but that is misleading. The error without the truncating division is about \num{2e-34} and a simple addition of $1$ will not do. The following short and highly unoptimized Pari/\kern-1.2pt gp script will wet this dry theory with some numbers:
 
-\lstset{language=parigp}
-\begin{pblisting}{caption={Print error},label=lst:parigperror}
-NR_error(extra, limit) = {
-   local(n, s, M, t);
-   for(m=0,extra,
-      n = 1000;
-      s= 20;
-      for(k=0,limit,
-         M = (2*ceil(2^(s+m)/n)^2 - ( ceil(2^(s+m)/n)^4*n^2)\2^(2*(s+m)))\2^(2*m) + 1;
-         t = ceil(2^(2*s)/n^2);
-         t = M-t;
-         printf(t);
-         if( k != limit,
-            printf(", ")
-         );
-         n = n^2;
-         s = 2*s;
-      );
-       print("");
-   );
-}
-\end{pblisting}
-
-Running \texttt{NR\_error(3, 22)} lasts a long time and needs a lot of memory but eventually prints:
-
-\begin{table}[h]
-\begin{center}\resizebox{\textwidth}{!}{%
-\begin{tabular}{c | c  c  c  c  c  c  c  c  c  c  c  c  c  c  c  c  c  c  c  c  c c c}
-\multicolumn{1}{c}{\texttt{\textbf{extra}}}&\multicolumn{18}{c}{\textbf{Error}}\\
-$0$ & $0$& $1$& $1$& $1$& $0$& $0$& $1$& $0$& $-$$2$& $1$& $0$&
-   $1$& $-$$2$& $1$& $-$$1$& $0$& $-$$3$& $0$& $0$& $0$ & $0$& $1$& $0$ \\
-$1$ & $0$& $0$& $0$& $0$& $0$& $1$& $0$& $-$$1$& $0$& $0$& $1$&
-   $0$& $0$& $0$& $0$& $-$$1$& $-$$1$& $-$$1$& $0$& $0$& $0$& $0$& $0$ \\
-$2$ &  $0$& $0$& $0$& $0$& $0$& $0$& $0$&  $0$& $0$& $0$& $0$&
-   $0$& $0$& $0$& $0$&  $0$&  $0$&  $0$& $0$& $0$& $0$& $0$& $0$ \\
-$3$ &$0$& $0$& $0$& $0$& $0$& $0$& $0$&  $0$& $0$& $0$& $0$& $0$&
-   $0$& $0$& $0$&  $0$&  $0$&  $0$& $0$& $0$& $0$& $0$& $0$   
-\end{tabular}}
-\captionof{table}{Results of \texttt{NR\_error(3, 22)}}\label{tab:nr_error_3_22}
-\end{center}
-\end{table}
-
-\subsection{Expanding to other bases}
-
-The largest problem for other bases is generating a good fitting $s$. With base $10$ it is sufficient to use a simple $s = 2s$ and come close to what is actually needed.
-\lstset{language=parigp}
-\begin{pblisting}{caption={Find start values for $n$ for table \ref{tab:startvaluesn}},label=lst:startvaluesn}
-max_size_n(limit_s) = {
-   local(t, n, s = 40, ro8);
-   for(k= 2, 63,
-      for(m = 1, limit_s + 1,
-         n = k^m; t = ceil(log(n)/log(2));
-         if( t > limit_s,
-            t = m-1; n = k^t;ro8 = ceil(ceil(2^(s+3)/n)/8);
-            print(k ", " t ", " n ", " ro8);
-            break(1);
-         );
-      );
-   );
-}
-
-\end{pblisting}
+\subsection{Recursion}
+The actual working horse is this recursively called function.
 \begin{center}
-\begin{longtable}{r r r r | r r r r}
-\multicolumn{1}{r}{$\mathbf{b}$}&
-\multicolumn{1}{r}{$\mathbf{k}$}&
-\multicolumn{1}{r}{$\mathbf{n = b^k}$}&
-\multicolumn{1}{r}{$\mathbf{M = \ceil{\ceil{2^{s+3}/n}/8}}$}&
-\multicolumn{1}{r}{$\mathbf{b}$}&
-\multicolumn{1}{r}{$\mathbf{k}$}&
-\multicolumn{1}{r}{$\mathbf{n = b^k}$}&
-\multicolumn{1}{r}{$\mathbf{M = \ceil{\ceil{2^{s+3}/n}/8}}$}\\
-\endfirsthead
-%
-\multicolumn{1}{r}{$\mathbf{b}$}&
-\multicolumn{1}{r}{$\mathbf{k}$}&
-\multicolumn{1}{r}{$\mathbf{n = b^k}$}&
-\multicolumn{1}{r}{$\mathbf{M = \ceil{\ceil{2^{s+3}/n}/8}}$}&
-\multicolumn{1}{r}{$\mathbf{b}$}&
-\multicolumn{1}{r}{$\mathbf{k}$}&
-\multicolumn{1}{r}{$\mathbf{n = b^k}$}&
-\multicolumn{1}{r}{$\mathbf{M = \ceil{\ceil{2^{s+3}/n}/8}}$}\\
-\endhead
-% To get a bit more "headroom"
-\rule{0pt}{1ex}\\
-\multicolumn{6}{c}{{\footnotesize{\textit{Continued on next page}}}} \\
-\endfoot
-\endlastfoot
-2  & 20 & 1048576 & 1048576  &  33 & 3  & 35937   & 30595532 \\
-3  & 12 & 531441  & 2068926  &  34 & 3  & 39304   & 27974548 \\
-4  & 10 & 1048576 & 1048576  &  35 & 3  & 42875   & 25644587 \\
-5  & 8  & 390625  & 2814750  &  36 & 3  & 46656   & 23566351 \\
-6  & 7  & 279936  & 3927726  &  37 & 3  & 50653   & 21706743 \\
-7  & 7  & 823543  & 1335100  &  38 & 3  & 54872   & 20037754 \\
-8  & 6  & 262144  & 4194304  &  39 & 3  & 59319   & 18535573 \\
-9  & 6  & 531441  & 2068926  &  40 & 3  & 64000   & 17179870 \\
-10 & 6  & 1000000 & 1099512  &  41 & 3  & 68921   & 15953217 \\
-11 & 5  & 161051  & 6827103  &  42 & 3  & 74088   & 14840617 \\
-12 & 5  & 248832  & 4418691  &  43 & 3  & 79507   & 13829118 \\
-13 & 5  & 371293  & 2961305  &  44 & 3  & 85184   & 12907490 \\
-14 & 5  & 537824  & 2044371  &  45 & 3  & 91125   & 12065972 \\
-15 & 5  & 759375  & 1447917  &  46 & 3  & 97336   & 11296043 \\
-16 & 5  & 1048576 & 1048576  &  47 & 3  & 103823  & 10590251 \\
-17 & 4  & 83521   & 13164494 &  48 & 3  & 110592  & 9942054  \\
-18 & 4  & 104976  & 10473934 &  49 & 3  & 117649  & 9345695  \\
-19 & 4  & 130321  & 8436949  &  50 & 3  & 125000  & 8796094  \\
-20 & 4  & 160000  & 6871948  &  51 & 3  & 132651  & 8288755  \\
-21 & 4  & 194481  & 5653569  &  52 & 3  & 140608  & 7819695  \\
-22 & 4  & 234256  & 4693633  &  53 & 3  & 148877  & 7385370  \\
-23 & 4  & 279841  & 3929059  &  54 & 3  & 157464  & 6982623  \\
-24 & 4  & 331776  & 3314018  &  55 & 3  & 166375  & 6608635  \\
-25 & 4  & 390625  & 2814750  &  56 & 3  & 175616  & 6260886  \\
-26 & 4  & 456976  & 2406060  &  57 & 3  & 185193  & 5937113  \\
-27 & 4  & 531441  & 2068926  &  58 & 3  & 195112  & 5635285  \\
-28 & 4  & 614656  & 1788825  &  59 & 3  & 205379  & 5353574  \\
-29 & 4  & 707281  & 1554562  &  60 & 3  & 216000  & 5090332  \\
-30 & 4  & 810000  & 1357422  &  61 & 3  & 226981  & 4844070  \\
-31 & 4  & 923521  & 1190565  &  62 & 3  & 238328  & 4613439  \\
-32 & 4  & 1048576 & 1048576  &  63 & 3  & 250047  & 4397220
-
-\end{longtable}
-\captionof{table}{Start--values for $n$ for assorted bases $b$ with $s = 40$}\label{tab:startvaluesn}
+\begin{minipage}{.9\linewidth}
+  \captionof{algorithm}{mp\_get\_str\_recursion\label{alg:mpgetstrrecursion}}
+  \begin{algorithmic}[1]
+    \Require{$a > 0$, big-integer, $r, \List{n}, \List{s}, \List{m}, \rho, L, b$, from mp\_get\_str}
+    \Ensure{$b$ filled with the value of $a$ converted to  a string with radix $r$}
+    \Function{mp\_get\_str\_recursion}{$a,\List{n}, \List{s}, \List{m}, \rho, L, b$}
+    \If{$\rho < 0$}
+      \Let{$b$}{$b^\frown a$}\Comment{Convert $a$ to a string with radix $r$ and add to $b$. See text for details}
+      \RETURN
+    \Else
+      \Let{$q$}{$ \floor{\left(a\cdot \List{m}_\rho\right) / 2^{\left(\List{s}_\rho\right)}}$}\Comment{Quotient}
+      \Let{$r$}{$ a - \List{n}_\rho \cdot q$}\Comment{Approximate remainder}
+      \If{$r < 0$}
+        \Let{$q$}{$q - 1$}
+        \Let{$r$}{$r + \List{n}_\rho$}\Comment{Exact remainder}
+      \EndIf
+      \Let{$\rho$}{$\rho + 1$}
+      \If{$\left(L = 1\right) \AND \left(q = 0\right) $}
+        \State \Call{mp\_get\_str\_recursion}{$r,\List{n}, \List{s}, \List{m}, \rho, 1, b$}
+      \Else
+        \State \Call{mp\_get\_str\_recursion}{$q,\List{n}, \List{s}, \List{m}, \rho, L, b$}
+        \State \Call{mp\_get\_str\_recursion}{$r,\List{n}, \List{s}, \List{m}, \rho, 0, b$}
+      \EndIf
+    \EndIf
+    \EndFunction
+  \end{algorithmic}
+ \end{minipage}
 \end{center}
 
-If we start with $s = 20$ for all bases the start--values for $n$ in table \ref{tab:startvaluesn} the exponents $k$ would need to be halved and be way too small for all values above base $10$. There are no need for changes in algorithm \ref{alg:barrettodecimal} (\smalltt{Barrett\_todecimal}, just plug in the values from the table above for $n$ and $M$ and set $s = 80$ instead.
 
-Nothing needs to be changed in algorithm \ref{alg:barrettodecimalrecursion} (\smalltt{Barret\_todecimalRecursion}) but the number of digits produced in the leafs which are represented by the exponent $k$. With e.g.: base $10$ the algorithm produces $6$ digits now instead of $3$.
-
-
-The little script used to generate the values for the table \ref{tab:baserelations} is:
-
-\lstset{language=parigp}
-\begin{pblisting}{caption={Find sizes of bases 3, 5, and 10},label=lst:parigpsizebases3510}
-sizes_of_bases(limit) = {
-   local(s, n3, n5, n10, t3, t5, t10);
-   s = 10;
-   n3 = 729;
-   n5 = 625;
-   n10 = 1000;
-   for(k=0, limit,
-      t3 = ceil(log(n3)/log(2));
-      t5 = ceil(log(n5)/log(2));
-      t10 = ceil(log(n10)/log(2));
-      print(k ": " s ", " t3 ", " t5 ", " t10);
-      s = 2*s;
-      n3 = n3^2;
-      n5 = n5^2;
-      n10 = n10^2;
-  );
-}
-\end{pblisting}
-
-
-\begin{center}
-\begin{longtable}{r r r r}
-\multicolumn{1}{r}{$\mathbf{s/2}$}&
-\multicolumn{1}{r}{$\mathbf{3^6}$}&
-\multicolumn{1}{r}{$\mathbf{5^4}$}&
-\multicolumn{1}{r}{$\mathbf{10^3}$} \\
-\endfirsthead
-%
-\multicolumn{1}{r}{$\mathbf{s}$}&
-\multicolumn{1}{r}{$\mathbf{3^6}$}&
-\multicolumn{1}{r}{$\mathbf{5^4}$}&
-\multicolumn{1}{r}{$\mathbf{10^3}$} \\
-\endhead
-% To get a bit more "headroom"
-\rule{0pt}{1ex}\\
-\multicolumn{4}{c}{{\footnotesize{\textit{Continued on next page}}}} \\
-\endfoot
-\endlastfoot
-10       & 10       & 10       & 10       \\
-20       & 20       & 19       & 20       \\
-40       & 39       & 38       & 40       \\
-80       & 77       & 75       & 80       \\
-160      & 153      & 149      & 160      \\
-320      & 305      & 298      & 319      \\
-640      & 609      & 595      & 638      \\
-1280     & 1218     & 1189     & 1276     \\
-2560     & 2435     & 2378     & 2552     \\
-5120     & 4870     & 4756     & 5103     \\
-10240    & 9739     & 9511     & 10205    \\
-20480    & 19477    & 19022    & 20410    \\
-40960    & 38953    & 38043    & 40820    \\
-81920    & 77905    & 76085    & 81640    \\
-163840   & 155809   & 152170   & 163280   \\
-327680   & 311617   & 304340   & 326559   \\
-655360   & 623233   & 608680   & 653118   \\
-1310720  & 1246466  & 1217360  & 1306236  \\
-2621440  & 2492931  & 2434719  & 2612471  \\
-5242880  & 4985861  & 4869437  & 5224942  \\
-10485760 & 9971722  & 9738873  & 10449883 \\
-20971520 & 19943444 & 19477745 & 20899765 \\
-41943040 & 39886888 & 38955490 & 41799529
-\end{longtable}
-\captionof{table}{Relation of $s = 2s$ to bases $3$, $5$ and $10$}\label{tab:baserelations}
-\end{center}
-
-The difference between the behaviour of base $10$ and $s$ is relatively similar but it gets quite large with the other bases. It is a bit complicated to generate the values programmatically but as all of the numbers up to $k=28$ stay below $2^{32}$ a small table would be enough.
-
-\subsection{Some optimizations}\label{subsec:optimizations}
-
-\subsubsection{Factoring the bases}
-If the input of the function \smalltt{Barret\_todecimal} is restricted to base $10$, base $5$ can be used for optimization by observing that $10 = 2\cdot5$ which can safe about a third ($\log(2)/\log(5) \approx 0.4307$) of the magnitude in multiplication.
-
-Factoring all of the other even bases (table \ref{tab:factoreven}) gives a hint of another way to reduce the amount of necessary computation: the bases that are powers of two need shifts only. This can be done, without a lot of effort and memory, in \smalltt{mp\_to\_radix}, too.
-
-Using all of the factors is less attractive because every other additional factor needs its own large cache and a method to use it. Most of the odd bases are prime already, none of the rest has more than two factors and all the work and memory for the three bases $30$, $42$, and $60$ that would need such a special treatment is just not economical.
-% TODO: Nuh, still way too much white. Make three columns?
-\begin{table}[H]
-\begin{center}
-\begin{tabular}{l c c c l c c c}
-\textbf{base}&\multicolumn{3}{c}{\textbf{factors}}&\textbf{base}&\multicolumn{3}{c}{\textbf{factors}} \\
-2  & $ 2^1 $&        &         & 34 & $ 2^1 $&$ 17^1 $& 	       \\
-4  & $ 2^2 $&        &         & 36 & $ 2^2 $&$ 3^2 $ & 	       \\
-6  & $ 2^1 $&$ 3^1 $ &         & 38 & $ 2^1 $&$ 19^1 $& 	       \\
-8  & $ 2^3 $&        &         & 40 & $ 2^3 $&$ 5^1 $ & 	       \\
-10 & $ 2^1 $&$ 5^1 $ &         & 42 & $ 2^1 $&$ 3^1 $ &$  7^1 $        \\
-12 & $ 2^2 $&$ 3^1 $ &         & 44 & $ 2^2 $&$ 11^1 $& 	       \\
-14 & $ 2^1 $&$ 7^1 $ &         & 46 & $ 2^1 $&$ 23^1 $& 	       \\
-16 & $ 2^4 $&        &         & 48 & $ 2^4 $&$ 3^1 $ & 	       \\
-18 & $ 2^1 $&$ 3^2 $ &         & 50 & $ 2^1 $&$ 5^2 $ & 	       \\
-20 & $ 2^2 $&$ 5^1 $ &         & 52 & $ 2^2 $&$ 13^1 $& 	       \\
-22 & $ 2^1 $&$ 11^1 $&         & 54 & $ 2^1 $&$ 3^3 $ & 	       \\
-24 & $ 2^3 $&$ 3^1 $ &         & 56 & $ 2^3 $&$ 7^1 $ & 	       \\
-26 & $ 2^1 $&$ 13^1 $&         & 58 & $ 2^1 $&$ 29^1 $& 	       \\
-28 & $ 2^2 $&$ 7^1 $ &         & 60 & $ 2^2 $&$ 3^1 $ &$  5^1 $        \\
-30 & $ 2^1 $&$ 3^1 $ &$  5^1 $ & 62 & $ 2^1 $&$ 31^1 $& 	       \\
-32 & $ 2^5 $&&                 & 64 & $ 2^6 $&         &
-\end{tabular}
-\captionof{table}{Factors of the even bases}\label{tab:factoreven}
-\end{center}
-\end{table}
-
+If the chunk is small enough we can build that part of the output. The number of digits is in column $k$ in table \ref{tab:startvalues}. This is also a place where a bit of optimization can take place because the number of digits in the leafs is very small.
 
 \subsubsection{Larger Leafs}
-The algorithm as it is now goes to the very end of the recursion until the actual number conversion is done. The amount of converted digits is very small down there, just the number of digits in $n^1-1$ which is a mere $\ceil{\log_{10}(999)} = 3$ digits in case of base $10$.
-To get more digits we need to stop at an earlier stage $k > 0$ of the recursion to do the conversion instead of $k = 0$. The maximum number of digits needed for the base $\beta$is
+The algorithm as it is now goes to the very end of the recursion until the actual number conversion is done. The 
+amount of converted digits is very small down there, just the number of digits in $n^1-1$.
+To get more digits we need to stop at an earlier stage $\rho > 0$ of the recursion to do the conversion instead of $
+\rho = 0$. The maximum number of digits needed for radix $r$ is
 \begin{equation}
-\ceil{\log_\beta\left(n^{\left(2^k\right)}-1\right)}\quad\text{with}\quad n = \beta^\kappa
+\ceil{\log_r\left(n^{\left(2^k\right)}-1\right)}\quad\text{with}\quad n = r^k
 \end{equation}
-Here $\beta$ is the base and the value of $\kappa$ can be taken from table \ref{tab:startvaluesn} but keep in mind that the shift--value is $s = 40$ there instead of the original $s = 20$.
-
-The algorithm itself needs more information than the algorithm \smalltt{Barret\_todecimalRecursion} in \ref{alg:barrettodecimalrecursion} offers. We also need the base $\beta$ and the exponent of the start--value $\kappa$.
 
 \begin{center}
 \begin{minipage}{.9\linewidth}
   \captionof{algorithm}{to\_string\label{alg:tostring}}
   \begin{algorithmic}[1]
-    \Require{$a$, big--integer, $b$, buffer, $\beta$, $\kappa$, $k$, $L$, bool (is left?)}
-    \Ensure{$b$ filled with the value of $a$ converted to base $\beta$}
-    \Function{to\_string}{$a$, $b$,$\beta$, $\kappa$, $k$, $L$}
-    \Let{$K$}{$\kappa + 2^k - 1$}\Comment{Cut--off at $k=5$ on the authors machine, around 600 bits.}
-    \Let{$S$}{A temporary buffer of size $K$}
-    \Let{$S$}{Fill the whole buffer with the ASCII digit zero, \smalltt{0x30}}
-    \Let{$d$}{$0$}
+    \Require{$a$, big--integer, $b$, buffer, $r$, $k$, $\rho$, $L$, bool (is left?)}
+    \Ensure{$b$ filled with the value of $a$ converted to base $r$}
+    \Function{to\_string}{$a$, $b$, $r$, $k$, $\rho$, $L$}
+    \Let{$K$}{$k + 2^\rho - 1$}\Comment{Cut--off at $\rho=5$ on the authors machine.}
+    \Let{$S$}{A temporary buffer of size $K$ (or use $b$ directly)}
+    \Let{$(S_0,\dots ,S_K)$}{$48$} \Comment{Fill the whole buffer with the ASCII digit zero (\smalltt{0x30})}
+    \Let{$i$}{$0$}
     \While{$a \not= 0$}
-       \Let{$q$}{$\floor{\frac{a}{\beta}}$} \Comment{Big--integer division}
-       \Let{$r$}{$a - \left(q \cdot \beta\right)$}
-       \Let{$c$}{$T_r$}\Comment{$T$ a table mapping $r$ to a character}
-       \Let{$S_{K-d}$}{$c$}\Comment{Fill buffer $S$ from the end}
-       \Let{$d$}{$d + 1$}
+       \Let{$q$}{$\floor{\frac{a}{r}}$} \Comment{Big--integer single digit division}
+       \Let{$d$}{$a - \left(q \cdot r\right)$}
+       \Let{$c$}{$T_d$}\Comment{$T$ is a table mapping $d$ to a character}
+       \Let{$S_{K-i}$}{$c$}\Comment{Fill buffer $S$ from the end}
+       \Let{$i$}{$i + 1$}
        \Let{$a$}{$q$}
     \EndWhile
+    % if !left AND (K-i) != 0 than  
     \EndFunction
   \end{algorithmic}
 \end{minipage}
 \end{center}
 
+\subsubsection{Converting Radices that are Powers of Two}
+The radices $2$, $4$, $8$, $16$, $32$, and $64$ can be converted in the loop in in algorithm \ref{alg:tostring} without any big--integer division, by masking of a sliding window of the size of the radix. Two limbs are needed if \smalltt{MP\_DIGIT\_BIT} is not a power of two, just one otherwise.
 
-
-
-% \section{Convert {\texttt{Barret\_todecimal}} to an iterative algorithm}
-
-% T.\kern-.2pt b\kern-.5pt.d.
+\begin{center}
+\begin{minipage}{.9\linewidth}
+  \captionof{algorithm}{to\_string\label{alg:tostringpo2}}
+  \begin{algorithmic}[1]
+    \Require{$a$, big--integer, $b$, buffer, $r = 2^j$, $k$, $\rho$, $L$, bool (is left?)}
+    \Ensure{$b$ filled with the value of $a$ converted to base $r$}
+    \Function{to\_string}{$a$, $b$, $r$, $k$, $\rho$, $L$}
+    \Let{$K$}{$k + 2^\rho - 1$}\Comment{Cut--off at $\rho=5$ on the authors machine.}
+    \Let{$S$}{A temporary buffer of size $K$ (or use $b$ directly)}
+    \Let{$S_0,\dots ,S_K$}{$48$} \Comment{Fill the whole buffer with the ASCII digit zero, \smalltt{0x30}}
+    \Let{$i$}{$0$}
+    % for i = 0; i < a->used;i++ 
+    %    take limb a->dp[i]
+    %    if j bits are left in a->dp[i]
+    %       mask of j bits and map that number to a character, append it to the temp.-string
+    %    else
+    %       grab the rest of the bits from a->dp[i+1]
+    %       If there is no a->dp[i+1] ->break
+    % endfor
+    \While{$a \not= 0$}
+       \Let{$q$}{$\floor{\frac{a}{r}}$} \Comment{Big--integer single digit division}
+       \Let{$d$}{$a - \left(q \cdot r\right)$}
+       \Let{$c$}{$T_d$}\Comment{$T$ is a table mapping $d$ to a character}
+       \Let{$S_{K-i}$}{$c$}\Comment{Fill buffer $S$ from the end}
+       \Let{$i$}{$i + 1$}
+       \Let{$a$}{$q$}
+    \EndWhile
+    % if !left AND (K-i) != 0 than  
+    \EndFunction
+  \end{algorithmic}
+\end{minipage}
+\end{center}
 
 
 \section{Convert a decimal string to a big integer}
@@ -816,8 +604,6 @@ The recursion itself is as straight forward as a recursion can be.
 \end{minipage}
 \end{center}
 
-The same optimization described in section \ref{subsec:optimizations} is applicable here, too. Change the line \ref{alg:fromdecimalrecursion:line:T} in algorithm \ref{alg:fromdecimalrecursion} from $T = 10^{\ell - m - 1}$ to $T = 5^{\ell - m - 1} \cdot 2^{\ell - m - 1}$.
-
 \subsection{Extending to other bases}
 
 The algorithms \ref{alg:fromdecimal} \smalltt{from\_decimal} and \ref{alg:fromdecimalrecursion} \smalltt{from\_decimal\_recursion} can be extended to all other bases with minimal effort.
@@ -845,7 +631,7 @@ The algorithms \ref{alg:fromdecimal} \smalltt{from\_decimal} and \ref{alg:fromde
     \If{$\ell < C$}\Comment{$C$ is a (tunable) cut--off value.}
       \Let{$a$}{$b_r \to b_\beta$}\Comment{Convert the number in $b_r$ to the bigint $a$.}
     \Else
-      \State \Call{from\_number\_recursion}{$a$, $b_r$, $0$, $\ell$, $r$}
+      \State \Call{from\_string\_recursion}{$a$, $b_r$, $0$, $\ell$, $r$}
     \EndIf
     \EndFunction
   \end{algorithmic}
@@ -868,8 +654,8 @@ The changes needed for the recursion are also minimal.
       \RETURN
     \Else
       \Let{$m$}{$\floor{\frac{\ell}{2}}$}
-      \State \Call{from\_decimal\_recursion}{$A$, $b_r$, $s$, $s + m + 1$, $r$}
-      \State \Call{from\_decimal\_recursion}{$B$, $b_r$, $s + m + 1$, $e$, $r$}
+      \State \Call{from\_string\_recursion}{$A$, $b_r$, $s$, $s + m + 1$, $r$}
+      \State \Call{from\_string\_recursion}{$B$, $b_r$, $s + m + 1$, $e$, $r$}
       \Let{$T$}{$r^{\ell - m - 1}$}
       \Let{$a$}{$A \cdot T + B$}
     \EndIf
