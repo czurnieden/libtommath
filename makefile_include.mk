@@ -8,6 +8,10 @@ VERSION_PC=1.2.0
 VERSION_SO=3:0:2
 
 PLATFORM := $(shell uname | sed -e 's/_.*//')
+# works for GCC and CLANG
+ifneq (,$(CC))
+COMPILER_VERSION := $(shell $(CC) --version  | grep -m1 -o '[0-9].[0-9].[0-9]' | head -1 | tr -d '.')
+endif
 
 # default make target
 default: ${LIBNAME}
@@ -92,8 +96,14 @@ endif
 
 endif # COMPILE_SIZE
 
+#TODO: are the exceptions (-Wno-foobar) still necessary somewhere somehow?
 ifneq ($(findstring clang,$(CC)),)
-LTM_CFLAGS += -Wno-typedef-redefinition -Wno-tautological-compare -Wno-builtin-requires-header
+   CLANG_MIN_VER := $(shell [ $(COMPILER_VERSION) -ge 600 ] && echo true)
+   ifeq ($(CLANG_MIN_VER),true)
+      LTM_CFLAGS += -Wtautological-compare  -Wtautological-type-limit-compare
+   else
+      LTM_CFLAGS += -Wno-typedef-redefinition -Wno-tautological-compare -Wno-builtin-requires-header
+   endif
 endif
 ifneq ($(findstring mingw,$(CC)),)
 LTM_CFLAGS += -Wno-shadow
