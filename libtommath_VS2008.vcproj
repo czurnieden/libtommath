@@ -541,6 +541,10 @@
 			>
 		</File>
 		<File
+			RelativePath="mp_log.c"
+			>
+		</File>
+		<File
 			RelativePath="mp_log_n.c"
 			>
 		</File>
@@ -837,15 +841,7 @@
 			>
 		</File>
 		<File
-			RelativePath="s_mp_log.c"
-			>
-		</File>
-		<File
 			RelativePath="s_mp_log_2expt.c"
-			>
-		</File>
-		<File
-			RelativePath="s_mp_log_d.c"
 			>
 		</File>
 		<File
