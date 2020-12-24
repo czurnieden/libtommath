@@ -139,6 +139,7 @@
 #   define S_MP_DIV_SMALL_C
 #   define S_MP_EXPTMOD_C
 #   define S_MP_EXPTMOD_FAST_C
+#   define S_MP_FASTER_READ_RADIX_C
 #   define S_MP_FASTER_TO_RADIX_C
 #   define S_MP_GET_BIT_C
 #   define S_MP_INVMOD_C
@@ -159,6 +160,7 @@
 #   define S_MP_RADIX_MAP_C
 #   define S_MP_RADIX_SIZE_OVERESTIMATE_C
 #   define S_MP_RAND_PLATFORM_C
+#   define S_MP_SLOWER_READ_RADIX_C
 #   define S_MP_SLOWER_TO_RADIX_C
 #   define S_MP_SQR_C
 #   define S_MP_SQR_COMBA_C
@@ -709,9 +711,10 @@
 #endif
 
 #if defined(MP_READ_RADIX_C)
-#   define MP_ADD_D_C
-#   define MP_MUL_D_C
 #   define MP_ZERO_C
+#   define S_MP_FASTER_READ_RADIX_C
+#   define S_MP_SLOWER_READ_RADIX_C
+#   define S_MP_STRLEN_C
 #endif
 
 #if defined(MP_REDUCE_C)
@@ -1043,6 +1046,18 @@
 #   define S_MP_MONTGOMERY_REDUCE_COMBA_C
 #endif
 
+#if defined(S_MP_FASTER_READ_RADIX_C)
+#   define MP_ADD_C
+#   define MP_CLEAR_C
+#   define MP_CLEAR_MULTI_C
+#   define MP_EXPT_N_C
+#   define MP_INIT_MULTI_C
+#   define MP_INIT_SET_C
+#   define MP_MUL_2D_C
+#   define MP_MUL_C
+#   define S_MP_SLOWER_READ_RADIX_C
+#endif
+
 #if defined(S_MP_FASTER_TO_RADIX_C)
 #   define MP_2EXPT_C
 #   define MP_ADD_C
@@ -1217,6 +1232,12 @@
 #endif
 
 #if defined(S_MP_RAND_PLATFORM_C)
+#endif
+
+#if defined(S_MP_SLOWER_READ_RADIX_C)
+#   define MP_ADD_D_C
+#   define MP_MUL_D_C
+#   define MP_ZERO_C
 #endif
 
 #if defined(S_MP_SLOWER_TO_RADIX_C)
