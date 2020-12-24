@@ -19,6 +19,10 @@ mp_err mp_read_radix(mp_int *a, const char *str, int radix)
 
    mp_err   err;
    mp_sign  sign = MP_ZPOS;
+   int correction = 0;
+   size_t slen;
+   /* should sit at the EOS now */
+   const char *t;
 
    /* make sure the radix is ok */
    if ((radix < 2) || (radix > 64)) {
@@ -33,14 +37,23 @@ mp_err mp_read_radix(mp_int *a, const char *str, int radix)
       sign = MP_NEG;
    }
 
+   slen = s_mp_strlen(str);
+   t = str + slen - 1;
+
+   /* Check input (needed to get rid of unclean input from "mtest") */
+   while ((*t == '\r') || (*t == '\n') || (*t == '\t')) {
+      correction++;
+      t--;
+   }
+
    mp_zero(a);
 
    /* Try faster version first */
    if (MP_HAS(S_MP_FASTER_READ_RADIX)) {
-      if ((err = s_mp_faster_read_radix(a, str, 0, (int)s_mp_strlen(str) - 1,
+      if ((err = s_mp_faster_read_radix(a, str, 0, (int)slen - correction,
                                         radix)) != MP_OKAY)                                              goto LTM_ERR;
    } else if (MP_HAS(S_MP_SLOWER_READ_RADIX)) {
-      if ((err = s_mp_slower_read_radix(a, str, 0, (int)s_mp_strlen(str) - 1,
+      if ((err = s_mp_slower_read_radix(a, str, 0, (int)slen - correction,
                                         radix)) != MP_OKAY)                                              goto LTM_ERR;
    }
 
