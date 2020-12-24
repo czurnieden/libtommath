@@ -825,6 +825,10 @@
 			>
 		</File>
 		<File
+			RelativePath="s_mp_faster_to_radix.c"
+			>
+		</File>
+		<File
 			RelativePath="s_mp_get_bit.c"
 			>
 		</File>
@@ -898,6 +902,10 @@
 		</File>
 		<File
 			RelativePath="s_mp_rand_platform.c"
+			>
+		</File>
+		<File
+			RelativePath="s_mp_slower_to_radix.c"
 			>
 		</File>
 		<File
