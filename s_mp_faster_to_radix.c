@@ -14,6 +14,7 @@ static int32_t s_floor_ilog2(int32_t value)
 }
 
 /* Exponentiation with small footprint */
+/*
 static int32_t s_pow(int32_t base, int32_t exponent)
 {
    int32_t result = 1;
@@ -26,7 +27,7 @@ static int32_t s_pow(int32_t base, int32_t exponent)
    }
    return result;
 }
-
+*/
 static mp_err s_mp_to_radix_recursive(const mp_int *a, char **str, size_t *part_maxlen, size_t *part_written,
                                       int radix, int32_t k, int32_t t, bool pad, mp_int *P, mp_int *R)
 {
@@ -100,13 +101,20 @@ mp_err s_mp_faster_to_radix(const mp_int *a, char *str, size_t maxlen, size_t *w
    size_t part_written = 0;
    size_t part_maxlen = maxlen;
 
+   mp_int N;
+
    /* List of reciprocals */
    mp_int *R = NULL;
    /* List of moduli */
    mp_int *P = NULL;
 
    /* Denominator for the reciprocal: b^y */
-   n = s_pow((int32_t)radix, (int32_t)s_mp_radix_exponent_y[radix]);
+   /*n = s_pow((int32_t)radix, (int32_t)s_mp_radix_exponent_y[radix]);*/
+   /* FIXME: either do it full in bigint or fix the problem with the sanitizer */
+   if ((err = mp_init_i32(&N,(int32_t)radix)) != MP_OKAY)                                               goto LTM_ERR;
+   if ((err = mp_expt_n(&N, (int)s_mp_radix_exponent_y[radix], &N)) != MP_OKAY)                         goto LTM_ERR;
+   n = mp_get_i32(&N);
+   mp_clear(&N);
 
    /* Numerator of the reciprocal: ceil(log_2(n)) */
    k = s_floor_ilog2(n) + 1;
