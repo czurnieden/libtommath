@@ -91,7 +91,7 @@ LTM_ERR:
 mp_err s_mp_faster_to_radix(const mp_int *a, char *str, size_t maxlen, size_t *written, int radix)
 {
    mp_err err;
-   int32_t n = 0, k, t = 0, steps;
+   int32_t n = 0, k, t = 0, steps = 0;
    int ilog2a;
 
    /* Use given buffer directly, no temporary buffers for the individual chunks */
