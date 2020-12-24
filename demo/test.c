@@ -1012,6 +1012,17 @@ LBL_ERR:
 
 }
 
+const uint8_t test_s_mp_radix_exponent_y[] = {  0, 0,                      /*  0 .. 1*/
+                                           20, 12, 10, 8, 7, 7, 6, 6, /*  2 .. 9 */
+                                           6, 5, 5, 5, 5, 5, 5, 4,    /* 10 .. 17 */
+                                           4, 4, 4, 4, 4, 4, 4, 4,    /* 18 .. 25 */
+                                           4, 4, 4, 4, 4, 4, 4, 3,    /* 26 .. 33 */
+                                           3, 3, 3, 3, 3, 3, 3, 3,    /* 34 .. 41 */
+                                           3, 3, 3, 3, 3, 3, 3, 3,    /* 42 .. 49 */
+                                           3, 3, 3, 3, 3, 3, 3, 3,    /* 51 .. 57 */
+                                           3, 3, 3, 3, 3, 3, 3        /* 58 .. 64 */
+                                        };
+
 static int test_mp_read_radix(void)
 {
    char buf[4096];
@@ -1048,7 +1059,7 @@ static int test_mp_read_radix(void)
    /* Test the fast method with a slightly larger number */
 
    /* Must be bigger than the cut-off value, of course */
-   bignum = 2* (2 * s_mp_radix_exponent_y[2] * MP_RADIX_BARRETT_START_MULTIPLICATOR);
+   bignum = 2* (2 * test_s_mp_radix_exponent_y[2] * MP_RADIX_BARRETT_START_MULTIPLICATOR);
    printf("Size of bignum_size = %d\n", bignum);
    /* Check if "bignum" is small enough for the result to fit into "buf"
       otherwise lead tester to this function */

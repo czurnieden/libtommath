@@ -43,7 +43,7 @@ mp_err s_mp_faster_read_radix(mp_int *a, const char *str, int start, int end, in
 
    mid = len / 2;
 
-   if ((err = mp_init_set(&m, radix)) != MP_OKAY) {
+   if ((err = mp_init_set(&m, (mp_digit)radix)) != MP_OKAY) {
       return err;
    }
    if ((err = mp_init_multi(&A, &B, NULL)) != MP_OKAY) {
@@ -54,7 +54,7 @@ mp_err s_mp_faster_read_radix(mp_int *a, const char *str, int start, int end, in
    if ((err = s_mp_slower_read_radix(&A, str, start, start + mid + 1, radix)) != MP_OKAY)                goto LTM_ERR;
    if ((err = s_mp_slower_read_radix(&B, str, start + mid + 1, end, radix)) != MP_OKAY)                  goto LTM_ERR;
 
-   if (MP_IS_2EXPT(radix)) {
+   if (MP_IS_2EXPT((unsigned int)radix)) {
       if ((err = mp_mul_2d(&A, ((len - mid) -1) * s_floor_ilog2(radix), &A)) != MP_OKAY)                 goto LTM_ERR;
    } else {
       if ((err = mp_expt_n(&m, (len - mid) - 1, &m)) != MP_OKAY)                                         goto LTM_ERR;
