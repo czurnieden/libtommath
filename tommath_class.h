@@ -1069,6 +1069,7 @@
 #   define MP_DIV_2D_C
 #   define MP_DIV_C
 #   define MP_EXPT_N_C
+#   define MP_GET_I32_C
 #   define MP_INIT_C
 #   define MP_INIT_I32_C
 #   define MP_INIT_MULTI_C

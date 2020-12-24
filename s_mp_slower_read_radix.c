@@ -11,22 +11,26 @@ mp_err s_mp_slower_read_radix(mp_int *a, const char *str, int start, int end, in
    /* checks are done by caller */
 
    char *_s = (char *)(str + start);
-   for (i = start; i < end; i++) {
+   for (i = start; (i < end) && (*_s != '\0'); i++) {
       uint8_t y;
 
       char ch = (radix <= 36) ? (char)MP_TOUPPER((int)*_s) : *_s;
       unsigned int pos = (unsigned int)(ch - '+');
       if (MP_RADIX_MAP_REVERSE_SIZE <= pos) {
-         err = MP_VAL;
-         goto LBL_ERR;
+         if ((*_s != '\0') && (*_s != '\r') && (*_s != '\n')) {
+            return MP_VAL;
+         }
+         break;
       }
       y = s_mp_radix_map_reverse[pos];
       if (y >= radix) {
-         err = MP_VAL;
-         goto LBL_ERR;
+         if ((*_s != '\0') && (*_s != '\r') && (*_s != '\n')) {
+            return MP_VAL;
+         }
+         break;
       }
-      if ((err = mp_mul_d(a, (mp_digit)radix, a)) != MP_OKAY)                                       goto LBL_ERR;
-      if ((err = mp_add_d(a, (mp_digit)y, a)) != MP_OKAY)                                           goto LBL_ERR;
+      if ((err = mp_mul_d(a, (mp_digit)radix, a)) != MP_OKAY)                                            goto LBL_ERR;
+      if ((err = mp_add_d(a, (mp_digit)y, a)) != MP_OKAY)                                                goto LBL_ERR;
       _s++;
    }
 

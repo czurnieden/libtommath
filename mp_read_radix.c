@@ -37,11 +37,11 @@ mp_err mp_read_radix(mp_int *a, const char *str, int radix)
 
    /* Try faster version first */
    if (MP_HAS(S_MP_FASTER_READ_RADIX)) {
-      if ((err = s_mp_faster_read_radix(a, str, 0, (int)s_mp_strlen(str),
-                                        radix)) != MP_OKAY)                                       goto LTM_ERR;
+      if ((err = s_mp_faster_read_radix(a, str, 0, (int)s_mp_strlen(str) - 1,
+                                        radix)) != MP_OKAY)                                              goto LTM_ERR;
    } else if (MP_HAS(S_MP_SLOWER_READ_RADIX)) {
-      if ((err = s_mp_slower_read_radix(a, str, 0, (int)s_mp_strlen(str),
-                                        radix)) != MP_OKAY)                                       goto LTM_ERR;
+      if ((err = s_mp_slower_read_radix(a, str, 0, (int)s_mp_strlen(str) - 1,
+                                        radix)) != MP_OKAY)                                              goto LTM_ERR;
    }
 
    /* set the sign only if a != 0 */
