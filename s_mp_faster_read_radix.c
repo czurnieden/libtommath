@@ -21,13 +21,12 @@ static const uint8_t s_read_radix_cutoff[65] = { 0, 0,                          
 /* This is in mp_prime_is_prime.c and can be reused */
 static int s_floor_ilog2(int value)
 {
-   unsigned int r = 0;
+   int r = 0;
    while ((value >>= 1) != 0) {
       r++;
    }
    return r;
 }
-
 
 mp_err s_mp_faster_read_radix(mp_int *a, const char *str, int start, int end, int radix)
 {
@@ -52,7 +51,7 @@ mp_err s_mp_faster_read_radix(mp_int *a, const char *str, int start, int end, in
    }
 
    if ((err = s_mp_slower_read_radix(&A, str, start, start + mid + 1, radix)) != MP_OKAY)                goto LTM_ERR;
-   if ((err = s_mp_slower_read_radix(&B, str, start + mid + 1, end, radix)) != MP_OKAY)                  goto LTM_ERR;
+   if ((err = s_mp_slower_read_radix(&B, str, start + mid +1, end, radix)) != MP_OKAY)                  goto LTM_ERR;
 
    if (MP_IS_2EXPT((unsigned int)radix)) {
       if ((err = mp_mul_2d(&A, ((len - mid) -1) * s_floor_ilog2(radix), &A)) != MP_OKAY)                 goto LTM_ERR;
