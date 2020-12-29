@@ -132,10 +132,13 @@ extern void MP_FREE(void *mem, size_t size);
 
 #if defined(MP_16BIT)
 typedef uint32_t mp_word;
+#define MP_WORD_SIZE  4
 #elif defined(MP_64BIT)
 typedef unsigned long mp_word __attribute__((mode(TI)));
+#define MP_WORD_SIZE  16
 #else
 typedef uint64_t mp_word;
+#define MP_WORD_SIZE  8
 #endif
 
 MP_STATIC_ASSERT(correct_word_size, sizeof(mp_word) == (2u * sizeof(mp_digit)))
@@ -207,6 +210,20 @@ MP_PRIVATE void s_mp_copy_digs(mp_digit *d, const mp_digit *s, int digits);
 MP_PRIVATE void s_mp_zero_buf(void *mem, size_t size);
 MP_PRIVATE void s_mp_zero_digs(mp_digit *d, int digits);
 MP_PRIVATE mp_err s_mp_radix_size_overestimate(const mp_int *a, const int radix, size_t *size);
+
+/* Some limits for the fixed point log_2 */
+#define MP_UPPER_LIMIT_FIXED_LOG ( (int) ( (sizeof(mp_word) * CHAR_BIT)      - 1))
+#define MP_PRECISION_FIXED_LOG   ( (int) (((sizeof(mp_word) * CHAR_BIT) / 2) - 1))
+/* Bigint version for the unexpected */
+#if ( (UINT_MAX == UINT32_MAX) && ( MP_WORD_SIZE > 4 ) ) \
+      ||\
+    ( (UINT_MAX == UINT16_MAX) && ( MP_WORD_SIZE > 2 ) )
+MP_PRIVATE mp_err s_mp_fp_log(const mp_int *a, mp_word *c) MP_WUR;
+#else
+MP_PRIVATE mp_err s_mp_fp_log(const mp_int *a, mp_int *c) MP_WUR;
+#endif
+MP_PRIVATE mp_word s_flog2_mp_word(mp_word value);
+
 
 #define MP_RADIX_MAP_REVERSE_SIZE 80u
 extern MP_PRIVATE const char s_mp_radix_map[];
