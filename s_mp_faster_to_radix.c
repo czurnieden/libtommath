@@ -97,6 +97,11 @@ mp_err s_mp_faster_to_radix(const mp_int *a, char *str, size_t maxlen, size_t *w
    mp_err err;
    int32_t n = 0, k, t = 0, steps = 0;
    int ilog2a;
+#ifdef MP_TO_RADIX_USE_NEWTON_RAPHSON
+   int s, g = 3;
+   mp_int M2, M4;
+   bool use_newton_raphson = true;
+#endif
 
    /* Use given buffer directly, no temporary buffers for the individual chunks */
    char **sptr = &str;
@@ -108,6 +113,13 @@ mp_err s_mp_faster_to_radix(const mp_int *a, char *str, size_t maxlen, size_t *w
    mp_int *R = NULL;
    /* List of moduli */
    mp_int *P = NULL;
+
+#ifdef MP_TO_RADIX_USE_NEWTON_RAPHSON
+   /* Be nice and utter a warning. For now. */
+   if (radix != 10) {
+      fprintf(stderr,"The Newton-Raphson method is for base 10 only!\n");
+   }
+#endif
 
    /* Denominator for the reciprocal: b^y */
    n = s_pow((int32_t)radix, (int32_t)s_mp_radix_exponent_y[radix]);
@@ -163,6 +175,10 @@ mp_err s_mp_faster_to_radix(const mp_int *a, char *str, size_t maxlen, size_t *w
    if ((err = mp_div(&R[0], &P[0], &R[0], NULL)) != MP_OKAY)                                             goto LTM_ERR;
    if ((err = mp_incr(&R[0])) != MP_OKAY)                                                                goto LTM_ERR;
 
+#ifdef MP_TO_RADIX_USE_NEWTON_RAPHSON
+   if ((err = mp_init_multi(&M2, &M4, NULL)) != MP_OKAY)                                                 goto LTM_ERR;
+#endif
+
    /* Compute the rest of the reciprocals if as needed */
    for (t = 1; t < steps; t++) {
       /* P_t = (b^y)^(2^t) = n^(2^t) */
@@ -208,15 +224,41 @@ mp_err s_mp_faster_to_radix(const mp_int *a, char *str, size_t maxlen, size_t *w
       /* Compute numerator */
       if ((err = mp_init(&R[t])) != MP_OKAY)                                                             goto LTM_ERR;
 
-      /* R[t] = R[t] << (2^t * k) The factor cannot overflow, we checked that above */
-      /* TODO: these are more castings than in the ER in Mayrhofen at New Year's Eve! */
-      if ((err = mp_2expt(&(R[t]), (int)((int32_t)((uint32_t)1 << (t+1)) * k))) != MP_OKAY)              goto LTM_ERR;
-
-      /* Compute reciprocal */
-      /* R[t] = floor(2^(2^t * k) / P[t] */
-      if ((err = mp_div(&R[t], &P[t], &R[t], NULL)) != MP_OKAY)                                          goto LTM_ERR;
-      /* Ceiling if P[t] is not a power of two but it is not a problem if P[t] is a power of two. */
-      if ((err = mp_incr(&R[t])) != MP_OKAY)                                                             goto LTM_ERR;
+#ifdef MP_TO_RADIX_USE_NEWTON_RAPHSON
+      if (use_newton_raphson && (radix == 10)) {
+         /* Use a round of Newton-Raphson to compute the next reciprocal */
+         /* s = 2^t*k */
+         s = (int)((int32_t)((uint32_t)1 << (t)) * k);
+         /* M = R[t-1] * 2^g */
+         if ((err = mp_mul_2d(&R[t-1], (mp_digit)3, &M2)) != MP_OKAY)                                       goto LTM_ERR;
+         if ((err = mp_sub_d(&M2, (mp_digit)2, &M2)) != MP_OKAY)                                            goto LTM_ERR;
+         /* Do the M-R round: M = floor( ( 2*M^2 - floor((n^2*M^4) / (2^(2*(s+g)))) ) / 2^(2*g)) + 1 */
+         /* M2 = (M * 2^g)^2*/
+         if ((err = mp_sqr(&M2, &M2)) != MP_OKAY)                                                           goto LTM_ERR;
+         /* M4 = M2^2 */
+         if ((err = mp_sqr(&M2, &M4)) != MP_OKAY)                                                           goto LTM_ERR;
+         /* Compute numerator: n^2*M^4 = (P[t]) * M4*/
+         if ((err = mp_mul(&P[t], &M4, &M4)) != MP_OKAY)                                                    goto LTM_ERR;
+         /* Compute fraction by shifting right: M4>>2*(s+g) where 2*(s+g) < MAX_INT */
+         if ((err = mp_div_2d(&M4, 2*(s+g), &M4, NULL)) != MP_OKAY)                                         goto LTM_ERR;
+         if ((err = mp_mul_2(&M2,&M2)) != MP_OKAY)                                                          goto LTM_ERR;
+         if ((err = mp_sub(&M2,&M4,&M4)) != MP_OKAY)                                                        goto LTM_ERR;
+         /* R[t] = M / 2^(2*g) remove extra bits before storage */
+         if ((err = mp_div_2d(&M4,  2*g, &(R[t]), &M4)) != MP_OKAY)                                         goto LTM_ERR;
+         if ((err = mp_incr(&R[t])) != MP_OKAY)                                                             goto LTM_ERR;
+      } else {
+#endif
+         /* R[t] = R[t] << (2^t * k) The factor cannot overflow, we checked that above */
+         /* TODO: these are more castings than in the ER in Mayrhofen at New Year's Eve! */
+         if ((err = mp_2expt(&(R[t]), (int)((int32_t)((uint32_t)1 << (t+1)) * k))) != MP_OKAY)              goto LTM_ERR;
+         /* Compute reciprocal */
+         /* R[t] = floor(2^(2^t * k) / P[t] */
+         if ((err = mp_div(&R[t], &P[t], &R[t], NULL)) != MP_OKAY)                                          goto LTM_ERR;
+         /* Ceiling if P[t] is not a power of two but it is not a problem if P[t] is a power of two. */
+         if ((err = mp_incr(&R[t])) != MP_OKAY)                                                             goto LTM_ERR;
+#ifdef MP_TO_RADIX_USE_NEWTON_RAPHSON
+      }
+#endif
    }
 
    /* And finally: start the recursion. */
@@ -233,6 +275,9 @@ LTM_ERR:
    } while (t--);
    MP_FREE_BUF(P, (size_t) steps * sizeof(mp_int));
    MP_FREE_BUF(R, (size_t) steps * sizeof(mp_int));
+#ifdef MP_TO_RADIX_USE_NEWTON_RAPHSON
+   mp_clear_multi(&M2, &M4, NULL);
+#endif
    return err;
 }
 
