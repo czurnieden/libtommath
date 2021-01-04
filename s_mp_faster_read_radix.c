@@ -28,9 +28,9 @@ static int s_floor_ilog2(int value)
    return r;
 }
 
-mp_err s_mp_faster_read_radix(mp_int *a, const char *str, int start, int end, int radix)
+mp_err s_mp_faster_read_radix(mp_int *a, const char *str, size_t start, size_t end, int radix)
 {
-   int len, mid;
+   size_t len, mid;
    mp_int A, B, m;
    mp_err err = MP_OKAY;
 
@@ -40,7 +40,7 @@ mp_err s_mp_faster_read_radix(mp_int *a, const char *str, int start, int end, in
       return s_mp_slower_read_radix(a, str, start, end, radix);
    }
 
-   mid = len / 2;
+   mid = len / 2u;
 
    if ((err = mp_init_set(&m, (mp_digit)radix)) != MP_OKAY) {
       return err;
@@ -51,12 +51,12 @@ mp_err s_mp_faster_read_radix(mp_int *a, const char *str, int start, int end, in
    }
 
    if ((err = s_mp_slower_read_radix(&A, str, start, start + mid + 1, radix)) != MP_OKAY)                goto LTM_ERR;
-   if ((err = s_mp_slower_read_radix(&B, str, start + mid +1, end, radix)) != MP_OKAY)                  goto LTM_ERR;
+   if ((err = s_mp_slower_read_radix(&B, str, start + mid +1, end, radix)) != MP_OKAY)                   goto LTM_ERR;
 
    if (MP_IS_2EXPT((unsigned int)radix)) {
-      if ((err = mp_mul_2d(&A, ((len - mid) -1) * s_floor_ilog2(radix), &A)) != MP_OKAY)                 goto LTM_ERR;
+      if ((err = mp_mul_2d(&A, ((len - mid) - 1u) * s_floor_ilog2(radix), &A)) != MP_OKAY)               goto LTM_ERR;
    } else {
-      if ((err = mp_expt_n(&m, (len - mid) - 1, &m)) != MP_OKAY)                                         goto LTM_ERR;
+      if ((err = mp_expt_n(&m, (len - mid) - 1u, &m)) != MP_OKAY)                                        goto LTM_ERR;
       if ((err = mp_mul(&A, &m, &A)) != MP_OKAY)                                                         goto LTM_ERR;
    }
    if ((err = mp_add(&A, &B, a)) != MP_OKAY)                                                             goto LTM_ERR;

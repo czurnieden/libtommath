@@ -210,11 +210,11 @@ MP_PRIVATE mp_err s_mp_radix_size_overestimate(const mp_int *a, const int radix,
 
 /* Radix conversion O(M(n) log n) Schoenhage method */
 MP_PRIVATE mp_err s_mp_faster_to_radix(const mp_int *a, char *str, size_t maxlen, size_t *written, int radix) MP_WUR;
-MP_PRIVATE mp_err s_mp_faster_read_radix(mp_int *a, const char *str, int start, int end, int radix) MP_WUR;
+MP_PRIVATE mp_err s_mp_faster_read_radix(mp_int *a, const char *str, size_t start, size_t end, int radix) MP_WUR;
 /* Radix conversion O(n^2) method */
 MP_PRIVATE mp_err s_mp_slower_to_radix(const mp_int *a, char **str, size_t *part_maxlen, size_t *part_written,
                                        int radix, bool pad) MP_WUR;
-MP_PRIVATE mp_err s_mp_slower_read_radix(mp_int *a, const char *str, int start, int end, int radix) MP_WUR;
+MP_PRIVATE mp_err s_mp_slower_read_radix(mp_int *a, const char *str, size_t start, size_t end, int radix) MP_WUR;
 
 
 
