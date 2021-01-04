@@ -31,6 +31,8 @@ static int32_t s_pow(int32_t base, int32_t exponent)
    return result;
 }
 
+#define MP_COMPUTE_ESS(T) ((int)((int32_t)((uint32_t)1 << (T)) * k))
+
 static mp_err s_mp_to_radix_recursive(const mp_int *a, char **str, size_t *part_maxlen, size_t *part_written,
                                       int radix, int32_t k, int32_t t, bool pad, mp_int *P, mp_int *R)
 {
@@ -52,8 +54,7 @@ static mp_err s_mp_to_radix_recursive(const mp_int *a, char **str, size_t *part_
          See also: Modern Computer Arithmetic, version 0.5.9, page 59
        */
 
-      /* If this cast-feast looks familiar: it is the numerator from computing the reciprocal*/
-      Beta = (int)((int32_t)((uint32_t)1 << (t+1)) * k);
+      Beta = MP_COMPUTE_ESS(t+1);
 
       /* Q = floor(A1 * I / 2^Beta) */
       /* I = floor( (2^(2*Beta)) / B) Here we have R[t] = I, P[t] = B */
@@ -90,7 +91,6 @@ static mp_err s_mp_to_radix_recursive(const mp_int *a, char **str, size_t *part_
 LTM_ERR:
    return err;
 }
-
 
 mp_err s_mp_faster_to_radix(const mp_int *a, char *str, size_t maxlen, size_t *written, int radix)
 {
@@ -228,34 +228,33 @@ mp_err s_mp_faster_to_radix(const mp_int *a, char *str, size_t maxlen, size_t *w
       if (use_newton_raphson && (radix == 10)) {
          /* Use a round of Newton-Raphson to compute the next reciprocal */
          /* s = 2^t*k */
-         s = (int)((int32_t)((uint32_t)1 << (t)) * k);
+         s = MP_COMPUTE_ESS(t);
          /* M = R[t-1] * 2^g */
-         if ((err = mp_mul_2d(&R[t-1], (mp_digit)3, &M2)) != MP_OKAY)                                       goto LTM_ERR;
-         if ((err = mp_sub_d(&M2, (mp_digit)2, &M2)) != MP_OKAY)                                            goto LTM_ERR;
+         if ((err = mp_mul_2d(&R[t-1], 3, &M2)) != MP_OKAY)                                              goto LTM_ERR;
+         if ((err = mp_sub_d(&M2, (mp_digit)2, &M2)) != MP_OKAY)                                         goto LTM_ERR;
          /* Do the M-R round: M = floor( ( 2*M^2 - floor((n^2*M^4) / (2^(2*(s+g)))) ) / 2^(2*g)) + 1 */
          /* M2 = (M * 2^g)^2*/
-         if ((err = mp_sqr(&M2, &M2)) != MP_OKAY)                                                           goto LTM_ERR;
+         if ((err = mp_sqr(&M2, &M2)) != MP_OKAY)                                                        goto LTM_ERR;
          /* M4 = M2^2 */
-         if ((err = mp_sqr(&M2, &M4)) != MP_OKAY)                                                           goto LTM_ERR;
+         if ((err = mp_sqr(&M2, &M4)) != MP_OKAY)                                                        goto LTM_ERR;
          /* Compute numerator: n^2*M^4 = (P[t]) * M4*/
-         if ((err = mp_mul(&P[t], &M4, &M4)) != MP_OKAY)                                                    goto LTM_ERR;
+         if ((err = mp_mul(&P[t], &M4, &M4)) != MP_OKAY)                                                 goto LTM_ERR;
          /* Compute fraction by shifting right: M4>>2*(s+g) where 2*(s+g) < MAX_INT */
-         if ((err = mp_div_2d(&M4, 2*(s+g), &M4, NULL)) != MP_OKAY)                                         goto LTM_ERR;
-         if ((err = mp_mul_2(&M2,&M2)) != MP_OKAY)                                                          goto LTM_ERR;
-         if ((err = mp_sub(&M2,&M4,&M4)) != MP_OKAY)                                                        goto LTM_ERR;
+         if ((err = mp_div_2d(&M4, 2*(s+g), &M4, NULL)) != MP_OKAY)                                      goto LTM_ERR;
+         if ((err = mp_mul_2(&M2,&M2)) != MP_OKAY)                                                       goto LTM_ERR;
+         if ((err = mp_sub(&M2,&M4,&M4)) != MP_OKAY)                                                     goto LTM_ERR;
          /* R[t] = M / 2^(2*g) remove extra bits before storage */
-         if ((err = mp_div_2d(&M4,  2*g, &(R[t]), &M4)) != MP_OKAY)                                         goto LTM_ERR;
-         if ((err = mp_incr(&R[t])) != MP_OKAY)                                                             goto LTM_ERR;
+         if ((err = mp_div_2d(&M4,  2*g, &(R[t]), &M4)) != MP_OKAY)                                      goto LTM_ERR;
+         if ((err = mp_incr(&R[t])) != MP_OKAY)                                                          goto LTM_ERR;
       } else {
 #endif
          /* R[t] = R[t] << (2^t * k) The factor cannot overflow, we checked that above */
-         /* TODO: these are more castings than in the ER in Mayrhofen at New Year's Eve! */
-         if ((err = mp_2expt(&(R[t]), (int)((int32_t)((uint32_t)1 << (t+1)) * k))) != MP_OKAY)              goto LTM_ERR;
+         if ((err = mp_2expt(&(R[t]), MP_COMPUTE_ESS(t + 1) )) != MP_OKAY)                               goto LTM_ERR;
          /* Compute reciprocal */
          /* R[t] = floor(2^(2^t * k) / P[t] */
-         if ((err = mp_div(&R[t], &P[t], &R[t], NULL)) != MP_OKAY)                                          goto LTM_ERR;
+         if ((err = mp_div(&R[t], &P[t], &R[t], NULL)) != MP_OKAY)                                       goto LTM_ERR;
          /* Ceiling if P[t] is not a power of two but it is not a problem if P[t] is a power of two. */
-         if ((err = mp_incr(&R[t])) != MP_OKAY)                                                             goto LTM_ERR;
+         if ((err = mp_incr(&R[t])) != MP_OKAY)                                                          goto LTM_ERR;
 #ifdef MP_TO_RADIX_USE_NEWTON_RAPHSON
       }
 #endif
