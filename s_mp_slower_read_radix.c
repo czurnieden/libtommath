@@ -3,15 +3,15 @@
 /* LibTomMath, multiple-precision integer library -- Tom St Denis */
 /* SPDX-License-Identifier: Unlicense */
 
-mp_err s_mp_slower_read_radix(mp_int *a, const char *str, int start, int end, int radix)
+mp_err s_mp_slower_read_radix(mp_int *a, const char *str, size_t start, size_t end, int radix)
 {
    mp_err err;
-   int i;
+   size_t i;
 
    /* checks are done by caller */
 
    char *_s = (char *)(str + start);
-   for (i = start; (i < end) && (*_s != '\0')&& (*_s != '\r') && (*_s != '\n'); i++) {
+   for (i = start; (i < end) && (*_s != '\0'); i++) {
       uint8_t y;
 
       char ch = (radix <= 36) ? (char)MP_TOUPPER((int)*_s) : *_s;
