@@ -31,7 +31,7 @@ mp_err s_mp_sqr(const mp_int *a, mp_int *b)
       t.dp[ix+ix] = (mp_digit)(r & (mp_word)MP_MASK);
 
       /* get the carry */
-      u           = (mp_digit)(r >> (mp_word)MP_DIGIT_BIT);
+      u           = (mp_digit)(r >> MP_DIGIT_BIT);
 
       for (iy = ix + 1; iy < pa; iy++) {
          /* first calculate the product */
@@ -40,19 +40,19 @@ mp_err s_mp_sqr(const mp_int *a, mp_int *b)
          /* now calculate the double precision result, note we use
           * addition instead of *2 since it's easier to optimize
           */
-         r       = (mp_word)t.dp[ix + iy] + r + r + (mp_word)u;
+         r       = (mp_word)t.dp[ix + iy] + (r<<1) + (mp_word)u;
 
          /* store lower part */
          t.dp[ix + iy] = (mp_digit)(r & (mp_word)MP_MASK);
 
          /* get carry */
-         u       = (mp_digit)(r >> (mp_word)MP_DIGIT_BIT);
+         u       = (mp_digit)(r >> MP_DIGIT_BIT);
       }
       /* propagate upwards */
-      while (u != 0uL) {
-         r       = (mp_word)t.dp[ix + iy] + (mp_word)u;
-         t.dp[ix + iy] = (mp_digit)(r & (mp_word)MP_MASK);
-         u       = (mp_digit)(r >> (mp_word)MP_DIGIT_BIT);
+      while (u != 0u) {
+         u       = t.dp[ix + iy] + u;
+         t.dp[ix + iy] = u & MP_MASK;
+         u       = u >> MP_DIGIT_BIT;
          ++iy;
       }
    }
