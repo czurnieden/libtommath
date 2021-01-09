@@ -490,6 +490,13 @@ int main(int argc, char **argv)
       };
       /* Turn all limits from bncore.c to the max */
       set_cutoffs(&max_cutoffs);
+      /*
+         Once an algo is faster then the old one (starting at Comba, so the
+         first one is Karatsuba) use that cut-off point and set it.
+
+         Benchmark multiplication algos first than the squaring ones because
+         the fast squaring needs multiplication but not vice versa.
+       */
       for (n = 0; n < sizeof(test)/sizeof(test[0]); ++n) {
          if (test[n].fn != NULL) {
             s_run(test[n].name, test[n].fn, test[n].cutoff);
