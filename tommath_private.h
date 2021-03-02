@@ -202,6 +202,11 @@ MP_PRIVATE mp_err s_mp_mul_karatsuba(const mp_int *a, const mp_int *b, mp_int *c
 MP_PRIVATE mp_err s_mp_mul_toom(const mp_int *a, const mp_int *b, mp_int *c) MP_WUR;
 MP_PRIVATE mp_err s_mp_mul_toom_4(const mp_int *a, const mp_int *b, mp_int *c) MP_WUR;
 MP_PRIVATE mp_err s_mp_mul_toom_5(const mp_int *a, const mp_int *b, mp_int *c) MP_WUR;
+MP_PRIVATE mp_err s_mp_mul_toom_6(const mp_int *a, const mp_int *b, mp_int *c) MP_WUR;
+MP_PRIVATE mp_err s_mp_mul_toom_7(const mp_int *a, const mp_int *b, mp_int *c) MP_WUR;
+MP_PRIVATE mp_err s_mp_mul_toom_8(const mp_int *a, const mp_int *b, mp_int *c) MP_WUR;
+MP_PRIVATE mp_err s_mp_mul_toom_9(const mp_int *a, const mp_int *b, mp_int *c) MP_WUR;
+
 MP_PRIVATE mp_err s_mp_prime_is_divisible(const mp_int *a, bool *result) MP_WUR;
 MP_PRIVATE mp_err s_mp_rand_platform(void *p, size_t n) MP_WUR;
 MP_PRIVATE mp_err s_mp_sqr(const mp_int *a, mp_int *b) MP_WUR;
@@ -210,7 +215,10 @@ MP_PRIVATE mp_err s_mp_sqr_karatsuba(const mp_int *a, mp_int *b) MP_WUR;
 MP_PRIVATE mp_err s_mp_sqr_toom(const mp_int *a, mp_int *b) MP_WUR;
 MP_PRIVATE mp_err s_mp_sqr_toom_4(const mp_int *a, mp_int *c) MP_WUR;
 MP_PRIVATE mp_err s_mp_sqr_toom_5(const mp_int *a, mp_int *c) MP_WUR;
-
+MP_PRIVATE mp_err s_mp_sqr_toom_6(const mp_int *a, mp_int *c) MP_WUR;
+MP_PRIVATE mp_err s_mp_sqr_toom_7(const mp_int *a, mp_int *c) MP_WUR;
+MP_PRIVATE mp_err s_mp_sqr_toom_8(const mp_int *a, mp_int *c) MP_WUR;
+MP_PRIVATE mp_err s_mp_sqr_toom_9(const mp_int *a, mp_int *c) MP_WUR;
 
 MP_PRIVATE mp_err s_mp_sub(const mp_int *a, const mp_int *b, mp_int *c) MP_WUR;
 MP_PRIVATE void s_mp_copy_digs(mp_digit *d, const mp_digit *s, int digits);

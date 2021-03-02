@@ -12,7 +12,23 @@ mp_err mp_mul(const mp_int *a, const mp_int *b, mp_int *c)
        digs = a->used + b->used + 1;
    bool neg = (a->sign != b->sign);
 
-   if ((a == b) &&
+  if ((a == b) &&
+       MP_HAS(S_MP_SQR_TOOM_9) && /* use Toom-Cook? */
+       (a->used >= MP_SQR_TOOM_9_CUTOFF)) {
+      err = s_mp_sqr_toom_9(a, c);
+   } else if ((a == b) &&
+       MP_HAS(S_MP_SQR_TOOM_8) && /* use Toom-Cook? */
+       (a->used >= MP_SQR_TOOM_8_CUTOFF)) {
+      err = s_mp_sqr_toom_8(a, c);
+   } else if ((a == b) &&
+       MP_HAS(S_MP_SQR_TOOM_7) && /* use Toom-Cook? */
+       (a->used >= MP_SQR_TOOM_7_CUTOFF)) {
+      err = s_mp_sqr_toom_7(a, c);
+   } else if ((a == b) &&
+       MP_HAS(S_MP_SQR_TOOM_6) && /* use Toom-Cook? */
+       (a->used >= MP_SQR_TOOM_6_CUTOFF)) {
+      err = s_mp_sqr_toom_6(a, c);
+   } else if ((a == b) &&
        MP_HAS(S_MP_SQR_TOOM_5) && /* use Toom-Cook? */
        (a->used >= MP_SQR_TOOM_5_CUTOFF)) {
       err = s_mp_sqr_toom_5(a, c);
@@ -49,6 +65,18 @@ mp_err mp_mul(const mp_int *a, const mp_int *b, mp_int *c)
               /* Not much effect was observed below a ratio of 1:2, but again: YMMV. */
               (max >= (2 * min))) {
       err = s_mp_mul_balance(a,b,c);
+   } else if (MP_HAS(S_MP_MUL_TOOM_9) &&
+              (min >= MP_MUL_TOOM_9_CUTOFF)) {
+      err = s_mp_mul_toom_9(a, b, c);
+   } else if (MP_HAS(S_MP_MUL_TOOM_8) &&
+              (min >= MP_MUL_TOOM_8_CUTOFF)) {
+      err = s_mp_mul_toom_8(a, b, c);
+   } else if (MP_HAS(S_MP_MUL_TOOM_7) &&
+              (min >= MP_MUL_TOOM_7_CUTOFF)) {
+      err = s_mp_mul_toom_7(a, b, c);
+   } else if (MP_HAS(S_MP_MUL_TOOM_6) &&
+              (min >= MP_MUL_TOOM_6_CUTOFF)) {
+      err = s_mp_mul_toom_6(a, b, c);
    } else if (MP_HAS(S_MP_MUL_TOOM_5) &&
               (min >= MP_MUL_TOOM_5_CUTOFF)) {
       err = s_mp_mul_toom_5(a, b, c);
@@ -76,7 +104,7 @@ mp_err mp_mul(const mp_int *a, const mp_int *b, mp_int *c)
    } else {
       err = MP_VAL;
    }
-      
+
    c->sign = ((c->used > 0) && neg) ? MP_NEG : MP_ZPOS;
    return err;
 }

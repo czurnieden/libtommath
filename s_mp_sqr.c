@@ -50,10 +50,23 @@ mp_err s_mp_sqr(const mp_int *a, mp_int *b)
       }
       /* propagate upwards */
       while (u != 0u) {
-         u       = t.dp[ix + iy] + u;
-         t.dp[ix + iy] = u & MP_MASK;
-         u       = u >> MP_DIGIT_BIT;
+         mp_digit tmp;
+         /*
+            "u" can get bigger than MP_DIGIT_MAX and would need a bigger type
+            for the sum (mp_word). That is costly if mp_word is not a native
+            integer but a bigint from the compiler library. We do a manual
+            multiword addition instead.
+          */
+         /* t.dp[ix + iy] has been masked off by MP_MASK and is hence of the correct size
+            and we can just add the lower part of "u". Carry is guaranteed to fit into
+            the type used for mp_digit, too, so we can extract it later. */
+         tmp = t.dp[ix + iy] + (u & MP_MASK);
+         /* t.dp[ix + iy] is set to the result minus the carry, carry is still in "tmp" */
+         t.dp[ix + iy] = tmp & MP_MASK;
+         /* Add high part of "u" and the carry from "tmp" to get the next "u" */
+         u = (u >> MP_DIGIT_BIT) + (tmp >> MP_DIGIT_BIT);
          ++iy;
+
       }
    }
 

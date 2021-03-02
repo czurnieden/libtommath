@@ -33,9 +33,9 @@ mp_err s_mp_sqr_toom(const mp_int *a, mp_int *b)
    B = a->used / 3;
 
    /** a = a2 * x^2 + a1 * x + a0; */
-   if ((err = mp_init_size(&a0, B)) != MP_OKAY)                   goto LBL_ERRa0;
-   if ((err = mp_init_size(&a1, B)) != MP_OKAY)                   goto LBL_ERRa1;
-   if ((err = mp_init_size(&a2, a->used - (2 * B))) != MP_OKAY)   goto LBL_ERRa2;
+   if ((err = mp_init_size(&a0, B)) != MP_OKAY)                                                          goto LTM_ERRa0;
+   if ((err = mp_init_size(&a1, B)) != MP_OKAY)                                                          goto LTM_ERRa1;
+   if ((err = mp_init_size(&a2, a->used - (2 * B))) != MP_OKAY)                                          goto LTM_ERRa2;
 
    a0.used = a1.used = B;
    a2.used = a->used - 2 * B;
@@ -47,86 +47,56 @@ mp_err s_mp_sqr_toom(const mp_int *a, mp_int *b)
    mp_clamp(&a2);
 
    /** S0 = a0^2;  */
-   if ((err = mp_sqr(&a0, &S0)) != MP_OKAY)                       goto LBL_ERR;
-
-   /** \\S1 = (a2 + a1 + a0)^2 */
-   /** \\S2 = (a2 - a1 + a0)^2  */
-   /** \\S1 = a0 + a2; */
+   if ((err = mp_sqr(&a0, &S0)) != MP_OKAY)                                                              goto LTM_ERR;
    /** a0 = a0 + a2; */
-   if ((err = mp_add(&a0, &a2, &a0)) != MP_OKAY)                  goto LBL_ERR;
-   /** \\S2 = S1 - a1; */
-   /** b = a0 - a1; */
-   if ((err = mp_sub(&a0, &a1, b)) != MP_OKAY)                    goto LBL_ERR;
-   /** \\S1 = S1 + a1; */
+   if ((err = mp_add(&a0, &a2, &a0)) != MP_OKAY)                                                         goto LTM_ERR;
+   /** S1 = a0 - a1; */
+   if ((err = mp_sub(&a0, &a1, b)) != MP_OKAY)                                                           goto LTM_ERR;
    /** a0 = a0 + a1; */
-   if ((err = mp_add(&a0, &a1, &a0)) != MP_OKAY)                  goto LBL_ERR;
-   /** \\S1 = S1^2;  */
+   if ((err = mp_add(&a0, &a1, &a0)) != MP_OKAY)                                                         goto LTM_ERR;
    /** a0 = a0^2; */
-   if ((err = mp_sqr(&a0, &a0)) != MP_OKAY)                       goto LBL_ERR;
-   /** \\S2 = S2^2;  */
-   /** b = b^2; */
-   if ((err = mp_sqr(b, b)) != MP_OKAY)                           goto LBL_ERR;
-
-   /** \\ S3 = 2 * a1 * a2  */
-   /** \\S3 = a1 * a2;  */
+   if ((err = mp_sqr(&a0, &a0)) != MP_OKAY)                                                              goto LTM_ERR;
+   /** S1 = S1^2; */
+   if ((err = mp_sqr(b, b)) != MP_OKAY)                                                                  goto LTM_ERR;
    /** a1 = a1 * a2; */
-   if ((err = mp_mul(&a1, &a2, &a1)) != MP_OKAY)                  goto LBL_ERR;
-   /** \\S3 = S3 << 1;  */
+   if ((err = mp_mul(&a1, &a2, &a1)) != MP_OKAY)                                                         goto LTM_ERR;
    /** a1 = a1 << 1; */
-   if ((err = mp_mul_2(&a1, &a1)) != MP_OKAY)                     goto LBL_ERR;
-
-   /** \\S4 = a2^2;  */
+   if ((err = mp_mul_2(&a1, &a1)) != MP_OKAY)                                                            goto LTM_ERR;
    /** a2 = a2^2; */
-   if ((err = mp_sqr(&a2, &a2)) != MP_OKAY)                       goto LBL_ERR;
-
-   /** \\ tmp = (S1 + S2)/2  */
-   /** \\tmp = S1 + S2; */
-   /** b = a0 + b; */
-   if ((err = mp_add(&a0, b, b)) != MP_OKAY)                      goto LBL_ERR;
-   /** \\tmp = tmp >> 1; */
-   /** b = b >> 1; */
-   if ((err = mp_div_2(b, b)) != MP_OKAY)                         goto LBL_ERR;
-
-   /** \\ S1 = S1 - tmp - S3  */
-   /** \\S1 = S1 - tmp; */
-   /** a0 = a0 - b; */
-   if ((err = mp_sub(&a0, b, &a0)) != MP_OKAY)                    goto LBL_ERR;
-   /** \\S1 = S1 - S3;  */
+   if ((err = mp_sqr(&a2, &a2)) != MP_OKAY)                                                              goto LTM_ERR;
+   /** S1 = a0 + S1; */
+   if ((err = mp_add(&a0, b, b)) != MP_OKAY)                                                             goto LTM_ERR;
+   /** S1 = S1 >> 1; */
+   if ((err = mp_div_2(b, b)) != MP_OKAY)                                                                goto LTM_ERR;
+   /** a0 = a0 - S1; */
+   if ((err = mp_sub(&a0, b, &a0)) != MP_OKAY)                                                           goto LTM_ERR;
    /** a0 = a0 - a1; */
-   if ((err = mp_sub(&a0, &a1, &a0)) != MP_OKAY)                  goto LBL_ERR;
+   if ((err = mp_sub(&a0, &a1, &a0)) != MP_OKAY)                                                         goto LTM_ERR;
+   /** S1 = S1 - a2; */
+   if ((err = mp_sub(b, &a2, b)) != MP_OKAY)                                                             goto LTM_ERR;
+   /** S1 = S1 - S0; */
+   if ((err = mp_sub(b, &S0, b)) != MP_OKAY)                                                             goto LTM_ERR;
 
-   /** \\S2 = tmp - S4 -S0  */
-   /** \\S2 = tmp - S4;  */
-   /** b = b - a2; */
-   if ((err = mp_sub(b, &a2, b)) != MP_OKAY)                      goto LBL_ERR;
-   /** \\S2 = S2 - S0;  */
-   /** b = b - S0; */
-   if ((err = mp_sub(b, &S0, b)) != MP_OKAY)                      goto LBL_ERR;
-
-
-   /** \\P = S4*x^4 + S3*x^3 + S2*x^2 + S1*x + S0; */
-   /** P = a2*x^4 + a1*x^3 + b*x^2 + a0*x + S0; */
-
-   if ((err = mp_lshd(&a2, 4 * B)) != MP_OKAY)                    goto LBL_ERR;
-   if ((err = mp_lshd(&a1, 3 * B)) != MP_OKAY)                    goto LBL_ERR;
-   if ((err = mp_lshd(b, 2 * B)) != MP_OKAY)                      goto LBL_ERR;
-   if ((err = mp_lshd(&a0, 1 * B)) != MP_OKAY)                    goto LBL_ERR;
-   if ((err = mp_add(&a2, &a1, &a2)) != MP_OKAY)                  goto LBL_ERR;
-   if ((err = mp_add(&a2, b, b)) != MP_OKAY)                      goto LBL_ERR;
-   if ((err = mp_add(b, &a0, b)) != MP_OKAY)                      goto LBL_ERR;
-   if ((err = mp_add(b, &S0, b)) != MP_OKAY)                      goto LBL_ERR;
+   /** P = a2*x^4 + a1*x^3 + S1*x^2 + a0*x + S0; */
+   if ((err = mp_lshd(&a2, 4 * B)) != MP_OKAY)                                                           goto LTM_ERR;
+   if ((err = mp_lshd(&a1, 3 * B)) != MP_OKAY)                                                           goto LTM_ERR;
+   if ((err = mp_lshd(b, 2 * B)) != MP_OKAY)                                                             goto LTM_ERR;
+   if ((err = mp_lshd(&a0, 1 * B)) != MP_OKAY)                                                           goto LTM_ERR;
+   if ((err = mp_add(&a2, &a1, &a2)) != MP_OKAY)                                                         goto LTM_ERR;
+   if ((err = mp_add(&a2, b, b)) != MP_OKAY)                                                             goto LTM_ERR;
+   if ((err = mp_add(b, &a0, b)) != MP_OKAY)                                                             goto LTM_ERR;
+   if ((err = mp_add(b, &S0, b)) != MP_OKAY)                                                             goto LTM_ERR;
    /** a^2 - P  */
 
 
-LBL_ERR:
+LTM_ERR:
    mp_clear(&a2);
-LBL_ERRa2:
+LTM_ERRa2:
    mp_clear(&a1);
-LBL_ERRa1:
+LTM_ERRa1:
    mp_clear(&a0);
-LBL_ERRa0:
+LTM_ERRa0:
    mp_clear(&S0);
-
    return err;
 }
 
