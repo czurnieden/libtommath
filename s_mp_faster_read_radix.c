@@ -54,9 +54,9 @@ mp_err s_mp_faster_read_radix(mp_int *a, const char *str, size_t start, size_t e
    if ((err = s_mp_slower_read_radix(&B, str, start + mid +1, end, radix)) != MP_OKAY)                   goto LTM_ERR;
 
    if (MP_IS_2EXPT((unsigned int)radix)) {
-      if ((err = mp_mul_2d(&A, (int)( ((len - mid) - 1u) * (size_t)s_floor_ilog2(radix) ), &A)) != MP_OKAY)               goto LTM_ERR;
+      if ((err = mp_mul_2d(&A, (int)(((len - mid) - 1u) * (size_t)s_floor_ilog2(radix)), &A)) != MP_OKAY)goto LTM_ERR;
    } else {
-      if ((err = mp_expt_n(&m, (size_t)( (len - mid) - 1u ), &m)) != MP_OKAY)                                        goto LTM_ERR;
+      if ((err = mp_expt_n(&m, (int)((len - mid) - 1u), &m)) != MP_OKAY)                                 goto LTM_ERR;
       if ((err = mp_mul(&A, &m, &A)) != MP_OKAY)                                                         goto LTM_ERR;
    }
    if ((err = mp_add(&A, &B, a)) != MP_OKAY)                                                             goto LTM_ERR;
