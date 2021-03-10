@@ -226,11 +226,11 @@ extern MP_PRIVATE const mp_digit s_mp_prime_tab[];
 extern MP_PRIVATE const uint8_t s_mp_radix_exponent_y[];
 
 /*
-  There is not much to tune here, the steps are of the form 2^k and too large
-  for tuning to make a alot of sense.
+  This is the value without the Newton-Raphson optimization.
+  Tuneable?
  */
 #ifndef MP_RADIX_BARRETT_START_MULTIPLICATOR
-#   define MP_RADIX_BARRETT_START_MULTIPLICATOR   8
+#   define MP_RADIX_BARRETT_START_MULTIPLICATOR   50
 #endif
 
 
