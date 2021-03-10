@@ -34,7 +34,7 @@ static int32_t s_pow(int32_t base, int32_t exponent)
 #define MP_COMPUTE_ESS(T) ((int)((int32_t)((uint32_t)1 << (T)) * k))
 
 static mp_err s_mp_to_radix_recursive(const mp_int *a, char **str, size_t *part_maxlen, size_t *part_written,
-                                      int radix, int32_t k, int32_t t, bool pad, mp_int *P, mp_int *R)
+                                      int radix, int32_t k, int32_t t, bool pad, bool first, mp_int *P, mp_int *R)
 {
 
    mp_int r, q, a1;
@@ -47,42 +47,45 @@ static mp_err s_mp_to_radix_recursive(const mp_int *a, char **str, size_t *part_
 
    }  else {
       if ((err = mp_init_multi(&q, &r, &a1, NULL)) != MP_OKAY)                                           goto LTM_ERR;
-      /*
-         Barrett reduction. A step by step proof can be found at
-         https://www.nayuki.io/page/barrett-reduction-algorithm
+      if (first) {
+         if ((err = mp_div(a, &P[t], &q, &r)) != MP_OKAY)                                                  goto LTM_ERR;
+      } else {
+         /*
+            Barrett reduction. A step by step proof can be found at
+            https://www.nayuki.io/page/barrett-reduction-algorithm
 
-         See also: Modern Computer Arithmetic, version 0.5.9, page 59
-       */
+            See also: Modern Computer Arithmetic, version 0.5.9, page 59
+          */
 
-      Beta = MP_COMPUTE_ESS(t+1);
+         Beta = MP_COMPUTE_ESS(t+1);
 
-      /* Q = floor(A1 * I / 2^Beta) */
-      /* I = floor( (2^(2*Beta)) / B) Here we have R[t] = I, P[t] = B */
-      if ((err = mp_mul(a, &R[t], &q)) != MP_OKAY)                                                       goto LTM_ERR;
-      if ((err = mp_div_2d(&q, Beta, &q, NULL)) != MP_OKAY)                                              goto LTM_ERR;
+         /* Q = floor(A1 * I / 2^Beta) */
+         /* I = floor( (2^(2*Beta)) / B) Here we have R[t] = I, P[t] = B */
+         if ((err = mp_mul(a, &R[t], &q)) != MP_OKAY)                                                    goto LTM_ERR;
+         if ((err = mp_div_2d(&q, Beta, &q, NULL)) != MP_OKAY)                                           goto LTM_ERR;
 
-      /* R = A - Q*B */
-      if ((err = mp_mul(&q, &P[t], &r)) != MP_OKAY)                                                      goto LTM_ERR;
-      if ((err = mp_sub(a, &r, &r)) != MP_OKAY)                                                          goto LTM_ERR;
+         /* R = A - Q*B */
+         if ((err = mp_mul(&q, &P[t], &r)) != MP_OKAY)                                                   goto LTM_ERR;
+         if ((err = mp_sub(a, &r, &r)) != MP_OKAY)                                                       goto LTM_ERR;
 
-      /* We can use this simple correction because of the way we computed the reciprocal */
-      if (r.sign == MP_NEG) {
-         if ((err = mp_decr(&q)) != MP_OKAY)                                                             goto LTM_ERR;
-         if ((err = mp_add(&r, &P[t], &r)) != MP_OKAY)                                                   goto LTM_ERR;
+         /* We can use this simple correction because of the way we computed the reciprocal */
+         if (r.sign == MP_NEG) {
+            if ((err = mp_decr(&q)) != MP_OKAY)                                                          goto LTM_ERR;
+            if ((err = mp_add(&r, &P[t], &r)) != MP_OKAY)                                                goto LTM_ERR;
+         }
       }
-
       /* Go down the lists while climbing up the tree. */
       t--;
 
       /* Follow branches */
       if (mp_iszero(&q) && (!pad)) {
          if ((err = s_mp_to_radix_recursive(&r, str, part_maxlen, part_written, radix,
-                                            k, t, false, P, R)) != MP_OKAY)                              goto LTM_ERR;
+                                            k, t, false, false, P, R)) != MP_OKAY)                       goto LTM_ERR;
       } else {
          if ((err = s_mp_to_radix_recursive(&q, str, part_maxlen, part_written, radix,
-                                            k, t,  pad, P, R)) != MP_OKAY)                               goto LTM_ERR;
+                                            k, t,  pad, false, P, R)) != MP_OKAY)                        goto LTM_ERR;
          if ((err = s_mp_to_radix_recursive(&r, str, part_maxlen, part_written, radix,
-                                            k, t, true, P, R)) != MP_OKAY)                               goto LTM_ERR;
+                                            k, t, true, false, P, R)) != MP_OKAY)                        goto LTM_ERR;
       }
       mp_clear_multi(&q, &r, &a1, NULL);
    }
@@ -97,11 +100,6 @@ mp_err s_mp_faster_to_radix(const mp_int *a, char *str, size_t maxlen, size_t *w
    mp_err err;
    int32_t n = 0, k, t = 0, steps = 0;
    int ilog2a;
-#ifdef MP_TO_RADIX_USE_NEWTON_RAPHSON
-   int s, g = 3;
-   mp_int M2, M4;
-   bool use_newton_raphson = true;
-#endif
 
    /* Use given buffer directly, no temporary buffers for the individual chunks */
    char **sptr = &str;
@@ -109,17 +107,12 @@ mp_err s_mp_faster_to_radix(const mp_int *a, char *str, size_t maxlen, size_t *w
    size_t part_written = 0;
    size_t part_maxlen = maxlen;
 
+   bool num_ovf = false;
+
    /* List of reciprocals */
    mp_int *R = NULL;
    /* List of moduli */
    mp_int *P = NULL;
-
-#ifdef MP_TO_RADIX_USE_NEWTON_RAPHSON
-   /* Be nice and utter a warning. For now. */
-   if (radix != 10) {
-      fprintf(stderr,"The Newton-Raphson method is for base 10 only!\n");
-   }
-#endif
 
    /* Denominator for the reciprocal: b^y */
    n = s_pow((int32_t)radix, (int32_t)s_mp_radix_exponent_y[radix]);
@@ -130,7 +123,7 @@ mp_err s_mp_faster_to_radix(const mp_int *a, char *str, size_t maxlen, size_t *w
    /* steps = floor(log_2(floor(log_2(a))))*/
    ilog2a = mp_count_bits(a) - 1;
 
-   /* Cutoff at about twice the size of P[0]. Interestingly far below Karatsuba cut-off. */
+   /* Cutoff at about twice the size of P[0]. */
    if (ilog2a < (2 * k * MP_RADIX_BARRETT_START_MULTIPLICATOR)) {
       if ((err = s_mp_slower_to_radix(a, sptr, &part_maxlen, &part_written, radix, false)) != MP_OKAY)   goto LTM_ERR;
       /* part_written does not count EOS */
@@ -175,9 +168,6 @@ mp_err s_mp_faster_to_radix(const mp_int *a, char *str, size_t maxlen, size_t *w
    if ((err = mp_div(&R[0], &P[0], &R[0], NULL)) != MP_OKAY)                                             goto LTM_ERR;
    if ((err = mp_incr(&R[0])) != MP_OKAY)                                                                goto LTM_ERR;
 
-#ifdef MP_TO_RADIX_USE_NEWTON_RAPHSON
-   if ((err = mp_init_multi(&M2, &M4, NULL)) != MP_OKAY)                                                 goto LTM_ERR;
-#endif
 
    /* Compute the rest of the reciprocals if as needed */
    for (t = 1; t < steps; t++) {
@@ -195,15 +185,29 @@ mp_err s_mp_faster_to_radix(const mp_int *a, char *str, size_t maxlen, size_t *w
          /* TODO: This can only happen near MP_MAX_DIGIT_COUNT and we can use
                   the reciprocal R[t-1] to do the division but R[t] != R[t-1]^2
                   so we cannot just divide by R[t-1] twice.
+
+                  But as it is the root of the tree it is used only once and caching
+                  makes no sense in the first place, we can divide a/P[last] directly
+
+                  This is always the case for the first division and we can do it
+                  in general to save about half of the cache memory and a bit of
+                  computation time by avoiding the overhead of the Barrett division.
+
+                  We can set a flag (MP_OVF is an error and it might be frowned upon
+                  using it as a flag) or R[last] to zero (minus one) or just start
+                  with a plain division every time as described above.
+
+                  Problem with the "always dividing directly" is that it is not known
+                  for sure if P[t-1]^2 > a without actualy computing P[t-1]^2 but it
+                  is a rare event that the heuristic check below fails, so the cost is
+                  not as high as it seems.
           */
-         err = MP_OVF;
-         goto LTM_ERR;
+         num_ovf = true;
       }
 
-      /* P[t-1]^2 > a at most likely more than just a bit or too, so check if we
-         can bail out early without actually computing the square. The
-         constant "10" is comprised of unity plus some angst-allowance */
-      if ((2 * mp_count_bits(&P[t-1]) - 10) > ilog2a) {
+      /* P[t-1]^2 > a is most likely more than just a bit or too, so check if we
+         can bail out early without actually computing the square. */
+      if ((2 * mp_count_bits(&P[t-1]) - 4) > ilog2a) {
          /* Correct index */
          t--;
          break;
@@ -221,48 +225,24 @@ mp_err s_mp_faster_to_radix(const mp_int *a, char *str, size_t maxlen, size_t *w
          t--;
          break;
       }
-      /* Compute numerator */
-      if ((err = mp_init(&R[t])) != MP_OKAY)                                                             goto LTM_ERR;
 
-#ifdef MP_TO_RADIX_USE_NEWTON_RAPHSON
-      if (use_newton_raphson && (radix == 10)) {
-         /* Use a round of Newton-Raphson to compute the next reciprocal */
-         /* s = 2^t*k */
-         s = MP_COMPUTE_ESS(t);
-         /* M = R[t-1] * 2^g */
-         if ((err = mp_mul_2d(&R[t-1], 3, &M2)) != MP_OKAY)                                              goto LTM_ERR;
-         if ((err = mp_sub_d(&M2, (mp_digit)2, &M2)) != MP_OKAY)                                         goto LTM_ERR;
-         /* Do the M-R round: M = floor( ( 2*M^2 - floor((n^2*M^4) / (2^(2*(s+g)))) ) / 2^(2*g)) + 1 */
-         /* M2 = (M * 2^g)^2*/
-         if ((err = mp_sqr(&M2, &M2)) != MP_OKAY)                                                        goto LTM_ERR;
-         /* M4 = M2^2 */
-         if ((err = mp_sqr(&M2, &M4)) != MP_OKAY)                                                        goto LTM_ERR;
-         /* Compute numerator: n^2*M^4 = (P[t]) * M4*/
-         if ((err = mp_mul(&P[t], &M4, &M4)) != MP_OKAY)                                                 goto LTM_ERR;
-         /* Compute fraction by shifting right: M4>>2*(s+g) where 2*(s+g) < MAX_INT */
-         if ((err = mp_div_2d(&M4, 2*(s+g), &M4, NULL)) != MP_OKAY)                                      goto LTM_ERR;
-         if ((err = mp_mul_2(&M2,&M2)) != MP_OKAY)                                                       goto LTM_ERR;
-         if ((err = mp_sub(&M2,&M4,&M4)) != MP_OKAY)                                                     goto LTM_ERR;
-         /* R[t] = M / 2^(2*g) remove extra bits before storage */
-         if ((err = mp_div_2d(&M4,  2*g, &(R[t]), &M4)) != MP_OKAY)                                      goto LTM_ERR;
-         if ((err = mp_incr(&R[t])) != MP_OKAY)                                                          goto LTM_ERR;
-      } else {
-#endif
+      /* We cannot evaluate the numerator if the computation would overflow */
+      if (!num_ovf) {
+         /* Compute numerator */
+         if ((err = mp_init(&R[t])) != MP_OKAY)                                                          goto LTM_ERR;
          /* R[t] = R[t] << (2^t * k) The factor cannot overflow, we checked that above */
-         if ((err = mp_2expt(&(R[t]), MP_COMPUTE_ESS(t + 1) )) != MP_OKAY)                               goto LTM_ERR;
+         if ((err = mp_2expt(&(R[t]), MP_COMPUTE_ESS(t + 1))) != MP_OKAY)                                goto LTM_ERR;
          /* Compute reciprocal */
          /* R[t] = floor(2^(2^t * k) / P[t] */
          if ((err = mp_div(&R[t], &P[t], &R[t], NULL)) != MP_OKAY)                                       goto LTM_ERR;
          /* Ceiling if P[t] is not a power of two but it is not a problem if P[t] is a power of two. */
          if ((err = mp_incr(&R[t])) != MP_OKAY)                                                          goto LTM_ERR;
-#ifdef MP_TO_RADIX_USE_NEWTON_RAPHSON
       }
-#endif
    }
 
    /* And finally: start the recursion. */
    if ((err = s_mp_to_radix_recursive(a, sptr, &part_maxlen, &part_written, radix,
-                                      k, t, false, P, R)) != MP_OKAY)                                    goto LTM_ERR;
+                                      k, t, false, num_ovf, P, R)) != MP_OKAY)                           goto LTM_ERR;
    /* part_written does not account for EOS */
    *written = part_written + 1;
 
@@ -274,9 +254,6 @@ LTM_ERR:
    } while (t--);
    MP_FREE_BUF(P, (size_t) steps * sizeof(mp_int));
    MP_FREE_BUF(R, (size_t) steps * sizeof(mp_int));
-#ifdef MP_TO_RADIX_USE_NEWTON_RAPHSON
-   mp_clear_multi(&M2, &M4, NULL);
-#endif
    return err;
 }
 
