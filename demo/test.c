@@ -1054,7 +1054,7 @@ static int test_mp_read_radix(void)
 
    /* Must be bigger than the cut-off value, of course */
    bignum = (2 * 20 * MP_RADIX_BARRETT_START_MULTIPLICATOR)  * 10;
-   buffer = (char *)malloc(bignum + 2);
+   buffer = (char *)malloc((size_t)(bignum + 2));
    if (buffer == NULL) {
       goto LBL_ERR;
    }
@@ -1063,7 +1063,7 @@ static int test_mp_read_radix(void)
    start = clock();
    for (i = 2; i < 65; i++) {
       /* printf("FAST radix = %d\n",i); */
-      DO(mp_to_radix(&a, buffer, bignum + 1, &written, i));
+      DO(mp_to_radix(&a, buffer, (size_t)(bignum + 1), &written, i));
       DO(mp_read_radix(&b, buffer, i));
       EXPECT(mp_cmp(&a, &b) == MP_EQ);
    }
@@ -1074,7 +1074,7 @@ static int test_mp_read_radix(void)
    start = clock();
    for (i = 2; i < 65; i++) {
       /* printf("SLOW radix = %d\n",i); */
-      maxlen = bignum + 1;
+      maxlen = (size_t)(bignum + 1);
       bcpy = buffer;
       DO(s_mp_slower_to_radix(&a, &bcpy, &maxlen, &written, i, false));
       DO(s_mp_slower_read_radix(&b, bcpy, 0, strlen(bcpy), i));
@@ -2256,7 +2256,7 @@ static int unit_tests(int argc, char **argv)
       T1(mp_prime_next_prime, MP_PRIME_NEXT_PRIME),
       T1(mp_prime_rand, MP_PRIME_RAND),
       T1(mp_rand, MP_RAND),
-      T1(mp_read_radix, MP_READ_RADIX),
+      T3(mp_read_radix, ONLY_PUBLIC_API, MP_READ_RADIX, MP_TO_RADIX),
       T1(mp_read_write_ubin, MP_TO_UBIN),
       T1(mp_read_write_sbin, MP_TO_SBIN),
       T1(mp_reduce_2k, MP_REDUCE_2K),
