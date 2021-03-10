@@ -36,7 +36,7 @@ mp_err s_mp_faster_read_radix(mp_int *a, const char *str, size_t start, size_t e
 
    len = end - start;
 
-   if (len < (s_read_radix_cutoff[radix] * MP_READ_RADIX_CUTOFF_MULTIPLICATOR)) {
+   if (len < (size_t)(s_read_radix_cutoff[radix] * MP_READ_RADIX_CUTOFF_MULTIPLICATOR)) {
       return s_mp_slower_read_radix(a, str, start, end, radix);
    }
 
