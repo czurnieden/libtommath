@@ -16,6 +16,172 @@
  * The overall algorithm is as described as
  * 14.20 from HAC but fixed to treat these cases.
 */
+
+#ifdef USE_KNUTH
+mp_err s_mp_div_school(const mp_int *u, const mp_int *v, mp_int *Q, mp_int *R)
+{
+   const mp_word base = MP_DIGIT_MAX + 1;
+   mp_int un, vn, q;
+   mp_word qhat, rhat, tmpw;
+   mp_digit borrow, tmpd;
+   bool neg;
+
+   int s;
+   int i, j;
+   int m, n;
+
+   mp_err err = MP_OKAY;
+
+   neg = (u->sign != v->sign);
+
+   m = u->used;
+   n = v->used;
+
+   if ((err = mp_init_size(&q, m + 2)) != MP_OKAY) {
+      return err;
+   }
+   q.used = m + 2;
+
+   /* We need a bit of leeway here. */
+   if ((err = mp_init_size(&un, m + 2)) != MP_OKAY)        goto LTM_ERR_0;
+   if ((err = mp_init_size(&vn, n + 2)) != MP_OKAY)        goto LTM_ERR;
+
+   /*
+      D1. [Normalize]
+         Set D to (B - 1) / V[n - 1]
+    */
+   s = mp_count_bits(v) % MP_DIGIT_BIT;
+   if (s != 0) {
+      s = MP_DIGIT_BIT - s;
+   }
+   if ((err = mp_mul_2d(u, s, &un)) != MP_OKAY)             goto LTM_ERR;
+   if ((err = mp_mul_2d(v, s, &vn)) != MP_OKAY)             goto LTM_ERR;
+   un.dp[un.used] = 0u;
+   vn.dp[vn.used] = 0u;
+
+   /*
+      D2. [Initialize j]
+          Set the loop counter j to m.
+    */
+   for (j = m - n; j >= 0; j--) {
+      /*
+        D3. [Calculate Qhat]
+            Set Qhat to (U[n+j] x B + U[n-1+j]) / V[n-1];
+            Set Rhat to (U[n+j] x B + U[n-1+j]) % V[n-1];
+            Test if Qhat equals B or Qhat * V[n-2] is greater than Rhat * B + U[n-2+j];
+            If yes, then decrease Qhat by 1, increase Rhat by V[n-1], and repeat this test while R is less than B.
+
+            Short: the first approximation of the quotient/remainder is made by dividing the first two digits
+            of the current numerator by the first digit of the current denominator. Use a third digit from the
+            current numerator and second from denominator to refine that approximation
+      */
+      tmpw = ((mp_word)un.dp[j + n] << MP_DIGIT_BIT) | ((mp_word)un.dp[j + n - 1]);
+      qhat = tmpw / (mp_word)vn.dp[n - 1];
+      rhat = tmpw % (mp_word)vn.dp[n - 1];
+
+      /* Otherwise "n - 2 < 0"  */
+      if (vn.used > 1) {
+         for (;;) {
+            if ((rhat < base) && (qhat * vn.dp[n - 2]) > (base * rhat + un.dp[j + n - 2])) {
+               qhat--;
+               rhat = rhat + vn.dp[n - 1];
+            } else {
+               break;
+            }
+         }
+      }
+
+      /*
+        D4. [Multiply and subtract]
+           Replace (U[n+j]U[n-1+j]...U[j]) by (U[n+j]U[n-1+j]...U[j]) - Qhat * (V[n-1]...V[1]V[0]).
+           (The "digits" (U[n+j}...U[j]) should be kept positive; if the result of this step is actually negative,
+           (U[n+j]...U[j]) should be left as the true value plus Bn+1, namely as the B's complement of the true value,
+           and a borrow to the left should be remembered.)
+
+           That is easy if the digits (limbs) are of a signed type. We have an unsigned type here and have to go to some
+           length to circumnavigate that. Also: the two arrays we are iterating over are of different length but the
+           difference is only one, so either add another step after the loop or check inside the loop.
+      */
+
+      borrow = 0;
+      for (i = 0; i < n; i++) {
+         /* Same as above without the temporary variable "p". Not needed here. */
+         tmpw = (mp_word)un.dp[i + j] - qhat * (mp_word)vn.dp[i] - (mp_word)borrow;
+         /* Produce a complement from the high part. This time from an unsigned integer where
+            an unary minus is sufficient. */
+         borrow = -((mp_digit)(tmpw >> MP_DIGIT_BIT));
+         un.dp[i + j] = (mp_digit)(tmpw & MP_MASK);
+      }
+      /* Last round with the non-existing vn.dp[n] set to zero */
+      tmpw = (mp_word)un.dp[i + j] - (mp_word)borrow;
+      borrow = -((mp_digit)(tmpw >> MP_DIGIT_BIT));
+      un.dp[i + j] = (mp_digit)(tmpw & MP_MASK);
+
+      /*
+         D5. [Test remainder]
+            Set Q[j] to Qhat;
+            If the result of step D4 was negative, i.e. the subtraction needed a borrow, then proceed with step D6;
+            otherwise proceed with step D7.
+      */
+      q.dp[j] = (mp_digit)(qhat & MP_MASK);
+
+      /*
+         D6. [Add back]
+             Decrease Q[j] by 1 and add (0V[n-1]...V[1]V[0]) to (U[n+j]U[n-1+j]...U[1+j]U[j]).
+             (A carry will occur to the left of U[n+j], and it should be ignored since it cancels with the borrow that occurred in step D4.)
+       */
+
+      if (borrow != 0) {
+         /* mp_digit is always smaller than the underlying type, so UTYPE_MAX - 1 will get us all bits set
+            which is a bit too much, obviously. Error came up after 2.3 mio iterations of random tests. */
+         if (q.dp[j] == 0x0) {
+            q.dp[j] = MP_MASK;
+         } else {
+            q.dp[j] = q.dp[j] - 1;
+         }
+
+         /* Variable reuse rarely raises readability. */
+         borrow = 0;
+         for (i = 0; i <= n; i++) {
+            tmpw = (mp_word)vn.dp[i] + (mp_word)un.dp[i + j] + (mp_word)borrow;
+            borrow = (mp_digit)((tmpw >> MP_DIGIT_BIT) & MP_MASK);
+            un.dp[i + j] = (mp_digit)(tmpw & MP_MASK);
+         }
+      }
+      /*
+         D7. [Loop on j]
+            Decrease j by 1;
+            Test if j is not less than 0;
+            If yes, go back to step D3.
+       */
+   }
+   if (Q != NULL) {
+      mp_clamp(&q);
+      mp_exch(&q, Q);
+      Q->sign = (neg ? MP_NEG : MP_ZPOS);
+   }
+   /*
+      D8. [Unnormalize]
+         Now (Q[m]...Q[1]Q[0]) is the desired quotient Q, and the desired remainder R may be obtained by dividing (U[n-1]...U[1]U[0]) by D.
+    */
+   if (R != NULL) {
+      mp_clamp(&un);
+      un.sign = mp_iszero(&un) ? MP_ZPOS : u->sign;
+      if ((err = mp_div_2d(&un, s, R, NULL)) != MP_OKAY)        goto LTM_ERR;
+   }
+
+LTM_ERR:
+   mp_clear_multi(&un, &vn, NULL);
+LTM_ERR_0:
+   mp_clear(&q);
+   return err;
+}
+
+
+
+#else
+
+
 mp_err s_mp_div_school(const mp_int *a, const mp_int *b, mp_int *c, mp_int *d)
 {
    mp_int q, x, y, t1, t2;
@@ -152,5 +318,6 @@ LBL_Q:
    mp_clear(&q);
    return err;
 }
+#endif
 
 #endif
