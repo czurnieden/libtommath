@@ -929,6 +929,10 @@
 			>
 		</File>
 		<File
+			RelativePath="s_mp_set_bit.c"
+			>
+		</File>
+		<File
 			RelativePath="s_mp_sprint.c"
 			>
 		</File>

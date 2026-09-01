@@ -197,6 +197,7 @@ extern MP_PRIVATE mp_err(*s_mp_rand_source)(void *out, size_t size);
 
 /* lowlevel functions, do not call! */
 MP_PRIVATE bool s_mp_get_bit(const mp_int *a, int b) MP_WUR;
+MP_PRIVATE mp_err s_mp_set_bit(mp_int *a, int b) MP_WUR;
 MP_PRIVATE int s_mp_log_2expt(const mp_int *a, mp_digit base) MP_WUR;
 
 MP_PRIVATE mp_err s_mp_add(const mp_int *a, const mp_int *b, mp_int *c) MP_WUR;

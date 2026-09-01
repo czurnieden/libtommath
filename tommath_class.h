@@ -165,6 +165,7 @@
 #   define S_MP_RADIX_SIZE_OVERESTIMATE_C
 #   define S_MP_RAND_PLATFORM_C
 #   define S_MP_RAND_SOURCE_C
+#   define S_MP_SET_BIT_C
 #   define S_MP_SPRINT_C
 #   define S_MP_SQR_C
 #   define S_MP_SQR_COMBA_C
@@ -1264,6 +1265,9 @@
 
 #if defined(S_MP_RAND_SOURCE_C)
 #   define S_MP_RAND_PLATFORM_C
+#endif
+
+#if defined(S_MP_SET_BIT_C)
 #endif
 
 #if defined(S_MP_SPRINT_C)

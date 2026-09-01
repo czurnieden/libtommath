@@ -156,6 +156,7 @@ s_mp_radix_map.c
 s_mp_radix_size_overestimate.c
 s_mp_rand_platform.c
 s_mp_rand_source.c
+s_mp_set_bit.c
 s_mp_sprint.c
 s_mp_sqr.c
 s_mp_sqr_comba.c
