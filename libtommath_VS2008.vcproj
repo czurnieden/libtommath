@@ -813,6 +813,10 @@
 			>
 		</File>
 		<File
+			RelativePath="s_mp_clear_bit.c"
+			>
+		</File>
+		<File
 			RelativePath="s_mp_copy_digs.c"
 			>
 		</File>

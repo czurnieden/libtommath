@@ -127,6 +127,7 @@ mp_warray_free.c
 mp_xor.c
 mp_zero.c
 s_mp_add.c
+s_mp_clear_bit.c
 s_mp_copy_digs.c
 s_mp_div_3.c
 s_mp_div_recursive.c

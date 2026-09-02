@@ -136,6 +136,7 @@
 #   define MP_XOR_C
 #   define MP_ZERO_C
 #   define S_MP_ADD_C
+#   define S_MP_CLEAR_BIT_C
 #   define S_MP_COPY_DIGS_C
 #   define S_MP_DIV_3_C
 #   define S_MP_DIV_RECURSIVE_C
@@ -987,6 +988,9 @@
 #   define MP_CLAMP_C
 #   define MP_GROW_C
 #   define S_MP_ZERO_DIGS_C
+#endif
+
+#if defined(S_MP_CLEAR_BIT_C)
 #endif
 
 #if defined(S_MP_COPY_DIGS_C)
