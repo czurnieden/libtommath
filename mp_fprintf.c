@@ -4,7 +4,6 @@
 /* SPDX-License-Identifier: Unlicense */
 
 #ifndef MP_NO_FILE
-#ifdef MP_WITH_MP_FPRINTF
 /* At most 2*int (might be 64 bit) -> 2*20 plus
    some change, so 128 should more than enough */
 #define MP_FPRINTF_BUF_LEN 128
@@ -675,6 +674,5 @@ LTM_ERR:
    return printed;
 }
 
-#endif
 #endif
 #endif

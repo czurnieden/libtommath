@@ -17,7 +17,7 @@ fi
 
 ret=0
 # Test mp_fprintf, too, even if not included explicitly
-TEST_CFLAGS=" -DMP_WITH_MP_FPRINTF "
+TEST_CFLAGS=""
 
 _help()
 {
@@ -344,7 +344,7 @@ fi
 
 if [[ "$CHECK_SYMBOLS" == "1" ]]
 then
-  CFLAGS=" -DMP_WITH_MP_FPRINTF " make -f makefile.shared
+  make -f makefile.shared
   cat << EOF
 
 
