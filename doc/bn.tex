@@ -895,6 +895,28 @@ the ``bignum'')
 int mp_count_bits(const mp_int *a);
 \end{alltt}
 
+
+To get the number of bits set in {\texttt{a}} better known as ``popcount'' (population count):
+\index{mp\_popcount}
+\begin{alltt}
+int mp_popcount(const mp_int *a)
+\end{alltt}
+
+To get the quantitative difference between two {\texttt{mp\_int}} (Hamming distance):
+\index{mp\_hamdist}
+\begin{alltt}
+mp_err mp_hamdist(const mp_int *a, const mp_int *b, int *hd)
+\end{alltt}
+The Hamming distance expects both inputs to be of the same size. Thie function allows
+for different sizes and assumes leading zeros but returns {\texttt{MP\_OVF}} (overflow error)
+to indicate the fact that the inputs are of different bit-sizes. The Levenshtein distance is
+not implemented.
+
+
+
+
+
+
 \section{Small Constants}
 Setting an \texttt{mp\_int} to a small constant is a relatively common operation.  To accommodate
 these instances there is a small constant assignment function.	This function is used to set a
@@ -1991,6 +2013,8 @@ implemented with a faster algorithm.
 \begin{alltt}
 mp_err mp_sqrt(const mp_int *arg, mp_int *ret)
 \end{alltt}
+
+
 \chapter{Logarithm}
 \section{Integer Logarithm}
 A logarithm function for positive integer input \texttt{a, base} computing  $\floor{\log_bx}$ such
@@ -2657,18 +2681,48 @@ mp_err mp_invmod (const mp_int *a, const mp_int *b, mp_int *c)
 Computes the multiplicative inverse of $a$ modulo $b$ and stores the result in $c$ such that
 $ac \equiv 1 \mbox{ (mod }b\mbox{)}$.
 
+\section{Valuation}
+\index{mp\_valuation\_d}
+\begin{alltt}
+mp_err mp_valuation_d(const mp_int *a, const mp_digit p, mp_digit *r)
+\end{alltt}
+It calculates ``the degree of divisibility of a number by a prime number'' to shamelessly
+quote Wikipedia\footnote{\url{https://en.wikipedia.org/wiki/Valuation_(algebra)}}.
+Basically: it counts the number of times {\texttt{p}} divides {\texttt{a}} and returns
+that count in {\texttt{r}}.
+
+This function does not test {\texttt{p}} for primality.
+
+\section{Factorial}
+\subsection{Dividers of a factorial}
+\index{mp\_factorial\_divisors}
+\begin{alltt}
+mp_err mp_factorial_divisors(const mp_digit n, const mp_digit p, mp_digit *d) 
+\end{alltt}
+
+Computes the Legendre function\footnote{Also known as de Polignac's formula}
+$E_{p}(n!)=\sum _{k=1}^{\infty }\left\lfloor \frac{n}{p^{k}}\right\rfloor$
+ to find the number of times the prime $p$ divides the factorial $n!$.
+A kind of {\texttt{mp\_valuation\_d(n!, p)}} without having to calulate $n!$.
+
+This function does not check if $p$ is prime.
+
 \section{Single Digit Functions}
 
 For those using small numbers (\textit{snicker snicker}) there are several ``helper'' functions
 
-\index{mp\_add\_d} \index{mp\_sub\_d} \index{mp\_mul\_d} \index{mp\_div\_d} \index{mp\_mod\_d}
+\index{mp\_add\_d} \index{mp\_sub\_d} \index{mp\_mul\_d} \index{mp\_div\_d} \index{mp\_mod\_d} 
+\index{mp\_sqrt\_d}
 \begin{alltt}
 mp_err mp_add_d(const mp_int *a, mp_digit b, mp_int *c);
 mp_err mp_sub_d(const mp_int *a, mp_digit b, mp_int *c);
 mp_err mp_mul_d(const mp_int *a, mp_digit b, mp_int *c);
 mp_err mp_div_d(const mp_int *a, mp_digit b, mp_int *c, mp_digit *d);
 mp_err mp_mod_d(const mp_int *a, mp_digit b, mp_digit *c);
+mp_err mp_sqrt_d(const mp_digit n, mp_digit *r);
 \end{alltt}
+
+
 
 These work like the full \texttt{mp\_int} capable variants except the second parameter $b$ is a
 \texttt{mp\_digit}.  These functions come fairly handy if you have to work with relatively small numbers

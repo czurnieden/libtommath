@@ -431,6 +431,9 @@ mp_err mp_root_n(const mp_int *a, int b, mp_int *c) MP_WUR;
 
 /* special sqrt algo */
 mp_err mp_sqrt(const mp_int *arg, mp_int *ret) MP_WUR;
+/* Integer sqrt working with mp_digit's which are native integers */
+mp_err mp_sqrt_d(const mp_digit n, mp_digit *r) MP_WUR;
+
 
 /* special sqrt (mod prime) */
 mp_err mp_sqrtmod_prime(const mp_int *n, const mp_int *prime, mp_int *ret) MP_WUR;
@@ -543,6 +546,45 @@ mp_err mp_prime_frobenius_underwood(const mp_int *N, bool *result) MP_WUR;
  * Sets result to 1 if probably prime, 0 otherwise
  */
 mp_err mp_prime_is_prime(const mp_int *a, int t, bool *result) MP_WUR;
+
+/*
+ * Some number-theoretical functions deemed useful.
+ */
+
+/*
+ * Number of times the prime "p" divides the number "a" and puts the result in "r"
+ * Does not check if "p" is prime.
+ */
+mp_err mp_valuation_d(const mp_int *a, const mp_digit p, mp_digit *r) MP_WUR;
+
+/*
+   Legendre's formula (also called de Polignac's formula).
+
+      E_{p}(n!)=\sum _{k=1}^{\infty }\left\lfloor \frac{n}{p^{k}}\right\rfloor
+
+   It calculates the exact exponent of a prime $p$ in the prime factorization of
+   $n!$ (n factorial). In number theory, this is written as $v_p(n!)$, which
+   represents the highest power of $p$ that divides $n!$.
+*/
+mp_err mp_factorial_divisors(const mp_digit n, const mp_digit p, mp_digit *d) MP_WUR;
+
+/* Does what popcount (population count) does: count the set bits in "a" */
+int mp_popcount(const mp_int *a);
+
+/*
+   Computes the Hamming distance, the number of bits in "a" that are
+   different from "b" and puts that number in "hd"
+
+   The Hamming distance is normaly between two sequences of the same length.
+   To make it more flexible it returns MP_OVF (overflow) if the input
+   sequences are of different lengths.
+
+   Levenshtein distance is not implemented.
+*/
+mp_err mp_hamdist(const mp_int *a, const mp_int *b, int *hd) MP_WUR;
+
+
+
 
 /* finds the next prime after the number "a" using "t" trials
  * of Miller-Rabin.

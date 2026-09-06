@@ -226,6 +226,18 @@ Computes the extended Euclidean algorithm: \fBa * U1 + b * U2 = U3\fP
 Set the argument for \fBU1, U2, U3\fP to \fBNULL\fP to ignore the respective output.
 .in -1i
 
+
+.LP
+.BI "mp_err mp_factorial_divisors(const mp_digit " n ", const mp_digit " p ", mp_digit * " d ")"
+.in 1i
+Computes the Legendre function to find the number of times the prime \fBp\fP divides the factorial \fBn!\fP.
+A kind of \fBvaluation(n!,p)\fP without having to calulate \fBn!\fP.
+.br
+This function does not check if \fBp\fP is prime.
+.in -1i
+
+
+
 .LP
 .BI "int mp_fprintf(FILE * " stream ", const char * " format ", " ... " )"
 .in 1i
@@ -385,6 +397,19 @@ This will grow the array of digits of \fBa\fP to \fBsize\fP.
 .br
 Returns \fBMP_MEM\fP if the functions fails to allocate enough memory.
 .in -1i
+
+.LP
+.BI "mp_err mp_hamdist(const mp_int *" a ", const mp_int * " b ", int * " hd ")"
+.BI "mp_err mp_grow (mp_int *" a ", int " size ")"
+.in 1i
+Computes the quantitative difference between \fBa\fP and \fBb\fP (Hamming distance).
+.br
+The Hamming distance expects both inputs to be of the same size. Thie function allows
+for different sizes and assumes leading zeros but returns \fBMP_OVF\fP (overflow error)
+to indicate the fact that the inputs are of different bit-sizes. The Levenshtein distance is
+not implemented.
+.in -1i
+
 
 .LP
 .BI "mp_err mp_hash (const mp_int *" a ", mp_hval *" hash ")"
@@ -1174,6 +1199,12 @@ Computes \fBa^(1/2) = b\fP such that \fBb^2 <= a\fP.
 .in -1i
 
 .LP
+.BI "mp_err mp_sqrt_d(const mp_digit *" arg ", mp_digit *" ret ")"
+.in 1i
+Computes \fBa^(1/2) = b\fP such that \fBb^2 <= a\fP with native data-types.
+.in -1i
+
+.LP
 .BI "mp_err mp_sqrtmod_prime(const mp_int *" n ", const mp_int *" p ", mp_int *" r ")"
 .in 1i
 Computes\fBa^(1/2) % p = r\fP with \fBp\fP prime. Uses the Tonelli-Shanks algorithm.
@@ -1269,6 +1300,15 @@ Returns the number of bytes (octets) required to store the unsigned copy of the 
 Implements the similarly working GMP functions as described at \fIhttp://gmplib.org/manual/Integer-Import-and-Export.html\fP.
 See also: \fBmp_pack\fP for more details.
 .in -1i
+
+.LP
+.BI "mp_err mp_valuation_d(const mp_int *" a ", const mp_digit " p ", mp_digit * " r " )" 
+.in 1i
+Implements the similarly working Pari/GP function as described at
+\fIhttps://pari.math.u-bordeaux.fr/dochtml/html/Conversions_and_similar_elementary_functions_or_commands.html\fP.
+although restricted to single integers only.
+.in -1i
+
 
 .LP
 .BI "mp_err mp_xor (const mp_int *" a ", mp_int *" b ", mp_int *" c ")"

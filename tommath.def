@@ -34,6 +34,7 @@ EXPORTS
     mp_expt_n
     mp_exptmod
     mp_exteuclid
+    mp_factorial_divisors
     mp_fprintf
     mp_fread
     mp_from_sbin
@@ -48,6 +49,7 @@ EXPORTS
     mp_get_mag_u64
     mp_get_mag_ul
     mp_grow
+    mp_hamdist
     mp_hash
     mp_init
     mp_init_copy
@@ -81,6 +83,7 @@ EXPORTS
     mp_or
     mp_pack
     mp_pack_count
+    mp_popcount
     mp_prime_fermat
     mp_prime_frobenius_underwood
     mp_prime_is_prime
@@ -117,6 +120,7 @@ EXPORTS
     mp_signed_rsh
     mp_sqrmod
     mp_sqrt
+    mp_sqrt_d
     mp_sqrtmod_prime
     mp_sub
     mp_sub_d
@@ -126,6 +130,7 @@ EXPORTS
     mp_to_ubin
     mp_ubin_size
     mp_unpack
+    mp_valuation_d
     mp_warray_free
     mp_xor
     mp_zero

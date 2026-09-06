@@ -40,6 +40,7 @@
 #   define MP_EXPT_N_C
 #   define MP_EXPTMOD_C
 #   define MP_EXTEUCLID_C
+#   define MP_FACTORIAL_DIVISORS_C
 #   define MP_FPRINTF_C
 #   define MP_FREAD_C
 #   define MP_FROM_SBIN_C
@@ -54,6 +55,7 @@
 #   define MP_GET_MAG_U64_C
 #   define MP_GET_MAG_UL_C
 #   define MP_GROW_C
+#   define MP_HAMDIST_C
 #   define MP_HASH_C
 #   define MP_INIT_C
 #   define MP_INIT_COPY_C
@@ -87,6 +89,7 @@
 #   define MP_OR_C
 #   define MP_PACK_C
 #   define MP_PACK_COUNT_C
+#   define MP_POPCOUNT_C
 #   define MP_PRIME_FERMAT_C
 #   define MP_PRIME_FROBENIUS_UNDERWOOD_C
 #   define MP_PRIME_IS_PRIME_C
@@ -123,6 +126,7 @@
 #   define MP_SIGNED_RSH_C
 #   define MP_SQRMOD_C
 #   define MP_SQRT_C
+#   define MP_SQRT_D_C
 #   define MP_SQRTMOD_PRIME_C
 #   define MP_SUB_C
 #   define MP_SUB_D_C
@@ -132,6 +136,7 @@
 #   define MP_TO_UBIN_C
 #   define MP_UBIN_SIZE_C
 #   define MP_UNPACK_C
+#   define MP_VALUATION_D_C
 #   define MP_WARRAY_FREE_C
 #   define MP_XOR_C
 #   define MP_ZERO_C
@@ -172,6 +177,7 @@
 #   define S_MP_SQR_COMBA_C
 #   define S_MP_SQR_KARATSUBA_C
 #   define S_MP_SQR_TOOM_C
+#   define S_MP_SQRT_W_C
 #   define S_MP_SUB_C
 #   define S_MP_WARRAY_C
 #   define S_MP_WARRAY_GET_C
@@ -336,7 +342,16 @@
 #   define MP_SUB_C
 #endif
 
+#if defined(MP_FACTORIAL_DIVISORS_C)
+#endif
+
 #if defined(MP_FPRINTF_C)
+#   define MP_CLEAR_C
+#   define MP_COPY_C
+#   define MP_INIT_C
+#   define MP_SET_C
+#   define S_MP_FPRINT_C
+#   define S_MP_PARSE_PRINTF_TOKEN_C
 #endif
 
 #if defined(MP_FREAD_C)
@@ -400,6 +415,15 @@
 
 #if defined(MP_GROW_C)
 #   define S_MP_ZERO_DIGS_C
+#endif
+
+#if defined(MP_HAMDIST_C)
+#   define MP_CLEAR_C
+#   define MP_CMP_C
+#   define MP_COUNT_BITS_C
+#   define MP_INIT_C
+#   define MP_POPCOUNT_C
+#   define MP_XOR_C
 #endif
 
 #if defined(MP_HASH_C)
@@ -617,6 +641,9 @@
 
 #if defined(MP_PACK_COUNT_C)
 #   define MP_COUNT_BITS_C
+#endif
+
+#if defined(MP_POPCOUNT_C)
 #endif
 
 #if defined(MP_PRIME_FERMAT_C)
@@ -909,6 +936,9 @@
 #   define MP_ZERO_C
 #endif
 
+#if defined(MP_SQRT_D_C)
+#endif
+
 #if defined(MP_SQRTMOD_PRIME_C)
 #   define MP_ADD_D_C
 #   define MP_CLEAR_MULTI_C
@@ -969,6 +999,13 @@
 #   define MP_CLAMP_C
 #   define MP_MUL_2D_C
 #   define MP_ZERO_C
+#endif
+
+#if defined(MP_VALUATION_D_C)
+#   define MP_CLEAR_C
+#   define MP_CNT_LSB_C
+#   define MP_DIV_D_C
+#   define MP_INIT_COPY_C
 #endif
 
 #if defined(MP_WARRAY_FREE_C)
@@ -1117,6 +1154,8 @@
 #endif
 
 #if defined(S_MP_FPRINT_C)
+#   define S_MP_SPRINT_C
+#   define S_MP_ZERO_BUF_C
 #endif
 
 #if defined(S_MP_GET_BIT_C)
@@ -1275,6 +1314,8 @@
 #endif
 
 #if defined(S_MP_SPRINT_C)
+#   define MP_RADIX_SIZE_C
+#   define MP_TO_RADIX_C
 #endif
 
 #if defined(S_MP_SQR_C)
@@ -1316,6 +1357,9 @@
 #   define MP_MUL_C
 #   define MP_SUB_C
 #   define S_MP_COPY_DIGS_C
+#endif
+
+#if defined(S_MP_SQRT_W_C)
 #endif
 
 #if defined(S_MP_SUB_C)

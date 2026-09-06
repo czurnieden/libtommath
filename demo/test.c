@@ -325,7 +325,7 @@ LBL_ERR:
    mp_clear_multi(&a, &b, NULL);
    return EXIT_FAILURE;
 }
-#ifdef MP_WITH_MP_FPRINTF
+
 static int test_mp_fprintf(void)
 {
    mp_int a, b;
@@ -365,7 +365,7 @@ LBL_ERR:
    mp_clear_multi(&a, &b, NULL);
    return EXIT_FAILURE;
 }
-#endif
+
 static mp_err very_random_source(void *out, size_t size)
 {
    memset(out, 0xff, size);
@@ -841,6 +841,88 @@ LBL_ERR:
    return EXIT_FAILURE;
 }
 
+static int test_mp_sqrt_d(void)
+{
+   int i;
+
+   mp_digit a, b, c;
+   mp_digit input[] = {
+      0, 1, 2, 3, 4,
+      192, 182, 249, 19042, 26629, 23594,
+      /* #ifndef MP_16BIT would not work  */
+#if ( (defined MP_32BIT) || (defined MP_31BIT) || (defined MP_28BIT) ||  (defined MP_64BIT) )
+      232579460, 187157653, 143154349, 145661708, 154226181, 263438009,
+#elif (defined MP_64BIT)
+      834203828055337450, 1075628832773922908, 620403321613109410,
+      864238854389209579, 673806823385281313, 617566367373813643
+#endif
+   };
+   mp_digit reference[] = {
+      0, 1, 1, 1, 2,
+      13, 13, 15, 137, 163, 153,
+#if ((defined MP_32BIT) || (defined MP_31BIT) || (defined MP_28BIT) ||  (defined MP_64BIT) )
+      15250, 13680, 11964, 12069, 12418, 16230,
+#elif (defined MP_64BIT)
+      913347594, 1037125273, 787656855, 929644477, 820857370, 785853909
+#endif
+   };
+
+   for (i = 0; i < (int)(sizeof(input)/sizeof(input[0])) ; i++) {
+      a = input[i];
+      c = reference[i];
+      DO(mp_sqrt_d(a, &b));
+      EXPECT(b == c);
+   }
+
+   return EXIT_SUCCESS;
+LBL_ERR:
+   return EXIT_FAILURE;
+}
+
+static int test_s_mp_sqrt_w(void)
+{
+   int i;
+
+   mp_word a, b, c;
+   mp_word input[] = {
+      0, 1, 2, 3, 4,
+      192, 182, 249, 19042, 26629, 23594,
+      232579460, 187157653, 143154349, 145661708, 154226181, 263438009,
+#if ((defined MP_32BIT) || (defined MP_31BIT) || (defined MP_28BIT) ||  (defined MP_64BIT) )
+      834203828055337450, 1075628832773922908, 620403321613109410,
+      864238854389209579, 673806823385281313, 617566367373813643,
+#elif (defined MP_64BIT)
+      /* 128 bit are not supported as literals by many compilers but constant folding is. Mostly */
+      79435505246280 * 13978071616248247 * 611411,
+      683405577241019589 * 1687475348297012591,
+      5414201067726755286 * 140028115026848621
+#endif
+   };
+   mp_word reference[] = {
+      0, 1, 1, 1, 2,
+      13, 13, 15, 137, 163, 153,
+      15250, 13680, 11964, 12069, 12418, 16230,
+#if ((defined MP_32BIT) || (defined MP_31BIT) || (defined MP_28BIT) ||  (defined MP_64BIT) )
+      913347594, 1037125273, 787656855, 929644477, 820857370, 785853909,
+#elif (defined MP_64BIT)
+      823943791587723253, 1073885498776713378, 870712564449444883
+#endif
+   };
+
+   for (i = 0; i < (int)(sizeof(input)/sizeof(input[0])) ; i++) {
+      a = input[i];
+      c = reference[i];
+      DO(s_mp_sqrt_w(a, &b));
+      EXPECT(b == c);
+   }
+
+   return EXIT_SUCCESS;
+LBL_ERR:
+   return EXIT_FAILURE;
+}
+
+
+
 static int test_mp_is_square(void)
 {
    int i, n;
@@ -923,6 +1005,144 @@ static int test_mp_sqrtmod_prime(void)
    return EXIT_SUCCESS;
 LBL_ERR:
    mp_clear_multi(&a, &b, &c, NULL);
+   return EXIT_FAILURE;
+}
+
+static int test_mp_valuation_d(void)
+{
+   int i;
+   mp_digit b, c, res;
+   mp_int a;
+
+   const char *input_number[] = {
+      "18985071442226814348445614838863161454247936",
+      "1898507144222681434844561483886316145424793",
+      "8707183066602368033144832",
+      "1"
+   };
+   /* Yes, one is not prime */
+   mp_digit prime[] = {
+      617, 43, 34, 1
+   };
+
+   mp_digit reference[] = {
+      14, 2, 6, 0
+   };
+
+   DO(mp_init(&a));
+
+   for (i = 0; i < (int)(sizeof(input_number)/sizeof(input_number[0])) ; i++) {
+      DO(mp_read_radix(&a, input_number[i], 10));
+      b = prime[i];
+      c = reference[i];
+      DO(mp_valuation_d(&a, b, &res));
+      EXPECT(c == res);
+   }
+
+
+   mp_clear(&a);
+   return EXIT_SUCCESS;
+LBL_ERR:
+   mp_clear(&a);
+   return EXIT_FAILURE;
+}
+
+static int test_mp_popcount(void)
+{
+   int i, b, res;
+   mp_int a;
+
+   const char *input_number[] = {
+      "18985071442226814348445614838863161454247936",
+      "1898507144222681434844561483886316145424793",
+      "8707183066602368033144832",
+      "1",
+      "0"
+   };
+
+   int reference[] = {
+      58, 73, 35, 1, 0
+   };
+
+   DO(mp_init(&a));
+
+   for (i = 0; i < (int)(sizeof(input_number)/sizeof(input_number[0])) ; i++) {
+      DO(mp_read_radix(&a, input_number[i], 10));
+      b = reference[i];
+      res = mp_popcount(&a);
+      EXPECT(b == res);
+   }
+
+   mp_clear(&a);
+   return EXIT_SUCCESS;
+LBL_ERR:
+   mp_clear(&a);
+   return EXIT_FAILURE;
+}
+
+static int test_mp_hamdist(void)
+{
+   int i, c, res;
+   mp_int a, b;
+
+   const char *input_number_a[] = {
+      "18985071442226814348445614838863161454247936",
+      "1898507144222681434844561483886316145424793",
+      "8707183066602368033144832",
+      "1",
+      "1"
+   };
+   const char *input_number_b[] = {
+      "18985071442226814348445614838863161454247930",
+      "1898507144222681434854561483886316145424793",
+      "8707183066602368033144832",
+      "0",
+      "1"
+   };
+
+
+   int reference[] = {
+      13, 25, 0, 1, 0
+   };
+
+   DO(mp_init_multi(&a, &b, NULL));
+
+   for (i = 0; i < (int)(sizeof(input_number_a)/sizeof(input_number_a[0])) ; i++) {
+      DO(mp_read_radix(&a, input_number_a[i], 10));
+      DO(mp_read_radix(&b, input_number_b[i], 10));
+      c = reference[i];
+      DO(mp_hamdist(&a, &b, &res));
+      EXPECT(c == res);
+   }
+
+   mp_clear_multi(&a, &b, NULL);
+   return EXIT_SUCCESS;
+LBL_ERR:
+   mp_clear_multi(&a, &b, NULL);
+   return EXIT_FAILURE;
+}
+
+static int test_mp_factorial_divisors(void)
+{
+   int i;
+   mp_digit n = 20, d, c;
+
+   mp_digit input_number[] = {
+      2, 3, 5, 7, 11, 13, 17, 19
+   };
+
+   mp_digit reference[] = {
+      18, 8, 4, 2,  1,  1,  1,  1
+   };
+
+   for (i = 0; i < (int)(sizeof(input_number)/sizeof(input_number[0])) ; i++) {
+      c = reference[i];
+      DO(mp_factorial_divisors(n, input_number[i], &d));
+      EXPECT(c == d);
+   }
+
+   return EXIT_SUCCESS;
+LBL_ERR:
    return EXIT_FAILURE;
 }
 
@@ -2607,9 +2827,7 @@ static int unit_tests(int argc, char **argv)
       T1(mp_dr_reduce, MP_DR_REDUCE),
       T2(mp_pack_unpack,MP_PACK, MP_UNPACK),
       T2(mp_fread_fwrite, MP_FREAD, MP_FWRITE),
-#ifdef MP_WITH_MP_FPRINTF
       T1(mp_fprintf, MP_FPRINTF),
-#endif
       T1(mp_get_u32, MP_GET_I32),
       T1(mp_get_u64, MP_GET_I64),
       T1(mp_get_ul, MP_GET_L),
@@ -2638,7 +2856,13 @@ static int unit_tests(int argc, char **argv)
 #endif
       T1(mp_signed_rsh, MP_SIGNED_RSH),
       T2(mp_sqrt, MP_SQRT, MP_ROOT_N),
+      T1(mp_sqrt_d, MP_SQRT_D),
+      T2(s_mp_sqrt_w, ONLY_PUBLIC_API, S_MP_SQRT_W),
       T1(mp_sqrtmod_prime, MP_SQRTMOD_PRIME),
+      T1(mp_valuation_d, MP_VALUATION_D),
+      T1(mp_popcount, MP_POPCOUNT),
+      T1(mp_hamdist, MP_HAMDIST),
+      T1(mp_factorial_divisors, MP_FACTORIAL_DIVISORS),
       T1(mp_xor, MP_XOR),
       T3(s_mp_div_recursive, ONLY_PUBLIC_API, S_MP_DIV_RECURSIVE, S_MP_DIV_SCHOOL),
       T3(s_mp_div_small, ONLY_PUBLIC_API, S_MP_DIV_SMALL, S_MP_DIV_SCHOOL),

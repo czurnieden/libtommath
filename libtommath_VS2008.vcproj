@@ -429,6 +429,10 @@
 			>
 		</File>
 		<File
+			RelativePath="mp_factorial_divisors.c"
+			>
+		</File>
+		<File
 			RelativePath="mp_fprintf.c"
 			>
 		</File>
@@ -482,6 +486,10 @@
 		</File>
 		<File
 			RelativePath="mp_grow.c"
+			>
+		</File>
+		<File
+			RelativePath="mp_hamdist.c"
 			>
 		</File>
 		<File
@@ -614,6 +622,10 @@
 		</File>
 		<File
 			RelativePath="mp_pack_count.c"
+			>
+		</File>
+		<File
+			RelativePath="mp_popcount.c"
 			>
 		</File>
 		<File
@@ -761,6 +773,10 @@
 			>
 		</File>
 		<File
+			RelativePath="mp_sqrt_d.c"
+			>
+		</File>
+		<File
 			RelativePath="mp_sqrtmod_prime.c"
 			>
 		</File>
@@ -794,6 +810,10 @@
 		</File>
 		<File
 			RelativePath="mp_unpack.c"
+			>
+		</File>
+		<File
+			RelativePath="mp_valuation_d.c"
 			>
 		</File>
 		<File
@@ -954,6 +974,10 @@
 		</File>
 		<File
 			RelativePath="s_mp_sqr_toom.c"
+			>
+		</File>
+		<File
+			RelativePath="s_mp_sqrt_w.c"
 			>
 		</File>
 		<File

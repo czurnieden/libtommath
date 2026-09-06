@@ -31,6 +31,7 @@ mp_exch.c
 mp_expt_n.c
 mp_exptmod.c
 mp_exteuclid.c
+mp_factorial_divisors.c
 mp_fprintf.c
 mp_fread.c
 mp_from_sbin.c
@@ -45,6 +46,7 @@ mp_get_mag_u32.c
 mp_get_mag_u64.c
 mp_get_mag_ul.c
 mp_grow.c
+mp_hamdist.c
 mp_hash.c
 mp_init.c
 mp_init_copy.c
@@ -78,6 +80,7 @@ mp_neg.c
 mp_or.c
 mp_pack.c
 mp_pack_count.c
+mp_popcount.c
 mp_prime_fermat.c
 mp_prime_frobenius_underwood.c
 mp_prime_is_prime.c
@@ -114,6 +117,7 @@ mp_shrink.c
 mp_signed_rsh.c
 mp_sqrmod.c
 mp_sqrt.c
+mp_sqrt_d.c
 mp_sqrtmod_prime.c
 mp_sub.c
 mp_sub_d.c
@@ -123,6 +127,7 @@ mp_to_sbin.c
 mp_to_ubin.c
 mp_ubin_size.c
 mp_unpack.c
+mp_valuation_d.c
 mp_warray_free.c
 mp_xor.c
 mp_zero.c
@@ -163,6 +168,7 @@ s_mp_sqr.c
 s_mp_sqr_comba.c
 s_mp_sqr_karatsuba.c
 s_mp_sqr_toom.c
+s_mp_sqrt_w.c
 s_mp_sub.c
 s_mp_warray.c
 s_mp_warray_get.c
