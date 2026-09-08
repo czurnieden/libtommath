@@ -32,6 +32,7 @@
 #   define MP_DIV_2_C
 #   define MP_DIV_2D_C
 #   define MP_DIV_D_C
+#   define MP_DIV_EXACT_C
 #   define MP_DR_IS_MODULUS_C
 #   define MP_DR_REDUCE_C
 #   define MP_DR_SETUP_C
@@ -289,6 +290,19 @@
 #   define MP_EXCH_C
 #   define MP_INIT_SIZE_C
 #   define S_MP_DIV_3_C
+#endif
+
+#if defined(MP_DIV_EXACT_C)
+#   define MP_CLAMP_C
+#   define MP_CLEAR_MULTI_C
+#   define MP_CNT_LSB_C
+#   define MP_COPY_C
+#   define MP_DIV_2D_C
+#   define MP_GROW_C
+#   define MP_INIT_COPY_C
+#   define MP_INIT_MULTI_C
+#   define MP_ZERO_C
+#   define S_MP_INVMOD_D_C
 #endif
 
 #if defined(MP_DR_IS_MODULUS_C)

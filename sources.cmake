@@ -23,6 +23,7 @@ mp_div.c
 mp_div_2.c
 mp_div_2d.c
 mp_div_d.c
+mp_div_exact.c
 mp_dr_is_modulus.c
 mp_dr_reduce.c
 mp_dr_setup.c

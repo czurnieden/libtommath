@@ -1511,6 +1511,17 @@ This divides $a$ by $b$ and stores the quotient in $c$ and $d$.  The signed quot
 such that $bc + d = a$.  Note that either of $c$ or $d$ can be set to \texttt{NULL} if their value
 is not required.  If $b$ is zero the function returns \texttt{MP\_VAL}.
 
+For divisions known to be exact there is the aptly named function {\texttt{mp\_div\_exact}}.
+\index{mp\_div\_exact}
+\begin{alltt}
+mp_err mp_div_exact (const mp_int *a, const mp_int *b, mp_int *c);
+\end{alltt}
+
+In addition to the behaviour of {\texttt{mp\_div}} it checks if the divison is actually
+exact and returns \texttt{MP\_VAL} if it is not. This function is significantly
+faster\footnote{between 20\% and 40\% depending on size of $n$ and the ratio $kn/n$}
+than {\texttt{mp\_div}} if the division is exact.
+
 \section{Hashing}
 To get a non-cryptographic hash of an \texttt{mp\_int} use the following function.
 

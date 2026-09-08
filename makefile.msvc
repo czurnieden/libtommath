@@ -26,7 +26,7 @@ LIBMAIN_D = tommath.dll
 #List of objects to compile (all goes to tommath.lib)
 OBJECTS=mp_2expt.obj mp_abs.obj mp_add.obj mp_add_d.obj mp_addmod.obj mp_and.obj mp_clamp.obj mp_clear.obj mp_clear_multi.obj \
 mp_cmp.obj mp_cmp_d.obj mp_cmp_mag.obj mp_cnt_lsb.obj mp_complement.obj mp_copy.obj mp_count_bits.obj mp_cutoffs.obj \
-mp_div.obj mp_div_2.obj mp_div_2d.obj mp_div_d.obj mp_dr_is_modulus.obj mp_dr_reduce.obj mp_dr_setup.obj \
+mp_div.obj mp_div_2.obj mp_div_2d.obj mp_div_d.obj mp_div_exact.obj mp_dr_is_modulus.obj mp_dr_reduce.obj mp_dr_setup.obj \
 mp_error_to_string.obj mp_exch.obj mp_expt_n.obj mp_exptmod.obj mp_exteuclid.obj mp_factorial_divisors.obj \
 mp_fprintf.obj mp_fread.obj mp_from_sbin.obj mp_from_ubin.obj mp_fwrite.obj mp_gcd.obj mp_get_double.obj mp_get_i32.obj \
 mp_get_i64.obj mp_get_l.obj mp_get_mag_u32.obj mp_get_mag_u64.obj mp_get_mag_ul.obj mp_grow.obj mp_hamdist.obj mp_hash.obj \

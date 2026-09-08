@@ -26,6 +26,7 @@ EXPORTS
     mp_div_2
     mp_div_2d
     mp_div_d
+    mp_div_exact
     mp_dr_is_modulus
     mp_dr_reduce
     mp_dr_setup

@@ -2444,6 +2444,34 @@ LBL_ERR:
    return EXIT_FAILURE;
 }
 
+static int test_mp_div_exact(void)
+{
+   mp_int a, b, c, t1, t2;
+   int i, j, size_a, size_b;
+
+   DOR(mp_init_multi(&a, &b, &c, &t1, &t2, NULL));
+
+   for (i = 2; i < 250; i += 10) {
+      for (j = 0; j < 100; j++) {
+         size_b = i;
+         size_a = 2 * size_b;
+         DO(mp_rand(&a, size_a));
+         DO(mp_rand(&b, size_b));
+         DO(mp_mul(&a, &b, &a));
+         DO(mp_div_exact(&a, &b, &c));
+         DO(mp_mul(&c, &b, &t1));
+         DO(mp_sub(&a, &t1, &t2));
+         EXPECT(mp_iszero(&t2));
+      }
+   }
+
+   mp_clear_multi(&a, &b, &c, &t1, &t2, NULL);
+   return EXIT_SUCCESS;
+LBL_ERR:
+   mp_clear_multi(&a, &b, &c, &t1, &t2, NULL);
+   return EXIT_FAILURE;
+}
+
 #define PRINTERR_V(...)
 
 /* Some larger values to test the fast division algorithm */
@@ -2864,6 +2892,7 @@ static int unit_tests(int argc, char **argv)
       T1(mp_hamdist, MP_HAMDIST),
       T1(mp_factorial_divisors, MP_FACTORIAL_DIVISORS),
       T1(mp_xor, MP_XOR),
+      T1(mp_div_exact, MP_DIV_EXACT),
       T3(s_mp_div_recursive, ONLY_PUBLIC_API, S_MP_DIV_RECURSIVE, S_MP_DIV_SCHOOL),
       T3(s_mp_div_small, ONLY_PUBLIC_API, S_MP_DIV_SMALL, S_MP_DIV_SCHOOL),
       T2(s_mp_sqr, ONLY_PUBLIC_API, S_MP_SQR),

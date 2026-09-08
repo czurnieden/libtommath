@@ -397,6 +397,10 @@
 			>
 		</File>
 		<File
+			RelativePath="mp_div_exact.c"
+			>
+		</File>
+		<File
 			RelativePath="mp_dr_is_modulus.c"
 			>
 		</File>

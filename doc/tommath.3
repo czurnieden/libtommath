@@ -140,7 +140,7 @@ Returns \fBMP_VAL\fP if \fBb < 0\fP
 .LP
 .BI "mp_err mp_div (const mp_int *" a ", const mp_int *" b ", mp_int *" c ", mp_int *" d ")"
 .in 1i
-Computes  \fBa / b = c + d\fP with \fBc\fP the optional quotient and \fBd\fP the optional remainder.
+Computes  \fBa / b = cb + d\fP with \fBc\fP the optional quotient and \fBd\fP the optional remainder.
 .br
 Set the argument for quotient and/or remainder to \fBNULL\fP to ignore the respective output.
 .br
@@ -149,6 +149,15 @@ This function calls one of either: \fBs_mp_div_recursive\fP, \fBs_mp_div_school\
 .br
 Returns \fBMP_VAL\fP if \fBb = 0\fP
 .in -1i
+
+.LP
+.BI "mp_err mp_div_exact (const mp_int *" a ", const mp_int *" b ", mp_int *" c ")"
+.in 1i
+Computes  \fBa / b = cb\fP.
+.br
+Returns \fBMP_VAL\fP if \fBb = 0\fP or if the divison is not exact.
+.in -1i
+
 
 .LP
 .BI "mp_err mp_div_d(const mp_int *" a ", mp_digit " b ", mp_int *" c ", mp_digit *" d ")"
