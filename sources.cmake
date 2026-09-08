@@ -67,6 +67,8 @@ mp_lcm.c
 mp_log.c
 mp_log_n.c
 mp_lshd.c
+mp_max_multi.c
+mp_min_multi.c
 mp_mod.c
 mp_mod_2d.c
 mp_montgomery_calc_normalization.c

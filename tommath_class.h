@@ -76,6 +76,8 @@
 #   define MP_LOG_C
 #   define MP_LOG_N_C
 #   define MP_LSHD_C
+#   define MP_MAX_MULTI_C
+#   define MP_MIN_MULTI_C
 #   define MP_MOD_C
 #   define MP_MOD_2D_C
 #   define MP_MONTGOMERY_CALC_NORMALIZATION_C
@@ -299,7 +301,6 @@
 #   define MP_COPY_C
 #   define MP_DIV_2D_C
 #   define MP_GROW_C
-#   define MP_INIT_COPY_C
 #   define MP_INIT_MULTI_C
 #   define MP_ZERO_C
 #   define S_MP_INVMOD_D_C
@@ -564,6 +565,20 @@
 #if defined(MP_LSHD_C)
 #   define MP_GROW_C
 #   define S_MP_ZERO_DIGS_C
+#endif
+
+#if defined(MP_MAX_MULTI_C)
+#   define MP_CLEAR_C
+#   define MP_CMP_C
+#   define MP_COPY_C
+#   define MP_INIT_C
+#endif
+
+#if defined(MP_MIN_MULTI_C)
+#   define MP_CLEAR_C
+#   define MP_CMP_C
+#   define MP_COPY_C
+#   define MP_INIT_C
 #endif
 
 #if defined(MP_MOD_C)

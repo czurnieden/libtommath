@@ -1352,6 +1352,62 @@ LBL_ERR:
    mp_clear_multi(&a, &b, &c, NULL);
    return EXIT_FAILURE;
 }
+#define NUMBER_OF_TESTS 5
+static const char *tests[NUMBER_OF_TESTS] = {
+   "dff50d23459ad83450ad1f5df279a78ff90337bef5eb2b5d",
+   "f7e132b23648119257efbb9af793ad929668935c8062918e",
+   "ff5682709ac34b16eeb9aa8110032ab88c5d6d13e4dd5ad8", /* max */
+   "e5dfc04761b7b4eecd08fe1b61ec9e12cc15403a0abc8a3c",
+   "9e3aa0ecfb7560a627dfc43f342aa2e142dae59298242e67"  /* min */
+};
+
+static int test_mp_min_multi(void)
+{
+   mp_int a0, a1, a2, a3, a4;
+   mp_int out;
+
+   DOR(mp_init_multi(&a0, &a1, &a2, &a3, &a4, &out, NULL));
+
+   DO(mp_read_radix(&a0, tests[0], 16));
+   DO(mp_read_radix(&a1, tests[1], 16));
+   DO(mp_read_radix(&a2, tests[2], 16));
+   DO(mp_read_radix(&a3, tests[3], 16));
+   DO(mp_read_radix(&a4, tests[4], 16));
+
+   DO(mp_min_multi(&out, &a0, &a1, &a2, &a3, &a4, NULL));
+   EXPECT(mp_cmp(&out,&a4) == MP_EQ);
+
+   mp_clear_multi(&a0, &a1, &a2, &a3, &a4, &out, NULL);
+   return EXIT_SUCCESS;
+LBL_ERR:
+   mp_clear_multi(&a0, &a1, &a2, &a3, &a4, &out, NULL);
+   return EXIT_FAILURE;
+}
+
+static int test_mp_max_multi(void)
+{
+   mp_int a0, a1, a2, a3, a4;
+   mp_int out;
+
+   DOR(mp_init_multi(&a0, &a1, &a2, &a3, &a4, &out, NULL));
+
+   DO(mp_read_radix(&a0, tests[0], 16));
+   DO(mp_read_radix(&a1, tests[1], 16));
+   DO(mp_read_radix(&a2, tests[2], 16));
+   DO(mp_read_radix(&a3, tests[3], 16));
+   DO(mp_read_radix(&a4, tests[4], 16));
+
+   DO(mp_max_multi(&out, &a0, &a1, &a2, &a3, &a4, NULL));
+
+   EXPECT(mp_cmp(&out,&a2) == MP_EQ);
+
+   mp_clear_multi(&a0, &a1, &a2, &a3, &a4, &out, NULL);
+   return EXIT_SUCCESS;
+LBL_ERR:
+   mp_clear_multi(&a0, &a1, &a2, &a3, &a4, &out, NULL);
+   return EXIT_FAILURE;
+}
+
 
 static int test_mp_montgomery_reduce(void)
 {
@@ -2866,6 +2922,10 @@ static int unit_tests(int argc, char **argv)
       T1(mp_is_square, MP_IS_SQUARE),
       T1(mp_kronecker, MP_KRONECKER),
       T1(mp_montgomery_reduce, MP_MONTGOMERY_REDUCE),
+
+      T1(mp_max_multi, MP_MAX_MULTI),
+      T1(mp_min_multi, MP_MIN_MULTI),
+
       T1(mp_root_n, MP_ROOT_N),
       T1(mp_or, MP_OR),
       T1(mp_prime_is_prime, MP_PRIME_IS_PRIME),

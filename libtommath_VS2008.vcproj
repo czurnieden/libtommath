@@ -573,6 +573,14 @@
 			>
 		</File>
 		<File
+			RelativePath="mp_max_multi.c"
+			>
+		</File>
+		<File
+			RelativePath="mp_min_multi.c"
+			>
+		</File>
+		<File
 			RelativePath="mp_mod.c"
 			>
 		</File>

@@ -2751,6 +2751,20 @@ mp_err mp_decr(mp_int *a);
 
 \chapter{Little Helpers}
 It is never wrong to have some useful little shortcuts at hand.
+
+\section{Min/Max}
+Multivariable functions to find minimum/maximum. Usage is similar to the
+usage of e.g., {\texttt{mp\_init\_multi}}. The maximum/minimum gets
+copied into the first argument {\texttt{out}}, the last argument, the
+sentinel, must be {\texttt{NULL}}.
+
+\index{mp\_min\_multi} \index{mp\_max\_multi}
+\begin{alltt}
+mp_err mp_max_multi(mp_int *out, const mp_int *first, ...);
+mp_err mp_min_multi(mp_int *out, const mp_int *first, ...);
+\end{alltt}
+
+
 \section{Function Macros}
 To make this overview simpler the macros are given as function prototypes. The return of logic
 macros is \texttt{false} or \texttt{true} respectively.

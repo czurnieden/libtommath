@@ -607,11 +607,27 @@ Shift \fBa\fP left by \fBb\fP limbs: \fBa * 2^(b*MP_DIGIT_BIT)\fP.
 .in -1i
 
 .LP
+.BI "mp_err mp_max_multi(mp_int *" out ", const mp_int *" first ", ... ")"
+.in 1i
+Find \fBmax(first,...)\fP. and put it in \fBout\fP.
+.br
+Returns \fBMP_VAL\fP if \fBout = NULL\fP or \fBfirst = NULL\fP 
+.in -1i
+
+.LP
+.BI "mp_err mp_min_multi(mp_int *" out ", const mp_int *" first ", ... ")"
+.in 1i
+Find \fBmin(first,...)\fP. and put it in \fBout\fP.
+.br
+Returns \fBMP_VAL\fP if \fBout = NULL\fP or \fBfirst = NULL\fP 
+.in -1i
+
+
+.LP
 .BI "mp_err mp_mod_2d(const mp_int *" a ", int " b ", mp_int *" c ")"
 .in 1i
 Compute \fBa % 2^b\fP.
 .br
-
 .in -1i
 
 .LP

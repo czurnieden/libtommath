@@ -70,6 +70,8 @@ EXPORTS
     mp_log
     mp_log_n
     mp_lshd
+    mp_max_multi
+    mp_min_multi
     mp_mod
     mp_mod_2d
     mp_montgomery_calc_normalization

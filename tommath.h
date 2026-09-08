@@ -457,6 +457,12 @@ mp_err mp_reduce_setup(mp_int *a, const mp_int *b) MP_WUR;
  */
 mp_err mp_reduce(mp_int *x, const mp_int *m, const mp_int *mu) MP_WUR;
 
+/* min/max with variable argument list */
+/* out = max(first,...) */
+mp_err mp_max_multi(mp_int *out, const mp_int *first, ...) MP_WUR;
+/* out = min(first,...) */
+mp_err mp_min_multi(mp_int *out, const mp_int *first, ...) MP_WUR;
+
 /* setups the montgomery reduction */
 mp_err mp_montgomery_setup(const mp_int *n, mp_digit *rho) MP_WUR;
 
