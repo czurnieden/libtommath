@@ -560,6 +560,12 @@ mp_err mp_prime_is_prime(const mp_int *a, int t, bool *result) MP_WUR;
  * Some number-theoretical functions deemed useful.
  */
 
+/* Two of those "when you need it you need it" tools */
+/* Fast primecount (don't you dare and tell Kim I called it fast!) */
+mp_err mp_small_prime_primecount(mp_digit n, mp_digit *d) MP_WUR;
+/* Find nth-prime (simple binary search using the primecount above) */
+mp_err mp_small_prime_nthprime(mp_digit n, mp_digit *d) MP_WUR;
+
 /*
  * Number of times the prime "p" divides the number "a" and puts the result in "r"
  * Does not check if "p" is prime.

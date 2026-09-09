@@ -302,6 +302,21 @@ MP_PRIVATE bool s_mp_parse_printf_token(const char *format, printf_token *token)
 MP_PRIVATE int  s_mp_fprint(const mp_int *a, size_t maxlen, unsigned int flags, int radix, FILE *stream);
 MP_PRIVATE int  s_mp_sprint(const mp_int *a, size_t maxlen, unsigned int flags, int radix, char **formatted);
 #endif
+
+/* The 64 bit maximum is only theoretical, even Kim Wallisch's primesum
+   needed two and a half minutes over 8 cores*/
+#ifdef MP_64BIT
+#define PRIMECOUNT_MAX 425656284035217743lu
+#elif ((defined MP_32BIT) || (defined MP_31BIT) || (defined MP_28BIT) )
+#define PRIMECOUNT_MAX 203280221lu
+#elif (defined MP_16BIT)
+#define PRIMECOUNT_MAX 6542lu
+#elif
+#error "No type size given"
+#endif
+
+
+
 #ifdef MP_SMALL_STACK_SIZE
 
 #if defined(__GNUC__)

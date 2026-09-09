@@ -121,6 +121,8 @@ EXPORTS
     mp_set_ul
     mp_shrink
     mp_signed_rsh
+    mp_small_prime_nthprime
+    mp_small_prime_primecount
     mp_sqrmod
     mp_sqrt
     mp_sqrt_d

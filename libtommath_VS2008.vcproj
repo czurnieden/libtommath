@@ -777,6 +777,14 @@
 			>
 		</File>
 		<File
+			RelativePath="mp_small_prime_nthprime.c"
+			>
+		</File>
+		<File
+			RelativePath="mp_small_prime_primecount.c"
+			>
+		</File>
+		<File
 			RelativePath="mp_sqrmod.c"
 			>
 		</File>

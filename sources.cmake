@@ -118,6 +118,8 @@ mp_set_u64.c
 mp_set_ul.c
 mp_shrink.c
 mp_signed_rsh.c
+mp_small_prime_nthprime.c
+mp_small_prime_primecount.c
 mp_sqrmod.c
 mp_sqrt.c
 mp_sqrt_d.c

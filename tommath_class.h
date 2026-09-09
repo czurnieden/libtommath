@@ -127,6 +127,8 @@
 #   define MP_SET_UL_C
 #   define MP_SHRINK_C
 #   define MP_SIGNED_RSH_C
+#   define MP_SMALL_PRIME_NTHPRIME_C
+#   define MP_SMALL_PRIME_PRIMECOUNT_C
 #   define MP_SQRMOD_C
 #   define MP_SQRT_C
 #   define MP_SQRT_D_C
@@ -945,6 +947,15 @@
 #   define MP_ADD_D_C
 #   define MP_DIV_2D_C
 #   define MP_SUB_D_C
+#endif
+
+#if defined(MP_SMALL_PRIME_NTHPRIME_C)
+#   define MP_SMALL_PRIME_PRIMECOUNT_C
+#   define S_MP_BITLENGTH_C
+#endif
+
+#if defined(MP_SMALL_PRIME_PRIMECOUNT_C)
+#   define MP_SQRT_D_C
 #endif
 
 #if defined(MP_SQRMOD_C)

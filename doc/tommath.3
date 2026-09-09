@@ -1206,6 +1206,18 @@ Shifts right \fBa\fP by \fBb\fP bits with sign extension.
 .in -1i
 
 .LP
+.BI "mp_err mp_small_prime_nthprime(mp_digit " n ", mp_digit *" d ")"
+.in 1i
+Set \fBd\fP to the \fBn\fP-th prime.
+.in -1i
+
+.LP
+.BI "mp_err mp_small_prime_primecount(mp_digit " n ", mp_digit *" d ")"
+.in 1i
+Set \fBd\fP to the numer of primes up to and including \fBn\fP.
+.in -1i
+
+.LP
 .BI "mp_err mp_sqr (const mp_int *" a ", mp_int *" b ")"
 .in 1i
 Computes \fBa^2 = b\fP

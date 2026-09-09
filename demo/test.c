@@ -509,6 +509,66 @@ LBL_ERR:
 
 }
 
+static int test_mp_small_prime_nthprime(void)
+{
+   mp_digit tests[] = {
+      1,
+      2,
+      100,
+      1000,
+      3512
+   };
+   mp_digit reference[] = {
+      2,
+      3,
+      541,
+      7919,
+      32749
+   };
+
+   mp_digit res;
+   int i;
+
+   for (i = 0; i<(int)(sizeof(tests)/sizeof(tests[0])); i++) {
+      DO(mp_small_prime_nthprime(tests[i], &res));
+      EXPECT(res == reference[i]);
+   }
+
+   return EXIT_SUCCESS;
+LBL_ERR:
+   return EXIT_FAILURE;
+}
+static int test_mp_small_prime_primecount(void)
+{
+   mp_digit tests[] = {
+      2,
+      3,
+      101,
+      1009,
+      65500
+   };
+   mp_digit reference[] = {
+      1,
+      2,
+      26,
+      169,
+      6540
+   };
+
+   mp_digit res;
+   int i;
+
+   for (i = 0; i<(int)(sizeof(tests)/sizeof(tests[0])); i++) {
+      DO(mp_small_prime_primecount(tests[i], &res));
+      EXPECT(res == reference[i]);
+   }
+
+   return EXIT_SUCCESS;
+LBL_ERR:
+   return EXIT_FAILURE;
+}
+
+
 static int test_mp_xor(void)
 {
    int i;
@@ -2939,10 +2999,13 @@ static int unit_tests(int argc, char **argv)
       T1(mp_reduce_2k_l, MP_REDUCE_2K_L),
       T1(mp_radix_size, MP_RADIX_SIZE),
       T2(s_mp_radix_size_overestimate, ONLY_PUBLIC_API, S_MP_RADIX_SIZE_OVERESTIMATE),
+
 #if defined(MP_HAS_SET_DOUBLE)
       T1(mp_set_double, MP_SET_DOUBLE),
 #endif
       T1(mp_signed_rsh, MP_SIGNED_RSH),
+      T1(mp_small_prime_primecount, MP_SMALL_PRIME_PRIMECOUNT),
+      T2(mp_small_prime_nthprime, MP_SMALL_PRIME_NTHPRIME, MP_SMALL_PRIME_PRIMECOUNT),
       T2(mp_sqrt, MP_SQRT, MP_ROOT_N),
       T1(mp_sqrt_d, MP_SQRT_D),
       T2(s_mp_sqrt_w, ONLY_PUBLIC_API, S_MP_SQRT_W),
