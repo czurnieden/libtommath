@@ -315,6 +315,21 @@ MP_PRIVATE int  s_mp_sprint(const mp_int *a, size_t maxlen, unsigned int flags, 
 #error "No type size given"
 #endif
 
+#include <tommath.h>
+MP_PRIVATE ERAT_UINT s_mp_erat_nextprime(ERAT_UINT p, mp_erat_single_sieve *bst);
+MP_PRIVATE void s_mp_erat_eratosthenes(mp_erat_single_sieve *bst);
+MP_PRIVATE mp_err s_mp_erat_eratosthenes_init(ERAT_UINT n, mp_erat_single_sieve *bst) MP_WUR;
+MP_PRIVATE void s_mp_erat_eratosthenes_segment(ERAT_UINT a, ERAT_UINT b, mp_erat_single_sieve *base,
+      mp_erat_single_sieve *segment);
+MP_PRIVATE void s_mp_erat_eratosthenes_segment_clear(mp_erat_single_sieve *segment, ERAT_UINT *single_segment_a);
+MP_PRIVATE mp_err s_mp_erat_init_single_segment_with_start(ERAT_UINT a, mp_erat_single_sieve *base_sieve,
+      mp_erat_single_sieve *single_segment, ERAT_UINT *single_segment_a) MP_WUR;
+MP_PRIVATE ERAT_UINT s_mp_erat_isqrt(ERAT_UINT n);
+MP_PRIVATE ERAT_UINT s_mp_mp_erat_sieve_get_bit(mp_erat_single_sieve *bst, ERAT_UINT n);
+MP_PRIVATE ERAT_UINT s_mp_mp_erat_sieve_nextset(mp_erat_single_sieve *bst, ERAT_UINT n);
+MP_PRIVATE void s_mp_mp_erat_sieve_setall(mp_erat_single_sieve *bst);
+MP_PRIVATE void s_mp_mp_mp_erat_sieve_clear_bit(mp_erat_single_sieve *bst, ERAT_UINT n);
+
 
 
 #ifdef MP_SMALL_STACK_SIZE

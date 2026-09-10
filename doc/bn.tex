@@ -2434,26 +2434,28 @@ the case of RSA) since there is no skew on the least significant bits.
 \section{Small Primes}
 
 It is not always necessary to use the heavy machinery written for the large cryptographic primes
-to handle small primes. It would work, yes, but it would be slow.
+to handle small primes. It would work, of course, but it would be slow.
 
 Here are some functions to help with those small tasks in no particular order. Here ``small'' means
-about $p < 2^32$. The primecounting function needs about half a second for that limit\footnote{All
+primes $p < 2^32$. The primecounting function needs about half a second for that limit\footnote{All
 benchmarks in this sections done with an Intel i7-2600 (3.40GHz) with 24 Gibibytes RAM}
-whereas Kim's primecount\footnote{\url{https://github.com/kimwalisch/primesieve}} does it in about 0.006 seconds. With {\texttt{MP_64BIT}} we can try $2^40$ which needs
-about 2.2 seconds in contrast to 0.08 seconds with Kim's primecount\footnote{Which \emph{is} the fastest on the market}.
+whereas Kim's primecount\footnote{\url{https://github.com/kimwalisch/primesieve}} does it in about 0.006 seconds.
+With {\texttt{MP\_64BIT}} we can try $2^40$ which needs about 2.2 seconds in contrast to 0.08 seconds
+with Kim's primecount\footnote{Which \emph{is} the fastest on the market}.
 
 \index{mp\_small\_prime\_primecount}
 \begin{alltt}
 mp_err mp_small_prime_primecount(mp_digit n, mp_digit *d)
 \end{alltt}
 Counts the number of primes up to and including the limit {\texttt{n}} and puts the result in {\texttt{d}}.
+Does not use the prime-sieve to keep it independent.
 
 \index{mp\_small\_prime\_nthprime}
 \begin{alltt}
 mp_err mp_small_prime_nthprime(mp_digit n, mp_digit *d)
 \end{alltt}
 Sets {\texttt{d}} to value of the $n$\textsuperscript{th} prime. Returns {\texttt{MP\_VAL}} if
-{\texttt{n}} is large than the limit {\texttt{PRIMECOUNT\_MAX}} which is defined in {\texttt{tommath_private.h}}.
+{\texttt{n}} is large than the limit {\texttt{PRIMECOUNT\_MAX}} which is defined in {\texttt{tommath\_private.h}}.
 It is chosen such that the resulting prime is not larger than the data type {\texttt{mp\_digit}} allow.
 It is set to $425\,656\,284\,035\,217\,743$, $203\,280\,221$, and $6\,542$ for {\texttt{MP\_64BIT}}, {\texttt{MP\_32BIT}},
 and {\texttt{MP\_16BIT}} respectively. It is not the fastest method: with $n = 203\,280\,221$ it needs about 1.2 seconds,
@@ -2465,7 +2467,45 @@ It uses binary search ($O(\log n)$) with the significant overhead of the primeco
 The primecounting function uses Lucy Hedgehog's algorithm with a complexity of $\tilde{O}(n^{3/4})$ but it jumps
 wildly through large arrays which causes quite the number of (soft) pagefaults.
 
+\subsection{Small Prime Sieve}
+A small segmented sieve (unsigned 32-bit max.) is available via three functions.
+The type {\texttt{ERAT\_UINT}}, defined (\emph{not} {\texttt{typedef}}) in {\texttt{tommath.h}}
+is normally {\texttt{uint32\_t}} but should be checked before use to be sure.
 
+\index{mp\_small\_prime\_sieve\_init}
+\begin{alltt}
+mp_err mp_small_prime_sieve_init(mp_erat_sieve *sieve, bool warmup);
+\end{alltt}
+Initialize sieve to default values, build base-sieve, too, if the parameter {\texttt{warmup}} is true
+otherwise the first call to either {\texttt{mp\_small\_prime\_sieve\_is\_small\_prime}},
+{\texttt{mp\_small\_prime\_sieve\_next\_prime}}, or {\texttt{mp\_small\_prime\_sieve\_prec\_prime}}
+do it at first call.
+
+\index{mp\_small\_prime\_sieve\_clear}
+\begin{alltt}
+mp_err mp_small_prime_sieve_clear(mp_erat_sieve *sieve);
+\end{alltt}
+Reset sieve and free memory .
+
+\index{mp\_small\_prime\_sieve\_is\_small\_prime}
+\begin{alltt}
+mp_err mp_small_prime_sieve_is_small_prime(ERAT_UINT n, bool *result, mp_erat_sieve *sieve);
+\end{alltt}
+Check primality of $n$ if $n < 2^32$.
+
+
+\index{mp\_small\_prime\_sieve\_next\_prime}
+\begin{alltt}
+mp_err mp_small_prime_sieve_next_prime(ERAT_UINT n, ERAT_UINT *result, mp_erat_sieve *sieve);
+\end{alltt}
+Sets {\texttt{result}} to the prime {\texttt{p}} larger than or equal to {\texttt{n}} if $p > 2^32 - 5$.
+Returns {\texttt{MP\_OVF}} if $p > 2^32 - 5$ as an information about that fact.
+
+\index{mp\_small\_prime\_sieve\_prec\_prime}
+\begin{alltt}
+mp_err mp_small_prime_sieve_prec_prime(ERAT_UINT n, ERAT_UINT *result, mp_erat_sieve *sieve);
+\end{alltt}
+Sets {\texttt{result}} to the prime {\texttt{p}} smaller than or equal to {\texttt{n}} if $p > 1$.
 
 \chapter{Random Number Generation}
 \section{PRNG}
