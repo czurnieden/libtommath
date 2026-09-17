@@ -4,6 +4,10 @@
 /* SPDX-License-Identifier: Unlicense */
 
 #ifndef MP_NO_FILE
+
+#include <stdarg.h>
+
+
 /* At most 2*int (might be 64 bit) -> 2*20 plus
    some change, so 128 should more than enough */
 #define MP_FPRINTF_BUF_LEN 128
@@ -54,7 +58,7 @@ int mp_fprintf(FILE *stream, const char *s, ...)
             s++;
          }
          buf[i] = '\0';
-         if(*s == '\0'){
+         if (*s == '\0') {
             end_of_input = true;
          }
          switch (token.specifier) {
@@ -666,7 +670,7 @@ int mp_fprintf(FILE *stream, const char *s, ...)
          printed = count;
          goto LTM_ERR;
       }
-      if(!end_of_input) {
+      if (!end_of_input) {
          s++;
       }
    } /* End of while(*s != '\0') */

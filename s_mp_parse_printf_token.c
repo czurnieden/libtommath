@@ -4,7 +4,7 @@
 /* SPDX-License-Identifier: Unlicense */
 
 #ifndef MP_NO_FILE
-#ifdef MP_WITH_MP_FPRINTF
+
 /* Parses a single(!) format specifier */
 bool s_mp_parse_printf_token(const char *format, printf_token *token)
 {
@@ -152,6 +152,6 @@ bool s_mp_parse_printf_token(const char *format, printf_token *token)
 }
 
 
-#endif
+
 #endif
 #endif

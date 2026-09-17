@@ -4,7 +4,7 @@
 /* SPDX-License-Identifier: Unlicense */
 
 #ifndef MP_NO_FILE
-#ifdef MP_WITH_MP_FPRINTF
+
 int s_mp_fprint(const mp_int *a, size_t maxlen, unsigned int flags, int radix, FILE *stream)
 {
    char *buffer = NULL;
@@ -31,6 +31,6 @@ LTM_ERR:
    MP_FREE_BUF(buffer, (size_t)written);
    return written;
 }
-#endif
+
 #endif
 #endif

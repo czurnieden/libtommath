@@ -238,7 +238,6 @@ MP_PRIVATE mp_err s_mp_fp_log_d(const mp_int *a, mp_word *c) MP_WUR;
 
 
 #ifndef MP_NO_FILE
-#ifdef MP_WITH_MP_FPRINTF
 #include <ctype.h>
 #include <stdarg.h>
 #include <wchar.h>
@@ -297,7 +296,7 @@ typedef struct {
 MP_PRIVATE bool s_mp_parse_printf_token(const char *format, printf_token *token);
 MP_PRIVATE int  s_mp_fprint(const mp_int *a, size_t maxlen, unsigned int flags, int radix, FILE *stream);
 MP_PRIVATE int  s_mp_sprint(const mp_int *a, size_t maxlen, unsigned int flags, int radix, char **formatted);
-#endif
+
 #endif
 #ifdef MP_SMALL_STACK_SIZE
 

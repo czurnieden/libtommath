@@ -3,10 +3,7 @@
 /* LibTomMath, multiple-precision integer library -- Tom St Denis */
 /* SPDX-License-Identifier: Unlicense */
 
-
-
 #ifndef MP_NO_FILE
-#ifdef MP_WITH_MP_FPRINTF
 /* Print a formatted big integer to a string buffer.
 
    Basically mp_fwrite() with a limit. Here maxlen is the printf "width".
@@ -153,6 +150,6 @@ int s_mp_sprint(const mp_int *a, size_t maxlen, unsigned int flags, int radix, c
    return r;
 }
 
-#endif
+
 #endif
 #endif
