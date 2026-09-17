@@ -61,14 +61,7 @@ mp_err mp_small_prime_sieve_is_small_prime(ERAT_UINT n, bool *result, mp_erat_si
       }
    }
    /* no further shortcuts to apply, build and search a segment */
-   /*
-    * TODO: if base_sieve is < sqrt(ERAT_UINT_MAX) it is not possible to get
-    * all primes <= ERAT_UINT_MAX so add check if n > size(base_sieve)^2 and either
-    * a. make size(base_sieve) = sqrt(ERAT_UINT_MAX)
-    * b. make size(base_sieve) = 2 * size(base_sieve)
-    * with 2 * size(base_sieve) <= sqrt(ERAT_UINT_MAX)
-    * c. give up and return MP_VAL
-    */
+
    /* we have a segment and may be able to use it */
    if (sieve->segment.content != NULL) {
       a = sieve->single_segment_a;
@@ -84,6 +77,7 @@ mp_err mp_small_prime_sieve_is_small_prime(ERAT_UINT n, bool *result, mp_erat_si
          return err;
       }
    }
+
    /*
     * A bit of heuristics ( "heuristics" is a more pretentious word for the
     * commonly known expression "wild guess")
@@ -92,17 +86,13 @@ mp_err mp_small_prime_sieve_is_small_prime(ERAT_UINT n, bool *result, mp_erat_si
     * for massive amounts of random requests.
     */
    if (n > a) {
-      if (n > (ERAT_BIGGEST_PRIME - ERAT_UINT_MAX_SQRT)) {
-         a = ERAT_BIGGEST_PRIME - ERAT_UINT_MAX_SQRT;
+      if (n > (ERAT_UINT_MAX - ERAT_UINT_MAX_SQRT)) {
+         a = ERAT_UINT_MAX - ERAT_UINT_MAX_SQRT;
       } else {
          a = n;
       }
    } else {
-      if (n < ERAT_UINT_MAX_SQRT) {
-         a = ERAT_UINT_MAX_SQRT;
-      } else {
-         a = n - (ERAT_UINT_MAX_SQRT);
-      }
+      a = n - ERAT_UINT_MAX_SQRT;
    }
    if ((err = s_mp_erat_init_single_segment_with_start(a,
               &(sieve->base), &(sieve->segment), &(sieve->single_segment_a))) != MP_OKAY) {

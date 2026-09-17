@@ -7,20 +7,23 @@
 /*
    Compute the modular inverse b^(-1) mod 2^MP_DIGIT_BIT
    for a mp_digit with Hensel lifting (because 2 is a prime number).
+   This works because unsigned overflow is just mod 2^w (w the
+   bitsize of the unsigned integer type) which does not change the
+   mathematics here.
 */
 static mp_digit s_mp_invmod_d(mp_digit b)
 {
    mp_digit x = b;
-   x = (x * (2 - b * x)) & MP_MASK;
-   x = (x * (2 - b * x)) & MP_MASK;
-   x = (x * (2 - b * x)) & MP_MASK;
+   x = (x * (2u - b * x)) & MP_MASK;
+   x = (x * (2u - b * x)) & MP_MASK;
+   x = (x * (2u - b * x)) & MP_MASK;
    /* MP_xBIT with x in 31,32 */
 #if MP_DIGIT_BIT > 16
-   x = (x * (2 - b * x)) & MP_MASK;
+   x = (x * (2u - b * x)) & MP_MASK;
 #endif
    /* MP_64BIT */
 #if MP_DIGIT_BIT > 32
-   x = (x * (2 - b * x)) & MP_MASK;
+   x = (x * (2u - b * x)) & MP_MASK;
 #endif
    return x;
 }

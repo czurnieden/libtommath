@@ -336,7 +336,7 @@ static int test_mp_fprintf(void)
    const char *expected_output =
       "signed -123 unsigned 456 double 3.141593 bigint-16 >0x17B8F8FB141F0A40000000<bigint-64 >00000000000000000001Uu+FiK7mf00000<"
       "bigint-2 0b1100000111000100111010000101111001110010000100011111101110100011010110010110100110101010110110001"
-      "Float: +0.6931471806 Percent: % Log: some logfi";
+      "Float: +0.6931471806 Percent: % Log: some logfi\n";
 
    DOR(mp_init_multi(&a, &b, NULL));
 
@@ -347,7 +347,7 @@ static int test_mp_fprintf(void)
    tmp = tmpfile();
    written = mp_fprintf(tmp,
                         "signed %d unsigned %u double %f bigint-16 >%-#Zx<bigint-64 >%0*ZK<"
-                        "bigint-2 %#ZbFloat: %+.10Lf Percent: %% Log: %.10s",
+                        "bigint-2 %#ZbFloat: %+.10Lf Percent: %% Log: %.10s\n",
                         -123,  456, 3.14159265, &a, &a, 35, &b,
                         0.69314718055994530941723212145817656807L, "some logfile entry blabla");
 
@@ -580,14 +580,18 @@ static int test_mp_small_prime_sieve_is_small_prime(void)
    DO(mp_small_prime_sieve_init(&sieve, false));
    DOR(mp_init(&N));
 
+   DO(mp_small_prime_sieve_is_small_prime(2493016079u, &isprime, &sieve));
+   EXPECT(isprime);
    /* Generate a handful of random numbers  1<n<2^32 */
    for (i = 0; i < 100; i++) {
       n = (uint32_t)rand_uint();
+      if ((n < 2) || (n > 4294967291u)) {
+         continue;
+      }
       DO(mp_small_prime_sieve_is_small_prime(n, &isprime, &sieve));
 
       mp_set_u32(&N, n);
       DO(mp_prime_is_prime(&N, 1, &isreallyprime));
-
       EXPECT(isprime == isreallyprime);
    }
    mp_small_prime_sieve_clear(&sieve);
@@ -607,7 +611,7 @@ static int test_mp_small_prime_sieve_prec_prime(void)
    uint64_t primesum;
    uint32_t prime;
 #endif
-   uint32_t n, precprime, nextprime ;
+   uint32_t n = 0, precprime, nextprime ;
    int i = 0;
    bool isreallyprime = false;
 
@@ -616,9 +620,11 @@ static int test_mp_small_prime_sieve_prec_prime(void)
    DOR(mp_init(&N));
 
    for (i = 0; i < 100; i++) {
+      /* rand_uint() is a PRNG so it won't loop forever */
       n = (uint32_t)rand_uint();
       if (n < 3) {
-         n = 3;
+         i--;
+         continue;
       }
       DO(mp_small_prime_sieve_prec_prime(n - 1, &precprime, &sieve));
       mp_set_u32(&N, precprime);
@@ -631,7 +637,7 @@ static int test_mp_small_prime_sieve_prec_prime(void)
       EXPECT(nextprime >= n);
    }
    /*
-       A full round take s quite some time, but is really checking everything
+       A full round takes quite some time, but is checking everything
        A long time is about 30 seconds, but with valgrind about 30 minutes!
     */
 #ifdef MP_SMALL_SIEVE_FULL_ROUND_DECREASING
@@ -656,12 +662,12 @@ static int test_mp_small_prime_sieve_next_prime(void)
 {
    mp_erat_sieve sieve;
    mp_int N;
-#ifdef MP_SMALL_SIEVE_FULL_ROUND_INCREASING
    mp_err err2;
+#ifdef MP_SMALL_SIEVE_FULL_ROUND_INCREASING
    uint64_t primesum;
    uint32_t prime;
 #endif
-   uint32_t n, nextprime, reallynextprime ;
+   uint32_t n, nextprime = 0u, reallynextprime = 0u;
    int i = 0;
    bool isreallyprime = false;
 
@@ -670,11 +676,20 @@ static int test_mp_small_prime_sieve_next_prime(void)
    DOR(mp_init(&N));
 
    for (i = 0; i < 100; i++) {
+      /* rand_uint() is a PRNG so it won't loop forever */
       n = (uint32_t)rand_uint();
-      if (n > 4294967291u) {
-         n = 4294967291u;
+      if ((n < 2) || (n > 4294967279u)) {
+         i--;
+         continue;
       }
-      DO(mp_small_prime_sieve_next_prime(n + 1, &nextprime, &sieve));
+      if ((err2 = mp_small_prime_sieve_next_prime(n + 1, &nextprime, &sieve)) != MP_OKAY) {
+         if (err2 != MP_OVF) {
+            goto LBL_ERR;
+         } else {
+            i--;
+            continue;
+         }
+      }
       mp_set_u32(&N, nextprime);
       DO(mp_prime_is_prime(&N, 1, &isreallyprime));
       EXPECT(isreallyprime);
@@ -685,13 +700,13 @@ static int test_mp_small_prime_sieve_next_prime(void)
       EXPECT(nextprime == reallynextprime);
    }
 
-   /* A full round take s quite some time, but is really checking everything */
+   /* A full round takes quite some time, but is checking everything */
 #ifdef MP_SMALL_SIEVE_FULL_ROUND_INCREASING
-   prime = 2u;
-   primesum = 2u;
+   prime = 0u;
+   primesum = 0u;
    while (prime <= 4294967291u) {
       if ((err2 = mp_small_prime_sieve_next_prime(prime + 1, &prime, &sieve)) != MP_OKAY) {
-         /* Will throw ERAT_OVL which can be ignored here */
+         /* Will throw ERAT_OVL which is the place we stop */
          if (err2 != MP_OVF) {
             goto LBL_ERR;
          } else {

@@ -3,9 +3,33 @@
 /* LibTomMath, multiple-precision integer library -- Tom St Denis */
 /* SPDX-License-Identifier: Unlicense */
 
+#ifdef MP_USE_MEMOPS
+#include <string.h>
+#endif
+#if 0
+ERAT_UINT s_mp_erat_isqrt(ERAT_UINT n)
+{
+   mp_err err = MP_OKAY;
 
+#ifdef MP_16BIT
+   mp_word r = 0u;
+#else
+   mp_digit r = 0u;
+#endif
+   /* Possible error is r == NULL, can be ignored here. */
+#ifdef MP_16BIT
+   if ((err = s_mp_sqrt_w((mp_word)n, &r)) != MP_OKAY) {
+      return 0;
+   }
+#else
+   if ((err = mp_sqrt_d((mp_digit)n, &r)) != MP_OKAY) {
+      return 0;
+   }
+#endif
 
-/* TODO: replace with mp_sqrt_d */
+   return (ERAT_UINT)r;
+}
+#endif
 ERAT_UINT s_mp_erat_isqrt(ERAT_UINT n)
 {
    ERAT_UINT s, rem, root;
@@ -33,18 +57,17 @@ ERAT_UINT s_mp_erat_isqrt(ERAT_UINT n)
    }
    return root;
 }
-
-/* Manual memset() to avoid the inclusion of string.h
-   TODO: see comment for s_mp_erat_isqrt(ERAT_UINT n) above
- */
 void s_mp_mp_erat_sieve_setall(mp_erat_single_sieve *bst)
 {
+#ifdef MP_USE_MEMOPS
+   memset(bst->content, 0xFF, bst->alloc);
+#else
    size_t i, bs_size;
    bs_size = bst->alloc / sizeof(ERAT_UINT);
-   /* TODO: check if ERAT_UINT is actually unsigned and that (ERAT_UINT_MAX + 1) < ERAT_UINT_MAX ?*/
    for (i = 0; i < bs_size; i++) {
-      (bst)->content[i] = ERAT_UINT_MAX;
+      bst->content[i] = ERAT_UINT_MAX;
    }
+#endif
 }
 
 
@@ -107,7 +130,6 @@ mp_err s_mp_erat_init_single_segment_with_start(
    ERAT_UINT b, n;
    mp_err e = MP_OKAY;
 
-   /* last segment might not fit, depending on size of range_a_b */
    if (a > (ERAT_BIGGEST_PRIME - ERAT_UINT_MAX_SQRT)) {
       b = ERAT_BIGGEST_PRIME;
    } else {
@@ -116,6 +138,10 @@ mp_err s_mp_erat_init_single_segment_with_start(
 
    n = ((b - a)+1)/CHAR_BIT;
 
+   /*
+      We are reusing that slice of heap for all segments.
+      Support of multithreading would need a bit of work.
+   */
    if (single_segment->content == NULL) {
       single_segment->content = (ERAT_UINT *) MP_MALLOC(n + sizeof(ERAT_UINT));
       if (single_segment->content == NULL) {
@@ -124,9 +150,10 @@ mp_err s_mp_erat_init_single_segment_with_start(
       single_segment->alloc = n + sizeof(ERAT_UINT);
       single_segment->size = n * CHAR_BIT;
    }
-   s_mp_erat_eratosthenes_segment(a, b, base_sieve, single_segment);
 
+   s_mp_erat_eratosthenes_segment(a, b, base_sieve, single_segment);
    *single_segment_a = a;
+
    return e;
 }
 
@@ -187,7 +214,7 @@ void s_mp_erat_eratosthenes_segment(ERAT_UINT a, ERAT_UINT b, mp_erat_single_sie
          j = ((a + p - 1) / p) * p;
       }
       for (; j <= b; j += p) {
-         /* j+=p can overflow */
+         /* j+=p can overflow, so check size of j in relation to a */
          if (j >= a) {
             s_mp_mp_mp_erat_sieve_clear_bit(segment, j - a);
          } else {
@@ -196,21 +223,6 @@ void s_mp_erat_eratosthenes_segment(ERAT_UINT a, ERAT_UINT b, mp_erat_single_sie
       }
    }
 }
-
-/*
- * Clear sieve "segment"
- * free memory and reset "single_segment_a"
- */
-void s_mp_erat_eratosthenes_segment_clear(mp_erat_single_sieve *segment, ERAT_UINT *single_segment_a)
-{
-   if (segment->content != NULL) {
-      MP_FREE(segment->content,n + sizeof(ERAT_UINT));
-      segment->alloc = 0;
-   }
-   segment->size = 0;
-   *single_segment_a = 0;
-}
-
 
 
 #endif

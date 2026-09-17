@@ -8,7 +8,7 @@
 static void s_mp_erat_clear_one(mp_erat_single_sieve *sieve)
 {
    if (sieve->content != NULL) {
-      MP_FREE(sieve->content, n + sizeof(ERAT_UINT));
+      MP_FREE(sieve->content, sieve->alloc);
       sieve->alloc = 0;
    }
    sieve->size = 0;
