@@ -4,7 +4,6 @@
 /* SPDX-License-Identifier: Unlicense */
 
 #ifndef MP_NO_FILE
-#ifdef MP_WITH_MP_FPRINTF
 /* At most 2*int (might be 64 bit) -> 2*20 plus
    some change, so 128 should more than enough */
 #define MP_FPRINTF_BUF_LEN 128
@@ -19,7 +18,7 @@ int mp_fprintf(FILE *stream, const char *s, ...)
    int *enn = NULL;
    size_t maxlen;
    int printed = 0;
-   bool valid_token = false;
+   bool valid_token = false, end_of_input = false;
    mp_int t;
 
    /* For the people who switch off all compiler warnings */
@@ -33,7 +32,7 @@ int mp_fprintf(FILE *stream, const char *s, ...)
 
    va_start(args, s);
 
-   while ((*s) != '\0') {
+   while (*s != '\0') {
       if (*s == '%') {
          valid_token = s_mp_parse_printf_token(s, &token);
          if (!valid_token) {
@@ -48,13 +47,16 @@ int mp_fprintf(FILE *stream, const char *s, ...)
          }
          /* Aren't we already there? */
          s = token.start_ptr;
+
          /* Put the whole thing in a buffer and let fprintf do the heavy work */
          for (i = 0; i < (int) len; i++) {
             buf[i] = *s;
             s++;
          }
          buf[i] = '\0';
-
+         if(*s == '\0'){
+            end_of_input = true;
+         }
          switch (token.specifier) {
          case 'd':
          case 'i':
@@ -656,7 +658,7 @@ int mp_fprintf(FILE *stream, const char *s, ...)
             }
             break;
          }
-      }
+      } /* End if(*s == '%') */
       count = fprintf(stream, "%c",*s);
       if (count >= 0) {
          printed += count;
@@ -664,8 +666,10 @@ int mp_fprintf(FILE *stream, const char *s, ...)
          printed = count;
          goto LTM_ERR;
       }
-      s++;
-   }
+      if(!end_of_input) {
+         s++;
+      }
+   } /* End of while(*s != '\0') */
 LTM_ERR:
    if (err != MP_OKAY) {
       printed = -1;
@@ -675,6 +679,5 @@ LTM_ERR:
    return printed;
 }
 
-#endif
 #endif
 #endif
