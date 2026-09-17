@@ -336,7 +336,7 @@ static int test_mp_fprintf(void)
    const char *expected_output =
       "signed -123 unsigned 456 double 3.141593 bigint-16 >0x17B8F8FB141F0A40000000<bigint-64 >00000000000000000001Uu+FiK7mf00000<"
       "bigint-2 0b1100000111000100111010000101111001110010000100011111101110100011010110010110100110101010110110001"
-      "Float: +0.6931471806 Percent: % Log: some logfi\n";
+      "Float: +0.6931471806 Percent: % Log: some logfi";
 
    DOR(mp_init_multi(&a, &b, NULL));
 
@@ -347,7 +347,7 @@ static int test_mp_fprintf(void)
    tmp = tmpfile();
    written = mp_fprintf(tmp,
                         "signed %d unsigned %u double %f bigint-16 >%-#Zx<bigint-64 >%0*ZK<"
-                        "bigint-2 %#ZbFloat: %+.10Lf Percent: %% Log: %.10s\n",
+                        "bigint-2 %#ZbFloat: %+.10Lf Percent: %% Log: %.10s",
                         -123,  456, 3.14159265, &a, &a, 35, &b,
                         0.69314718055994530941723212145817656807L, "some logfile entry blabla");
 
