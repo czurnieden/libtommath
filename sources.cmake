@@ -8,6 +8,7 @@ mp_add.c
 mp_add_d.c
 mp_addmod.c
 mp_and.c
+mp_cbrt_d.c
 mp_clamp.c
 mp_clear.c
 mp_clear_multi.c
@@ -142,6 +143,7 @@ mp_warray_free.c
 mp_xor.c
 mp_zero.c
 s_mp_add.c
+s_mp_cbrt_w.c
 s_mp_clear_bit.c
 s_mp_copy_digs.c
 s_mp_div_3.c

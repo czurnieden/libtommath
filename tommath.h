@@ -434,9 +434,11 @@ mp_err mp_root_n(const mp_int *a, int b, mp_int *c) MP_WUR;
 
 /* special sqrt algo */
 mp_err mp_sqrt(const mp_int *arg, mp_int *ret) MP_WUR;
-/* Integer sqrt working with mp_digit's which are native integers */
+/* Integer square root working with mp_digit's which are native integers */
 mp_err mp_sqrt_d(const mp_digit n, mp_digit *r) MP_WUR;
 
+/* Integer cuberoot working with mp_digit's which are native integers */
+void mp_cbrt_d(const mp_digit n, mp_digit *r);
 
 /* special sqrt (mod prime) */
 mp_err mp_sqrtmod_prime(const mp_int *n, const mp_int *prime, mp_int *ret) MP_WUR;

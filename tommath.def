@@ -12,6 +12,7 @@ EXPORTS
     mp_add_d
     mp_addmod
     mp_and
+    mp_cbrt_d
     mp_clamp
     mp_clear
     mp_clear_multi

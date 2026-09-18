@@ -337,6 +337,10 @@
 			>
 		</File>
 		<File
+			RelativePath="mp_cbrt_d.c"
+			>
+		</File>
+		<File
 			RelativePath="mp_clamp.c"
 			>
 		</File>
@@ -870,6 +874,10 @@
 		</File>
 		<File
 			RelativePath="s_mp_add.c"
+			>
+		</File>
+		<File
+			RelativePath="s_mp_cbrt_w.c"
 			>
 		</File>
 		<File

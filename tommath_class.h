@@ -17,6 +17,7 @@
 #   define MP_ADD_D_C
 #   define MP_ADDMOD_C
 #   define MP_AND_C
+#   define MP_CBRT_D_C
 #   define MP_CLAMP_C
 #   define MP_CLEAR_C
 #   define MP_CLEAR_MULTI_C
@@ -151,6 +152,7 @@
 #   define MP_XOR_C
 #   define MP_ZERO_C
 #   define S_MP_ADD_C
+#   define S_MP_CBRT_W_C
 #   define S_MP_CLEAR_BIT_C
 #   define S_MP_COPY_DIGS_C
 #   define S_MP_DIV_3_C
@@ -227,6 +229,10 @@
 #if defined(MP_AND_C)
 #   define MP_CLAMP_C
 #   define MP_GROW_C
+#endif
+
+#if defined(MP_CBRT_D_C)
+#   define MP_COUNT_BITS_D_C
 #endif
 
 #if defined(MP_CLAMP_C)
@@ -1095,6 +1101,11 @@
 #   define S_MP_ZERO_DIGS_C
 #endif
 
+#if defined(S_MP_CBRT_W_C)
+#   define MP_COUNT_BITS_D_C
+#   define MP_COUNT_BITS_W_C
+#endif
+
 #if defined(S_MP_CLEAR_BIT_C)
 #endif
 
@@ -1385,7 +1396,6 @@
 #   define S_MP_ERAT_ERATOSTHENES_C
 #   define S_MP_ERAT_ERATOSTHENES_INIT_C
 #   define S_MP_ERAT_ERATOSTHENES_SEGMENT_C
-#   define S_MP_ERAT_ERATOSTHENES_SEGMENT_CLEAR_C
 #   define S_MP_ERAT_INIT_SINGLE_SEGMENT_WITH_START_C
 #   define S_MP_ERAT_ISQRT_C
 #   define S_MP_ERAT_NEXTPRIME_C
