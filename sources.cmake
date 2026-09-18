@@ -142,6 +142,7 @@ mp_valuation_d.c
 mp_warray_free.c
 mp_xor.c
 mp_zero.c
+s_mp_32_umul32.c
 s_mp_add.c
 s_mp_cbrt_w.c
 s_mp_clear_bit.c
@@ -152,6 +153,7 @@ s_mp_div_school.c
 s_mp_div_small.c
 s_mp_exptmod.c
 s_mp_exptmod_fast.c
+s_mp_fp_exp2.c
 s_mp_fp_log.c
 s_mp_fp_log_d.c
 s_mp_fprint.c
@@ -174,7 +176,9 @@ s_mp_radix_map.c
 s_mp_radix_size_overestimate.c
 s_mp_rand_platform.c
 s_mp_rand_source.c
+s_mp_root_n.c
 s_mp_set_bit.c
+s_mp_set_word.c
 s_mp_small_prime_sieve.c
 s_mp_sprint.c
 s_mp_sqr.c

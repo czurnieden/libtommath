@@ -873,6 +873,10 @@
 			>
 		</File>
 		<File
+			RelativePath="s_mp_32_umul32.c"
+			>
+		</File>
+		<File
 			RelativePath="s_mp_add.c"
 			>
 		</File>
@@ -910,6 +914,10 @@
 		</File>
 		<File
 			RelativePath="s_mp_exptmod_fast.c"
+			>
+		</File>
+		<File
+			RelativePath="s_mp_fp_exp2.c"
 			>
 		</File>
 		<File
@@ -1001,7 +1009,15 @@
 			>
 		</File>
 		<File
+			RelativePath="s_mp_root_n.c"
+			>
+		</File>
+		<File
 			RelativePath="s_mp_set_bit.c"
+			>
+		</File>
+		<File
+			RelativePath="s_mp_set_word.c"
 			>
 		</File>
 		<File

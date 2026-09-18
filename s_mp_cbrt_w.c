@@ -30,7 +30,7 @@ void s_mp_cbrt_w(const mp_word n, mp_word *r)
       return;
    }
 
-   bits = mp_count_bits_d(n);
+   bits = mp_count_bits_w(n);
    x = (mp_word)1u << ((bits + 2u) / 3u);
 
    while (true) {
