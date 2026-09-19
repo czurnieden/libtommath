@@ -49,6 +49,16 @@ static int64_t rand_int64(void)
    return x;
 }
 
+static int64_t rand_mp_digit(void)
+{
+   mp_digit x;
+   if (s_mp_rand_jenkins(&x, sizeof(x)) != MP_OKAY) {
+      fprintf(stderr, "s_mp_rand_source failed\n");
+      exit(EXIT_FAILURE);
+   }
+   return x;
+}
+
 static uint32_t uabs32(int32_t x)
 {
    return (x > 0) ? (uint32_t)x : -(uint32_t)x;
@@ -1139,6 +1149,61 @@ LBL_ERR:
    return EXIT_FAILURE;
 }
 
+static int test_mp_cbrt_d(void)
+{
+   mp_digit n = 0, r, tmp, cube;
+   int i;
+   for (i = 0; i < 100; i++) {
+      /* rand_uint() is a PRNG so it won't loop forever */
+      n = rand_mp_digit();
+      /* Limit tests such that (r+1)^3 does not overflow */
+#ifdef MP_16BIT
+      if ((n == 0) || (n >= 59319)) {
+#elif (defined MP_32BIT)
+      if ((n == 0) || (n > 4283098624)) {
+#else
+      if (n == 0) {
+#endif
+         i--;
+         continue;
+      }
+      mp_cbrt_d(n, &r);
+      cube = r * r * r;
+      if (cube != n) {
+         /* if r is the largest number such that r^3 <=n, than (r+1)^3 > n */
+         tmp = (r + 1) * (r + 1) * (r + 1);
+         EXPECT(tmp > n);
+      }
+   }
+   return EXIT_SUCCESS;
+LBL_ERR:
+   return EXIT_FAILURE;
+}
+
+static int test_s_mp_cbrt_w(void)
+{
+   mp_word n = 0, r, tmp, cube;
+   int i;
+   for (i = 0; i < 100; i++) {
+      /* rand_uint() is a PRNG so it won't loop forever */
+      n = (uint32_t)rand_uint();
+      if (n == 0) {
+         i--;
+         continue;
+      }
+      s_mp_cbrt_w(n, &r);
+      cube = r * r * r;
+      if (cube != n) {
+         /* if r is the largest number such that r^3 <=n, than (r+1)^3 > n */
+         tmp = (r + 1) * (r + 1) * (r + 1);
+         EXPECT(tmp > n);
+      }
+   }
+   return EXIT_SUCCESS;
+LBL_ERR:
+   return EXIT_FAILURE;
+
+}
 
 
 static int test_mp_is_square(void)
@@ -3183,6 +3248,8 @@ static int unit_tests(int argc, char **argv)
       T2(mp_small_prime_sieve_next_prime, MP_SMALL_PRIME_SIEVE_NEXT_PRIME, S_MP_SMALL_PRIME_SIEVE),
       T2(mp_sqrt, MP_SQRT, MP_ROOT_N),
       T1(mp_sqrt_d, MP_SQRT_D),
+      T1(mp_cbrt_d, MP_CBRT_D),
+      T2(s_mp_cbrt_w, ONLY_PUBLIC_API, S_MP_CBRT_W),
       T2(s_mp_sqrt_w, ONLY_PUBLIC_API, S_MP_SQRT_W),
       T1(mp_sqrtmod_prime, MP_SQRTMOD_PRIME),
       T1(mp_valuation_d, MP_VALUATION_D),

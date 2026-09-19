@@ -147,6 +147,8 @@ s_mp_add.c
 s_mp_cbrt_w.c
 s_mp_clear_bit.c
 s_mp_copy_digs.c
+s_mp_count_bits_d.c
+s_mp_count_bits_w.c
 s_mp_div_3.c
 s_mp_div_recursive.c
 s_mp_div_school.c

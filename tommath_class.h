@@ -156,6 +156,8 @@
 #   define S_MP_CBRT_W_C
 #   define S_MP_CLEAR_BIT_C
 #   define S_MP_COPY_DIGS_C
+#   define S_MP_COUNT_BITS_D_C
+#   define S_MP_COUNT_BITS_W_C
 #   define S_MP_DIV_3_C
 #   define S_MP_DIV_RECURSIVE_C
 #   define S_MP_DIV_SCHOOL_C
@@ -236,7 +238,7 @@
 #endif
 
 #if defined(MP_CBRT_D_C)
-#   define MP_COUNT_BITS_D_C
+#   define S_MP_COUNT_BITS_D_C
 #endif
 
 #if defined(MP_CLAMP_C)
@@ -1088,14 +1090,19 @@
 #endif
 
 #if defined(S_MP_CBRT_W_C)
-#   define MP_COUNT_BITS_D_C
-#   define MP_COUNT_BITS_W_C
+#   define S_MP_COUNT_BITS_W_C
 #endif
 
 #if defined(S_MP_CLEAR_BIT_C)
 #endif
 
 #if defined(S_MP_COPY_DIGS_C)
+#endif
+
+#if defined(S_MP_COUNT_BITS_D_C)
+#endif
+
+#if defined(S_MP_COUNT_BITS_W_C)
 #endif
 
 #if defined(S_MP_DIV_3_C)

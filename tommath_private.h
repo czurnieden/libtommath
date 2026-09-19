@@ -232,6 +232,9 @@ MP_PRIVATE void s_mp_set_word(mp_int *a, mp_word w);
 MP_PRIVATE mp_err s_mp_sqrt_w(const mp_word n, mp_word *r) MP_WUR;
 /* Integer cube root working with mp_word's which are big integers but still faster than mp_int */
 MP_PRIVATE void s_mp_cbrt_w(const mp_word n, mp_word *r);
+/* Count bits in a mp_digit and mp_word respectively. */
+MP_PRIVATE int s_mp_count_bits_w(mp_word n);
+MP_PRIVATE int s_mp_count_bits_d(mp_digit n);
 
 MP_PRIVATE mp_err s_mp_fp_log_d(const mp_int *a, mp_word *c) MP_WUR;
 MP_PRIVATE mp_err s_mp_fp_log(const mp_int *a, mp_int *c) MP_WUR;

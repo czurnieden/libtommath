@@ -893,6 +893,14 @@
 			>
 		</File>
 		<File
+			RelativePath="s_mp_count_bits_d.c"
+			>
+		</File>
+		<File
+			RelativePath="s_mp_count_bits_w.c"
+			>
+		</File>
+		<File
 			RelativePath="s_mp_div_3.c"
 			>
 		</File>

@@ -3,18 +3,6 @@
 /* LibTomMath, multiple-precision integer library -- Tom St Denis */
 /* SPDX-License-Identifier: Unlicense */
 
-
-
-static int mp_count_bits_w(mp_word n)
-{
-   int bits = 0;
-   while (n > 0) {
-      bits++;
-      n >>= 1;
-   }
-   return bits;
-}
-
 void s_mp_cbrt_w(const mp_word n, mp_word *r)
 {
    int bits = 0;
@@ -30,7 +18,7 @@ void s_mp_cbrt_w(const mp_word n, mp_word *r)
       return;
    }
 
-   bits = mp_count_bits_w(n);
+   bits = s_mp_count_bits_w(n);
    x = (mp_word)1u << ((bits + 2u) / 3u);
 
    while (true) {
