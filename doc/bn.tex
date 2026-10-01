@@ -2507,6 +2507,16 @@ mp_err mp_small_prime_sieve_prec_prime(ERAT_UINT n, ERAT_UINT *result, mp_erat_s
 \end{alltt}
 Sets {\texttt{result}} to the prime {\texttt{p}} smaller than or equal to {\texttt{n}} if $p > 1$.
 
+\subsection{Small Number-theoretic Functions}
+\index{mp\_euler\_phi\_d}
+\begin{alltt}
+mp_err mp_euler_phi_d(const mp_digit x, mp_digit *res, mp_erat_sieve *sieve)
+\end{alltt}
+Computes Euler's totient function of {\texttt{x}} into {\texttt{res}}. It does so by
+factoring {\texttt{x}} and is only meant for single computations. For large sequences
+a different algorithm is needed that had not been implemented.
+
+
 \chapter{Random Number Generation}
 \section{PRNG}
 \index{mp\_rand}

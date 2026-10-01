@@ -32,6 +32,7 @@ EXPORTS
     mp_dr_reduce
     mp_dr_setup
     mp_error_to_string
+    mp_euler_phi_d
     mp_exch
     mp_expt_n
     mp_exptmod

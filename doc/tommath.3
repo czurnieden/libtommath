@@ -201,6 +201,17 @@ Swaps, but just the pointers.
 Returns a short ASCII message describing the error code given in \fBcode\fP.
 .in -1i
 
+
+.LP
+.BI "mp_err mp_euler_phi_d(const mp_digit " x ", mp_digit * " res ", mp_erat_sieve * " sieve ")"
+.in 1i
+Computes Euler's totient function of \fBx\fP into \fBres\fP. It does so by factoring \fBx\fP
+and is only meant for single computations. For large sequences a different algorithm is
+needed that had not been implemented.
+.in -1i
+
+
+
 .LP
 .BI "mp_err mp_exptmod (const mp_int *" G ", const mp_int *" X ", const mp_int *" P ", mp_int *" Y ")"
 .in 1i

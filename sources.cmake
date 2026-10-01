@@ -29,6 +29,7 @@ mp_dr_is_modulus.c
 mp_dr_reduce.c
 mp_dr_setup.c
 mp_error_to_string.c
+mp_euler_phi_d.c
 mp_exch.c
 mp_expt_n.c
 mp_exptmod.c
@@ -159,10 +160,13 @@ s_mp_fp_exp2.c
 s_mp_fp_log.c
 s_mp_fp_log_d.c
 s_mp_fprint.c
+s_mp_gcd_d.c
 s_mp_get_bit.c
 s_mp_invmod.c
 s_mp_invmod_odd.c
+s_mp_isprime_d.c
 s_mp_log_2expt.c
+s_mp_miller_rabin_d.c
 s_mp_montgomery_reduce_comba.c
 s_mp_mul.c
 s_mp_mul_balance.c
@@ -171,7 +175,10 @@ s_mp_mul_high.c
 s_mp_mul_high_comba.c
 s_mp_mul_karatsuba.c
 s_mp_mul_toom.c
+s_mp_mulmod_d.c
 s_mp_parse_printf_token.c
+s_mp_pollard_rho_d.c
+s_mp_powmod_d.c
 s_mp_prime_is_divisible.c
 s_mp_prime_tab.c
 s_mp_radix_map.c
@@ -187,6 +194,7 @@ s_mp_sqr.c
 s_mp_sqr_comba.c
 s_mp_sqr_karatsuba.c
 s_mp_sqr_toom.c
+s_mp_sqrincrmod_d.c
 s_mp_sqrt_w.c
 s_mp_sub.c
 s_mp_warray.c

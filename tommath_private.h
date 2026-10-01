@@ -236,6 +236,22 @@ MP_PRIVATE void s_mp_cbrt_w(const mp_word n, mp_word *r);
 MP_PRIVATE int s_mp_count_bits_w(mp_word n);
 MP_PRIVATE int s_mp_count_bits_d(mp_digit n);
 
+/* Helper funions for the Totient function euler_phi()
+   but might be found useful elsewhere, too  */
+MP_PRIVATE mp_digit s_mp_gcd_d(mp_digit a, mp_digit b);
+/* Uses the first 12 primes as Miller-Rabin witnesses */
+MP_PRIVATE bool s_mp_isprime_d(mp_digit number);
+MP_PRIVATE bool s_mp_miller_rabin_d(mp_digit number, mp_digit witness);
+/* Uses mp_word as an intermediate, no other tricks */
+MP_PRIVATE mp_digit s_mp_mulmod_d(mp_digit a, mp_digit b, mp_digit m);
+/* Standard Pollard-Rho factorizer */
+MP_PRIVATE mp_digit s_mp_pollard_rho_d(mp_digit n, int limit);
+/* Small powmod. Uses s_mp_mulmod_d */
+MP_PRIVATE mp_digit s_mp_powmod_d(mp_digit b, mp_digit e, mp_digit modulus);
+/* Computes (a^2+1)%m for s_mp_pollard_rho_d */
+MP_PRIVATE mp_digit s_mp_sqrincrmod_d(mp_digit a, mp_digit m);
+
+
 MP_PRIVATE mp_err s_mp_fp_log_d(const mp_int *a, mp_word *c) MP_WUR;
 MP_PRIVATE mp_err s_mp_fp_log(const mp_int *a, mp_int *c) MP_WUR;
 MP_PRIVATE void s_mp_32_umul32(uint32_t a, uint32_t b, uint32_t *high, uint32_t *low);
@@ -243,7 +259,6 @@ MP_PRIVATE void s_mp_32_umul32(uint32_t a, uint32_t b, uint32_t *high, uint32_t 
 #define MP_FP_SCALE_EXP ((int)(sizeof(uint32_t) *(size_t)CHAR_BIT))
 MP_PRIVATE mp_err s_mp_fp_exp2(const mp_int *a, mp_int *c) MP_WUR;
 MP_PRIVATE mp_err s_mp_root_n(const mp_int *a, int b, mp_int *c, bool *is_perfect_power) MP_WUR;
-
 
 #ifndef MP_NO_FILE
 

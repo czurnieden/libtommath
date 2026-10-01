@@ -421,6 +421,10 @@
 			>
 		</File>
 		<File
+			RelativePath="mp_euler_phi_d.c"
+			>
+		</File>
+		<File
 			RelativePath="mp_exch.c"
 			>
 		</File>
@@ -941,6 +945,10 @@
 			>
 		</File>
 		<File
+			RelativePath="s_mp_gcd_d.c"
+			>
+		</File>
+		<File
 			RelativePath="s_mp_get_bit.c"
 			>
 		</File>
@@ -953,7 +961,15 @@
 			>
 		</File>
 		<File
+			RelativePath="s_mp_isprime_d.c"
+			>
+		</File>
+		<File
 			RelativePath="s_mp_log_2expt.c"
+			>
+		</File>
+		<File
+			RelativePath="s_mp_miller_rabin_d.c"
 			>
 		</File>
 		<File
@@ -989,7 +1005,19 @@
 			>
 		</File>
 		<File
+			RelativePath="s_mp_mulmod_d.c"
+			>
+		</File>
+		<File
 			RelativePath="s_mp_parse_printf_token.c"
+			>
+		</File>
+		<File
+			RelativePath="s_mp_pollard_rho_d.c"
+			>
+		</File>
+		<File
+			RelativePath="s_mp_powmod_d.c"
 			>
 		</File>
 		<File
@@ -1050,6 +1078,10 @@
 		</File>
 		<File
 			RelativePath="s_mp_sqr_toom.c"
+			>
+		</File>
+		<File
+			RelativePath="s_mp_sqrincrmod_d.c"
 			>
 		</File>
 		<File

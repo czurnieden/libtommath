@@ -38,6 +38,7 @@
 #   define MP_DR_REDUCE_C
 #   define MP_DR_SETUP_C
 #   define MP_ERROR_TO_STRING_C
+#   define MP_EULER_PHI_D_C
 #   define MP_EXCH_C
 #   define MP_EXPT_N_C
 #   define MP_EXPTMOD_C
@@ -168,10 +169,13 @@
 #   define S_MP_FP_LOG_C
 #   define S_MP_FP_LOG_D_C
 #   define S_MP_FPRINT_C
+#   define S_MP_GCD_D_C
 #   define S_MP_GET_BIT_C
 #   define S_MP_INVMOD_C
 #   define S_MP_INVMOD_ODD_C
+#   define S_MP_ISPRIME_D_C
 #   define S_MP_LOG_2EXPT_C
+#   define S_MP_MILLER_RABIN_D_C
 #   define S_MP_MONTGOMERY_REDUCE_COMBA_C
 #   define S_MP_MUL_C
 #   define S_MP_MUL_BALANCE_C
@@ -180,7 +184,10 @@
 #   define S_MP_MUL_HIGH_COMBA_C
 #   define S_MP_MUL_KARATSUBA_C
 #   define S_MP_MUL_TOOM_C
+#   define S_MP_MULMOD_D_C
 #   define S_MP_PARSE_PRINTF_TOKEN_C
+#   define S_MP_POLLARD_RHO_D_C
+#   define S_MP_POWMOD_D_C
 #   define S_MP_PRIME_IS_DIVISIBLE_C
 #   define S_MP_PRIME_TAB_C
 #   define S_MP_RADIX_MAP_C
@@ -196,6 +203,7 @@
 #   define S_MP_SQR_COMBA_C
 #   define S_MP_SQR_KARATSUBA_C
 #   define S_MP_SQR_TOOM_C
+#   define S_MP_SQRINCRMOD_D_C
 #   define S_MP_SQRT_W_C
 #   define S_MP_SUB_C
 #   define S_MP_WARRAY_C
@@ -341,6 +349,12 @@
 #endif
 
 #if defined(MP_ERROR_TO_STRING_C)
+#endif
+
+#if defined(MP_EULER_PHI_D_C)
+#   define MP_SMALL_PRIME_SIEVE_NEXT_PRIME_C
+#   define S_MP_ISPRIME_D_C
+#   define S_MP_POLLARD_RHO_D_C
 #endif
 
 #if defined(MP_EXCH_C)
@@ -1250,6 +1264,9 @@
 #   define S_MP_ZERO_BUF_C
 #endif
 
+#if defined(S_MP_GCD_D_C)
+#endif
+
 #if defined(S_MP_GET_BIT_C)
 #endif
 
@@ -1283,8 +1300,16 @@
 #   define MP_SUB_C
 #endif
 
+#if defined(S_MP_ISPRIME_D_C)
+#   define S_MP_MILLER_RABIN_D_C
+#endif
+
 #if defined(S_MP_LOG_2EXPT_C)
 #   define MP_COUNT_BITS_C
+#endif
+
+#if defined(S_MP_MILLER_RABIN_D_C)
+#   define S_MP_POWMOD_D_C
 #endif
 
 #if defined(S_MP_MONTGOMERY_REDUCE_COMBA_C)
@@ -1371,7 +1396,19 @@
 #   define S_MP_DIV_3_C
 #endif
 
+#if defined(S_MP_MULMOD_D_C)
+#endif
+
 #if defined(S_MP_PARSE_PRINTF_TOKEN_C)
+#endif
+
+#if defined(S_MP_POLLARD_RHO_D_C)
+#   define S_MP_GCD_D_C
+#   define S_MP_SQRINCRMOD_D_C
+#endif
+
+#if defined(S_MP_POWMOD_D_C)
+#   define S_MP_MULMOD_D_C
 #endif
 
 #if defined(S_MP_PRIME_IS_DIVISIBLE_C)
@@ -1489,6 +1526,9 @@
 #   define MP_MUL_C
 #   define MP_SUB_C
 #   define S_MP_COPY_DIGS_C
+#endif
+
+#if defined(S_MP_SQRINCRMOD_D_C)
 #endif
 
 #if defined(S_MP_SQRT_W_C)

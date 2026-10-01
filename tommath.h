@@ -610,6 +610,8 @@ void mp_small_prime_sieve_clear(mp_erat_sieve *sieve);
    mp_small_prime_sieve_next_prime, or mp_small_prime_sieve_prec_prime do it at first call */
 mp_err mp_small_prime_sieve_init(mp_erat_sieve *sieve, bool warmup) MP_WUR;
 
+/* Euler phi (Totient) for small input (uses actual factoring) */
+mp_err mp_euler_phi_d(const mp_digit x, mp_digit *res, mp_erat_sieve *sieve) MP_WUR;
 
 /*
  * Number of times the prime "p" divides the number "a" and puts the result in "r"

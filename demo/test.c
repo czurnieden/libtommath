@@ -2825,6 +2825,444 @@ LBL_ERR:
    return EXIT_FAILURE;
 }
 
+static int test_s_mp_gcd_d(void)
+{
+
+   /* Universal edge cases, logic */
+   /* a, b, result */
+   mp_digit tests_logical[6][3] = {
+      {0u,0u,0u},       /* Identity / Division by zero */
+      {0u,42u,42u},     /* Identity property */
+      {42u,0u,42u},     /* Parameter order independence */
+      {1u,1u,1u},       /* Smallest non-zero boundary */
+      {1u,65535u,1u},   /* Coprime boundary with larger numbers */
+      {42u,42u,42u}     /* Equal inputs */
+   };
+#if (MP_DIGIT_BIT <= 16)
+   mp_digit tests_numerical[5][3] = {
+      {65535u,65534u,1u},      /* Max value coprime boundary */
+      {65535u,43690u,21845u},  /* Max value with a large shared factor */
+      {65521u,65519u,1u},      /* Twin primes near the maximum limit */
+      {32768u,16384u,16384u},  /* Powers of 2 close to the boundary */
+      {46368u,28657u,1u}       /* Worst-case execution steps (Consecutive Fibonacci numbers) */
+   };
+#elif ( (MP_DIGIT_BIT > 16) && (MP_DIGIT_BIT <= 32) )
+   mp_digit tests_numerical[5][3] = {
+      {4294967295u,4294967294u,1u},
+      {4294967295u,2863311530u,1431655765u},
+      {4294967291u,4294967279u,1u},
+      {2147483648u,1073741824u,1073741824u},
+      {2971215073u,1836311903u,1u}
+   };
+#elif (MP_DIGIT_BIT > 32)
+   mp_digit tests_numerical[5][3] = {
+      {18446744073709551615u,18446744073709551614u,1u},
+      {18446744073709551615u,12297829382473034410u,6148914691236517205u},
+      {18446744073709551557u,18446744073709551533u,1u},
+      {9223372036854775808u,4611686018427387904u,4611686018427387904u},
+      {12200160415121876738u,7540113804746346429u,1}
+   };
+#endif
+   int i;
+   mp_digit a, b, result, reference;
+   /* Logic tests */
+   for (i = 0; i < 6; i++) {
+      a = tests_logical[i][0];
+      b = tests_logical[i][1];
+      reference = tests_logical[i][2];
+      result = s_mp_gcd_d(a, b);
+      EXPECT(result == reference);
+   }
+
+   /* Numerical tests */
+   for (i = 0; i < 5; i++) {
+      a = tests_numerical[i][0];
+      b = tests_numerical[i][1];
+      reference = tests_numerical[i][2];
+      result = s_mp_gcd_d(a, b);
+      EXPECT(result == reference);
+   }
+
+
+   return EXIT_SUCCESS;
+LBL_ERR:
+   return EXIT_FAILURE;
+}
+
+
+static int test_s_mp_isprime_d(void)
+{
+#if (MP_DIGIT_BIT <= 16)
+   mp_digit tests_numerical[11][2]= {
+      {26849u, 1u},
+      {23557u, 1u},
+      {1493u, 1u},
+      {113u, 1u},
+      {4681u, 0u},
+      {29341u, 0u},
+      {2047u, 0u},
+      {121u, 0u},
+      {1891u, 0u},
+      {8401u, 0u},
+      {8911u, 0u}
+   };
+#elif ( (MP_DIGIT_BIT > 16) && (MP_DIGIT_BIT <= 32))
+   mp_digit tests_numerical[11][2]= {
+      {1228949597u, 1u},
+      {1673793481u, 1u},
+      {1927722649u, 1u},
+      {5731361u, 1u},
+      {471439u, 1u},
+      {99789673u, 0u},
+      {78939089u, 0u},
+      {38210323u, 0u},
+      {16879501u, 0u},
+      {894781u, 0u},
+      {99809051u, 0u}
+   };
+#elif (MP_DIGIT_BIT > 32)
+   mp_digit tests_numerical[11][2]= {
+      {6543966523773127649u, 1u},
+      {4951044679527814111u, 1u},
+      {378550100428573u, 1u},
+      {380528839291u, 1u},
+      {288357624251u, 1u},
+      {32828235299328941u, 0u},
+      {13441324917048151u, 0u},
+      {186297778500931u, 0u},
+      {924637784070713u, 0u},
+      {1368301531560809189u, 0u},
+      {1070382002528651311u, 0u}
+   };
+#endif
+   int i;
+   mp_digit a, result, reference;
+   bool isp = false;
+   for (i = 0; i < 11; i++) {
+      a = tests_numerical[i][0];
+      reference = tests_numerical[i][1];
+      isp = s_mp_isprime_d(a);
+      result = (isp)?1:0;
+      EXPECT(result == reference);
+   }
+   return EXIT_SUCCESS;
+LBL_ERR:
+   return EXIT_FAILURE;
+}
+
+static int test_s_mp_miller_rabin_d(void)
+{
+#if (MP_DIGIT_BIT <= 16)
+   /* pseudoprime base result */
+   mp_digit tests_numerical[8][3]= {
+      {8321u,  2u, 1u},
+      {8321u,  3u, 0u},
+      {29341u, 2u, 1u},
+      {29341u, 3u, 0u},
+      {52633u, 2u, 1u},
+      {52633u, 3u, 0u},
+      {10585u, 3u, 1u},
+      {10585u, 2u, 0u}
+   };
+#elif ( (MP_DIGIT_BIT > 16) && (MP_DIGIT_BIT <= 32))
+   mp_digit tests_numerical[8][3]= {
+      {130561u,  2u, 1u},
+      {130561u,  3u, 0u},
+      {97496449u, 2u, 1u},
+      {97496449u, 3u, 0u},
+      {4863127u, 2u, 1u},
+      {4863127u, 3u, 0u},
+      {8830801u, 3u, 1u},
+      {8830801u, 2u, 0u}
+   };
+#elif (MP_DIGIT_BIT > 32)
+   mp_digit tests_numerical[8][3]= {
+      {189598900758401u,  2u, 1u},
+      {189598900758401u,  3u, 0u},
+      {407352942509921u, 2u, 1u},
+      {407352942509921u, 3u, 0u},
+      {850864431592381u, 2u, 1u},
+      {850864431592381u, 3u, 0u},
+      {144115319877694903u, 3u, 1u},
+      {144115319877694903u, 2u, 0u}
+   };
+#endif
+   int i;
+   mp_digit a, wittness, result, reference;
+   bool isp = false;
+   for (i = 0; i < 11; i++) {
+      a = tests_numerical[i][0];
+      wittness = tests_numerical[i][1];
+      reference = tests_numerical[i][2];
+      isp = s_mp_miller_rabin_d(a, wittness);
+      result = (isp)?1:0;
+      EXPECT(result == reference);
+   }
+   return EXIT_SUCCESS;
+LBL_ERR:
+   return EXIT_FAILURE;
+}
+
+static int test_s_mp_mulmod_d(void)
+{
+#if (MP_DIGIT_BIT <= 16)
+   mp_digit tests_numerical[4][4]= {
+      {100u, 200u, 300u, 200u},      /* Standard Case (No Overflow)  */
+      {500u, 500u, 1000u, 0u },      /* Intermediate Product Overflows */
+      {250u, 250u, 65521u, 62500u},  /* Large Modulus (No reduction during product) */
+      {65535u, 65535u, 65531u, 16u}  /* Edge Case (Max Values)  */
+   };
+#elif ( (MP_DIGIT_BIT > 16) && (MP_DIGIT_BIT <= 32))
+   mp_digit tests_numerical[4][4]= {
+      {1000000u, 4u, 3000000u, 1000000u},
+      {3000000u, 2000000u, 7u, 1u },
+      {4294967291u, 4294967291u, 4294967291u, 0u},
+      {4294967295u, 4294967295u, 4294967291u, 16u}
+   };
+#elif (MP_DIGIT_BIT > 32)
+   mp_digit tests_numerical[4][4]= {
+      {10000000000u, 5u, 3u, 1u},
+      {10000000000u, 10000000000u, 1000000007u, 49u},
+      {18446744073709551613u, 18446744073709551613u, 18446744073709551615u, 4u},
+      {18446744073709551615u, 18446744073709551615u, 18446744073709551611u, 16u}
+   };
+#endif
+   mp_digit tests_logical[4][4]= {
+      {0u, 123u, 234u, 0u}, /* Zero input */
+      {123u, 0u, 234u, 0u}, /* Zero input */
+      {123u, 234u, 1u, 0u}, /* Modulus of one */
+      {15u, 15u, 10u, 5u}   /* Inputs larger than modulus */
+   };
+   int i;
+   mp_digit a, b, m, result, reference;
+   /* Logic tests */
+   for (i = 0; i < 6; i++) {
+      a = tests_logical[i][0];
+      b = tests_logical[i][1];
+      m = tests_logical[i][2];
+      reference = tests_logical[i][3];
+      result = s_mp_mulmod_d(a, b, m);
+      EXPECT(result == reference);
+   }
+
+   /* Numerical tests */
+   for (i = 0; i < 5; i++) {
+      a = tests_numerical[i][0];
+      b = tests_numerical[i][1];
+      m = tests_numerical[i][2];
+      reference = tests_numerical[i][3];
+      result = s_mp_mulmod_d(a, b, m);
+      EXPECT(result == reference);
+   }
+
+
+   return EXIT_SUCCESS;
+LBL_ERR:
+   return EXIT_FAILURE;
+}
+
+static int test_mp_euler_phi_d(void)
+{
+   mp_digit tests_logical[2][2]= {
+      {1, 1},  /* By definition */
+      {2, 1}  /* Smallest */
+   };
+#if (MP_DIGIT_BIT <= 16)
+   mp_digit tests_numerical[6][2]= {
+      {13u, 12u},  /* prime (p - 1)  */
+      {65521u, 65520u},  /* Max. prime (p - 1) */
+      {12u, 4u},  /* 2^2 * 3 */
+      {30u, 8u},  /* primorial 2*3*5 */
+      {81u, 54u},  /* powers of primes (p^k - p^{k - 1}) */
+      {65535u, 34560u}  /* Max. 3 * 5 * 17 * 257 */
+   };
+#elif ( (MP_DIGIT_BIT > 16) && (MP_DIGIT_BIT <= 32))
+   mp_digit tests_numerical[5][2]= {
+      {1000003u, 1000002u},        /* prime (p - 1)  */
+      {4294967291u, 4294967290u},  /* Max. prime (p - 1) */
+      {1000000u, 400000u},         /* Composite and perf. power 10^6*/
+      {4294967294u, 2147483646u}, /* 2 * 2147483647 */
+      {4294967295u, 2147483648u}  /* 3 * 5 * 17 * 257 * 65537 (first 5 Fermat primes 2^k + 1) */
+   };
+#elif (MP_DIGIT_BIT > 32)
+   mp_digit tests_numerical[][2]= {
+      {1000000000000000003u, 1000000000000000002u},   /* prime (p - 1)  */
+      {18446744073709551557u, 18446744073709551556u}, /* Max. prime (p - 1) */
+      {9223372036854775808u, 4611686018427387904u},   /* 2^63 */
+      {1223372036854775807u, 1181186794204611096u},    /* Composite 29 * 42185242650164683 */
+      {18446744073709551615u, 9208981628670443520u}   /* Upper boundary 3 * 5 * 17 * 257 * 641 * 65537 * 6700417 */
+   };
+#endif
+
+   int i;
+   mp_erat_sieve sieve;
+   mp_digit result, reference;
+
+   DO(mp_small_prime_sieve_init(&sieve, true));
+
+   for (i = 0; i < 2; i++) {
+      DO(mp_euler_phi_d(tests_logical[i][0], &result, &sieve));
+      reference = tests_logical[i][1];
+      EXPECT(result == reference);
+   }
+
+   for (i = 0; i < 5; i++) {
+      DO(mp_euler_phi_d(tests_numerical[i][0], &result, &sieve));
+      reference = tests_numerical[i][1];
+      EXPECT(result == reference);
+   }
+
+   mp_small_prime_sieve_clear(&sieve);
+   return EXIT_SUCCESS;
+LBL_ERR:
+   mp_small_prime_sieve_clear(&sieve);
+   return EXIT_FAILURE;
+}
+
+static int test_s_mp_pollard_rho_d(void)
+{
+#if (MP_DIGIT_BIT <= 16)
+   mp_digit tests_numerical[5][4] = {
+      {10005u, 3u, 5u, 667u},     /* Tiny primes */
+      {65025u, 255u, 255u, 255u}, /* Perfect square */
+      {64507u, 0u, 0u, 0u},       /* Largest prime p < 2^16 */
+      {64507u, 251u, 257u, 257u}, /* Two close primes near 2^16 */
+      {64987u, 13u, 4999u, 4999u} /* One very small prime, one large prime */
+   };
+   /*  O(n^{1/4}) if implemented correctly, so (2^16-1)^(1/4) ~ 16 */
+   int limit = 16;
+#elif ( (MP_DIGIT_BIT > 16) && (MP_DIGIT_BIT <= 32))
+   mp_digit tests_numerical[5][4] = {
+      {2175399925u, 5u, 87015997u, 87015997u},
+      {4294836225u, 65535u, 65535u, 65535u},
+      {4294967291u, 0u, 0u, 0u},
+      {4292870399u, 65519u, 65521u, 65521u},
+      {4294967261u, 17u, 252645133u}
+   };
+   int limit = 256;
+#elif (MP_DIGIT_BIT > 32)
+   mp_digit tests_numerical[5][4] = {
+      {18446744073709551610u, 2u, 5u, 5u},
+      {18446744030759878681u, 4294967291u, 4294967291u, 4294967291u},
+      {18446744073709551557u, 0u, 0u, 0u},
+      {18446743721522234449u, 4294967231u, 4294967279u, 4294967279u},
+      {11243311968157015683u, 3747770656052338561u, 3u, 3u}
+   };
+   int limit = 65536;
+#endif
+   int i;
+   mp_digit a, result, ra, rb, rc;
+
+   for (i = 0; i < 5; i++) {
+      a = tests_numerical[i][0];
+      result = s_mp_pollard_rho_d(a, limit);
+      ra = tests_numerical[i][1];
+      rb = tests_numerical[i][2];
+      rc = tests_numerical[i][3];
+      EXPECT((result == ra) || (result == rb) || (result == rc));
+   }
+
+   return EXIT_SUCCESS;
+LBL_ERR:
+   return EXIT_FAILURE;
+}
+
+static int test_s_mp_powmod_d(void)
+{
+#if (MP_DIGIT_BIT <= 16)
+   /* base, exp, mod, result */
+   mp_digit tests_numerical[3][4] = {
+      {2u, 10u, 1000u, 24u},            /* normal */
+      {300u, 2u, 65521u, 24479u},       /* overflows 16-bit intermediates w/o casting */
+      {65535u, 65535u, 65521u, 18532u}  /* Check boundaries */
+   };
+#elif ( (MP_DIGIT_BIT > 16) && (MP_DIGIT_BIT <= 32))
+   mp_digit tests_numerical[3][4] = {
+      {70000u, 2u, 4294967291u, 605032725u},
+      {2u, 32u, 4294967291u, 5u},
+      {4294967295u, 4294967295u, 4294967291u, 1024u}
+   };
+#elif (MP_DIGIT_BIT > 32)
+   mp_digit tests_numerical[3][4] = {
+      {5000000000u, 2u, 18446744073709551557u, 6553255926290448384u},
+      {9223372036854775807u, 2u, 18446744073709551557u, 5329u},
+      {18446744073709551615u, 18446744073709551615u, 18446744073709551557u, 4959809447704153900u}
+   };
+#endif
+   mp_digit tests_logical[4][4] = {
+      {5u, 5u,  1u, 0u},  /* x mod 1 = 0 */
+      {5u, 0u, 13u, 1u}, /* x^0 = 1 with x != 0 */
+      {0u, 5u, 13u, 0u}, /* 0^x = 0 with x != 0 */
+      {0u, 0u, 13u, 1u}  /* 0^0 = 1 per definition */
+   };
+   int i;
+   mp_digit a, b, m, result, reference;
+
+   /* Logic tests */
+   for (i = 0; i < 4; i++) {
+      a = tests_logical[i][0];
+      b = tests_logical[i][1];
+      m = tests_logical[i][2];
+      reference = tests_logical[i][3];
+      result = s_mp_powmod_d(a, b, m);
+      EXPECT(result == reference);
+   }
+
+   /* Numerical tests */
+   for (i = 0; i < 3; i++) {
+      a = tests_numerical[i][0];
+      b = tests_numerical[i][1];
+      m = tests_numerical[i][2];
+      reference = tests_numerical[i][3];
+      result = s_mp_powmod_d(a, b, m);
+      EXPECT(result == reference);
+   }
+   return EXIT_SUCCESS;
+LBL_ERR:
+   return EXIT_FAILURE;
+}
+
+static int test_s_mp_sqrincrmod_d(void)
+{
+#if (MP_DIGIT_BIT <= 16)
+   mp_digit tests_numerical[4][3]= {
+      {100u, 300u, 101u},      /* Standard Case (No Overflow)  */
+      {500u, 1000u, 1u },      /* Intermediate Product Overflows */
+      {250u, 65521u, 62501u},  /* Large Modulus (No reduction during product) */
+      {65535u, 65531u, 17u}  /* Edge Case (Max Values)  */
+   };
+#elif ( (MP_DIGIT_BIT > 16) && (MP_DIGIT_BIT <= 32))
+   mp_digit tests_numerical[4][3]= {
+      {1000000u, 3000000u, 1000001u },
+      {3000000u, 7u, 3u },
+      {4294967291u, 4294967291u,  1u},
+      {4294967295u, 4294967291u, 17u}
+   };
+#elif (MP_DIGIT_BIT > 32)
+   mp_digit tests_numerical[4][3]= {
+      {10000000000u, 3u, 2u},
+      {10000000000u, 1000000007u, 4901u},
+      {18446744073709551613u, 18446744073709551615u,  5u},
+      {18446744073709551615u, 18446744073709551611u, 17u}
+   };
+#endif
+
+   int i;
+   mp_digit a, m, result, reference;
+
+   for (i = 0; i < 4; i++) {
+      a = tests_numerical[i][0];
+      m = tests_numerical[i][1];
+      reference = tests_numerical[i][2];
+      result = s_mp_sqrincrmod_d(a, m);
+      EXPECT(result == reference);
+   }
+   return EXIT_SUCCESS;
+LBL_ERR:
+   return EXIT_FAILURE;
+}
+
+
 #define PRINTERR_V(...)
 
 /* Some larger values to test the fast division algorithm */
@@ -3191,10 +3629,11 @@ static int thread_join(struct thread_info *info, struct thread_info **res)
 static int unit_tests(int argc, char **argv)
 {
    static const struct test_fn test[] = {
-#define T0(n)              { #n, test_##n }
-#define T1(n, o)           { #n, MP_HAS(o) ? test_##n : NULL }
-#define T2(n, o1, o2)      { #n, (MP_HAS(o1) && MP_HAS(o2)) ? test_##n : NULL }
-#define T3(n, o1, o2, o3)  { #n, (MP_HAS(o1) && MP_HAS(o2) && MP_HAS(o3)) ? test_##n : NULL }
+#define T0(n)                 { #n, test_##n }
+#define T1(n, o)              { #n, MP_HAS(o) ? test_##n : NULL }
+#define T2(n, o1, o2)         { #n, (MP_HAS(o1) && MP_HAS(o2)) ? test_##n : NULL }
+#define T3(n, o1, o2, o3)     { #n, (MP_HAS(o1) && MP_HAS(o2) && MP_HAS(o3)) ? test_##n : NULL }
+#define T4(n, o1, o2, o3, o4) { #n, (MP_HAS(o1) && MP_HAS(o2) && MP_HAS(o3) && MP_HAS(o4)) ? test_##n : NULL }
       T0(feature_detection),
       T0(trivial_stuff),
       T1(mp_hash, MP_HASH),
@@ -3258,6 +3697,17 @@ static int unit_tests(int argc, char **argv)
       T1(mp_factorial_divisors, MP_FACTORIAL_DIVISORS),
       T1(mp_xor, MP_XOR),
       T1(mp_div_exact, MP_DIV_EXACT),
+
+
+      T2(s_mp_gcd_d, ONLY_PUBLIC_API, S_MP_GCD_D_C),
+      T3(s_mp_isprime_d, ONLY_PUBLIC_API, S_MP_ISPRIME_D_C, S_MP_MILLER_RABIN_D_C),
+      T2(s_mp_miller_rabin_d, ONLY_PUBLIC_API, S_MP_MILLER_RABIN_D_C),
+      T2(s_mp_mulmod_d, ONLY_PUBLIC_API, S_MP_MULMOD_D_C),
+      T4(s_mp_pollard_rho_d, ONLY_PUBLIC_API, S_MP_POLLARD_RHO_D_C, S_MP_MULMOD_D_C, S_MP_SQRINCRMOD_D_C),
+      T3(s_mp_powmod_d, ONLY_PUBLIC_API, S_MP_POWMOD_D_C, S_MP_MULMOD_D_C),
+      T3(s_mp_sqrincrmod_d, ONLY_PUBLIC_API, S_MP_SQRINCRMOD_D_C, S_MP_MULMOD_D_C),
+      T1(mp_euler_phi_d, MP_EULER_PHI_D),
+
       T3(s_mp_div_recursive, ONLY_PUBLIC_API, S_MP_DIV_RECURSIVE, S_MP_DIV_SCHOOL),
       T3(s_mp_div_small, ONLY_PUBLIC_API, S_MP_DIV_SMALL, S_MP_DIV_SCHOOL),
       T2(s_mp_sqr, ONLY_PUBLIC_API, S_MP_SQR),
