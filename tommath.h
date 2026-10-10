@@ -610,6 +610,11 @@ void mp_small_prime_sieve_clear(mp_erat_sieve *sieve);
    mp_small_prime_sieve_next_prime, or mp_small_prime_sieve_prec_prime do it at first call */
 mp_err mp_small_prime_sieve_init(mp_erat_sieve *sieve, bool warmup) MP_WUR;
 
+
+#define MP_SMALL_PRIME_COUNT_REALLOC_STEP 256
+mp_err mp_small_prime_get_array(const mp_digit start, const mp_digit end, int *count, ERAT_UINT *last_prime,
+                                ERAT_UINT **prime_array, mp_erat_sieve *sieve) MP_WUR;
+
 /* Euler phi (Totient) for small input (uses actual factoring) */
 mp_err mp_euler_phi_d(const mp_digit x, mp_digit *res, mp_erat_sieve *sieve) MP_WUR;
 
