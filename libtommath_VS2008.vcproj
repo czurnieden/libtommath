@@ -405,6 +405,10 @@
 			>
 		</File>
 		<File
+			RelativePath="mp_div_exact_d.c"
+			>
+		</File>
+		<File
 			RelativePath="mp_dr_is_modulus.c"
 			>
 		</File>
@@ -785,6 +789,10 @@
 			>
 		</File>
 		<File
+			RelativePath="mp_small_prime_get_array.c"
+			>
+		</File>
+		<File
 			RelativePath="mp_small_prime_nthprime.c"
 			>
 		</File>
@@ -893,6 +901,10 @@
 			>
 		</File>
 		<File
+			RelativePath="s_mp_cnt_lsb_d.c"
+			>
+		</File>
+		<File
 			RelativePath="s_mp_copy_digs.c"
 			>
 		</File>
@@ -954,6 +966,10 @@
 		</File>
 		<File
 			RelativePath="s_mp_invmod.c"
+			>
+		</File>
+		<File
+			RelativePath="s_mp_invmod_d.c"
 			>
 		</File>
 		<File

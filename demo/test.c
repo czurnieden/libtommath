@@ -4,6 +4,58 @@
 #define S_MP_RAND_JENKINS_C
 #include "s_mp_rand_jenkins.c"
 
+
+
+#define NT_SWAP(type, a, b) do {\
+           type _c = a; a = b; b = _c;\
+        }while (0)
+static void string_reverse(char *s, size_t len)
+{
+   size_t x = 0, y = len - 1u;
+   while (x < y) {
+      NT_SWAP(char, s[x], s[y]);
+      ++x;
+      --y;
+   }
+}
+#include <string.h>
+static int print_mp_word(const char *comment, mp_word n, mp_word base, FILE *out)
+{
+   const char alphabet[] = "0123456789abcdef";
+   /* Shouldn't that be ssize_t? */
+   size_t string_length = 0;
+   char *s, *sp;
+   char str[41] = {0};
+
+   s = str;
+   sp = str;
+
+   if (n == 0) {
+      return fprintf(out, "%s 0\n",comment);
+   }
+
+   if ((base < 2) || (base > 16)) {
+      return -1;
+   }
+   while (n != 0) {
+      *sp = alphabet[n % base];
+      sp++;
+      n /= base;
+      string_length++;
+   }
+   string_reverse(s, string_length);
+   *sp = '\0';
+
+   return fprintf(out, "%s %s",comment, s);
+}
+
+
+
+
+
+
+
+
 static long rand_long(void)
 {
    long x;
@@ -49,14 +101,14 @@ static int64_t rand_int64(void)
    return x;
 }
 
-static int64_t rand_mp_digit(void)
+static mp_digit rand_mp_digit(void)
 {
    mp_digit x;
    if (s_mp_rand_jenkins(&x, sizeof(x)) != MP_OKAY) {
       fprintf(stderr, "s_mp_rand_source failed\n");
       exit(EXIT_FAILURE);
    }
-   return x;
+   return (x & MP_MASK);
 }
 
 static uint32_t uabs32(int32_t x)
@@ -1195,7 +1247,15 @@ static int test_s_mp_cbrt_w(void)
       cube = r * r * r;
       if (cube != n) {
          /* if r is the largest number such that r^3 <=n, than (r+1)^3 > n */
-         tmp = (r + 1) * (r + 1) * (r + 1);
+         tmp = (r + 1u) * (r + 1u) * (r + 1u);
+         if (tmp <= n) {
+            print_mp_word("tmp = ", tmp, 10, stderr);
+            fprintf(stderr,"\n");
+            print_mp_word("n   = ", n, 10, stderr);
+            fprintf(stderr,"\n");
+            print_mp_word("r   = ", r, 10, stderr);
+            fprintf(stderr,"\n");
+         }
          EXPECT(tmp > n);
       }
    }
@@ -2825,6 +2885,47 @@ LBL_ERR:
    return EXIT_FAILURE;
 }
 
+static int test_mp_div_exact_d(void)
+{
+   mp_int a, b, c, t1;
+   mp_digit d;
+   int i, j, size_a;
+
+   DOR(mp_init_multi(&a, &b, &c, &t1, NULL));
+
+   for (i = 2; i < 250; i += 10) {
+      for (j = 0; j < 100; j++) {
+         size_a = i;
+         DO(mp_rand(&a, size_a));
+         d = rand_mp_digit();
+         if (d < 2) {
+            continue;
+         }
+         DO(mp_mul_d(&a, d, &b));
+         DO(mp_div_exact_d(&b, d, &c));
+         DO(mp_div_d(&b, d, &t1, NULL));
+         if (mp_cmp(&c, &t1) != MP_EQ) {
+#if (MP_DIGIT_BIT == 15)
+            mp_fprintf(stderr,"d = %lu, c = %Zu, t1 = %Zu\n", d, &c, &t1);
+#elif (MP_DIGIT_BIT == 28)
+            mp_fprintf(stderr,"d = %u, c = %Zu, t1 = %Zu\n", d, &c, &t1);
+#else
+            mp_fprintf(stderr,"d = %u, c = %Zu, t1 = %Zu\n", d, &c, &t1);
+#endif
+
+         }
+         EXPECT(mp_cmp(&c, &t1) == MP_EQ);
+      }
+   }
+
+   mp_clear_multi(&a, &b, &c, &t1, NULL);
+   return EXIT_SUCCESS;
+LBL_ERR:
+   mp_clear_multi(&a, &b, &c, &t1, NULL);
+   return EXIT_FAILURE;
+}
+
+
 static int test_s_mp_gcd_d(void)
 {
 
@@ -2990,7 +3091,7 @@ static int test_s_mp_miller_rabin_d(void)
    int i;
    mp_digit a, wittness, result, reference;
    bool isp = false;
-   for (i = 0; i < 11; i++) {
+   for (i = 0; i < 8; i++) {
       a = tests_numerical[i][0];
       wittness = tests_numerical[i][1];
       reference = tests_numerical[i][2];
@@ -3015,14 +3116,14 @@ static int test_s_mp_mulmod_d(void)
 #elif ( (MP_DIGIT_BIT > 16) && (MP_DIGIT_BIT <= 32))
    mp_digit tests_numerical[4][4]= {
       {1000000u, 4u, 3000000u, 1000000u},
-      {3000000u, 2000000u, 7u, 1u },
+      {3000000u, 2000000u, 7u, 6u },
       {4294967291u, 4294967291u, 4294967291u, 0u},
       {4294967295u, 4294967295u, 4294967291u, 16u}
    };
 #elif (MP_DIGIT_BIT > 32)
    mp_digit tests_numerical[4][4]= {
-      {10000000000u, 5u, 3u, 1u},
-      {10000000000u, 10000000000u, 1000000007u, 49u},
+      {10000000000u, 5u, 3u, 2u},
+      {10000000000u, 10000000000u, 1000000007u, 4900u},
       {18446744073709551613u, 18446744073709551613u, 18446744073709551615u, 4u},
       {18446744073709551615u, 18446744073709551615u, 18446744073709551611u, 16u}
    };
@@ -3036,7 +3137,7 @@ static int test_s_mp_mulmod_d(void)
    int i;
    mp_digit a, b, m, result, reference;
    /* Logic tests */
-   for (i = 0; i < 6; i++) {
+   for (i = 0; i < 4; i++) {
       a = tests_logical[i][0];
       b = tests_logical[i][1];
       m = tests_logical[i][2];
@@ -3046,7 +3147,7 @@ static int test_s_mp_mulmod_d(void)
    }
 
    /* Numerical tests */
-   for (i = 0; i < 5; i++) {
+   for (i = 0; i < 4; i++) {
       a = tests_numerical[i][0];
       b = tests_numerical[i][1];
       m = tests_numerical[i][2];
@@ -3074,22 +3175,24 @@ static int test_mp_euler_phi_d(void)
       {12u, 4u},  /* 2^2 * 3 */
       {30u, 8u},  /* primorial 2*3*5 */
       {81u, 54u},  /* powers of primes (p^k - p^{k - 1}) */
-      {65535u, 34560u}  /* Max. 3 * 5 * 17 * 257 */
+      {65535u, 32768u}  /* Max. 3 * 5 * 17 * 257 */
    };
 #elif ( (MP_DIGIT_BIT > 16) && (MP_DIGIT_BIT <= 32))
-   mp_digit tests_numerical[5][2]= {
+   mp_digit tests_numerical[6][2]= {
       {1000003u, 1000002u},        /* prime (p - 1)  */
       {4294967291u, 4294967290u},  /* Max. prime (p - 1) */
       {1000000u, 400000u},         /* Composite and perf. power 10^6*/
       {4294967294u, 2147483646u}, /* 2 * 2147483647 */
+      {4294967295u, 2147483648u},  /* 3 * 5 * 17 * 257 * 65537 (first 5 Fermat primes 2^k + 1) */
       {4294967295u, 2147483648u}  /* 3 * 5 * 17 * 257 * 65537 (first 5 Fermat primes 2^k + 1) */
    };
 #elif (MP_DIGIT_BIT > 32)
-   mp_digit tests_numerical[][2]= {
+   mp_digit tests_numerical[6][2]= {
       {1000000000000000003u, 1000000000000000002u},   /* prime (p - 1)  */
       {18446744073709551557u, 18446744073709551556u}, /* Max. prime (p - 1) */
       {9223372036854775808u, 4611686018427387904u},   /* 2^63 */
       {1223372036854775807u, 1181186794204611096u},    /* Composite 29 * 42185242650164683 */
+      {18446744073709551615u, 9208981628670443520u},   /* Upper boundary 3 * 5 * 17 * 257 * 641 * 65537 * 6700417 */
       {18446744073709551615u, 9208981628670443520u}   /* Upper boundary 3 * 5 * 17 * 257 * 641 * 65537 * 6700417 */
    };
 #endif
@@ -3106,7 +3209,7 @@ static int test_mp_euler_phi_d(void)
       EXPECT(result == reference);
    }
 
-   for (i = 0; i < 5; i++) {
+   for (i = 0; i < 6; i++) {
       DO(mp_euler_phi_d(tests_numerical[i][0], &result, &sieve));
       reference = tests_numerical[i][1];
       EXPECT(result == reference);
@@ -3118,48 +3221,47 @@ LBL_ERR:
    mp_small_prime_sieve_clear(&sieve);
    return EXIT_FAILURE;
 }
-
+/* Not a reasonable test possible without a trial-division first.
+   We can only test if the result divides "a". */
 static int test_s_mp_pollard_rho_d(void)
 {
 #if (MP_DIGIT_BIT <= 16)
-   mp_digit tests_numerical[5][4] = {
-      {10005u, 3u, 5u, 667u},     /* Tiny primes */
-      {65025u, 255u, 255u, 255u}, /* Perfect square */
-      {64507u, 0u, 0u, 0u},       /* Largest prime p < 2^16 */
-      {64507u, 251u, 257u, 257u}, /* Two close primes near 2^16 */
-      {64987u, 13u, 4999u, 4999u} /* One very small prime, one large prime */
+   mp_digit tests_numerical[5] = {
+      10005u, /* Tiny primes */
+      65025u, /* Perfect square */
+      64507u, /* Largest prime p < 2^16 */
+      64507u, /* Two close primes near 2^16 */
+      64987u  /* One very small prime, one large prime */
    };
    /*  O(n^{1/4}) if implemented correctly, so (2^16-1)^(1/4) ~ 16 */
    int limit = 16;
 #elif ( (MP_DIGIT_BIT > 16) && (MP_DIGIT_BIT <= 32))
-   mp_digit tests_numerical[5][4] = {
-      {2175399925u, 5u, 87015997u, 87015997u},
-      {4294836225u, 65535u, 65535u, 65535u},
-      {4294967291u, 0u, 0u, 0u},
-      {4292870399u, 65519u, 65521u, 65521u},
-      {4294967261u, 17u, 252645133u}
+   mp_digit tests_numerical[5] = {
+      2175399925u,
+      4294836225u,
+      4294967291u,
+      4292870399u,
+      4294967261u
    };
    int limit = 256;
 #elif (MP_DIGIT_BIT > 32)
-   mp_digit tests_numerical[5][4] = {
-      {18446744073709551610u, 2u, 5u, 5u},
-      {18446744030759878681u, 4294967291u, 4294967291u, 4294967291u},
-      {18446744073709551557u, 0u, 0u, 0u},
-      {18446743721522234449u, 4294967231u, 4294967279u, 4294967279u},
-      {11243311968157015683u, 3747770656052338561u, 3u, 3u}
+   mp_digit tests_numerical[5] = {
+      18446744073709551610u,
+      18446744030759878681u,
+      18446744073709551556u, /* The prime would have been too large */
+      18446743721522234449u,
+      11243311968157015683u
    };
    int limit = 65536;
 #endif
    int i;
-   mp_digit a, result, ra, rb, rc;
+   mp_digit a, result, tmp;
 
    for (i = 0; i < 5; i++) {
-      a = tests_numerical[i][0];
+      a = tests_numerical[i];
       result = s_mp_pollard_rho_d(a, limit);
-      ra = tests_numerical[i][1];
-      rb = tests_numerical[i][2];
-      rc = tests_numerical[i][3];
-      EXPECT((result == ra) || (result == rb) || (result == rc));
+      tmp = a % result;
+      EXPECT(tmp == 0u);
    }
 
    return EXIT_SUCCESS;
@@ -3178,14 +3280,14 @@ static int test_s_mp_powmod_d(void)
    };
 #elif ( (MP_DIGIT_BIT > 16) && (MP_DIGIT_BIT <= 32))
    mp_digit tests_numerical[3][4] = {
-      {70000u, 2u, 4294967291u, 605032725u},
+      {70000u, 2u, 4294967291u, 605032709u},
       {2u, 32u, 4294967291u, 5u},
       {4294967295u, 4294967295u, 4294967291u, 1024u}
    };
 #elif (MP_DIGIT_BIT > 32)
    mp_digit tests_numerical[3][4] = {
-      {5000000000u, 2u, 18446744073709551557u, 6553255926290448384u},
-      {9223372036854775807u, 2u, 18446744073709551557u, 5329u},
+      {5000000000u, 2u, 18446744073709551557u, 6553255926290448443u},
+      {9223372036854775807u, 2u, 18446744073709551557u, 13835058055282164480u},
       {18446744073709551615u, 18446744073709551615u, 18446744073709551557u, 4959809447704153900u}
    };
 #endif
@@ -3697,15 +3799,14 @@ static int unit_tests(int argc, char **argv)
       T1(mp_factorial_divisors, MP_FACTORIAL_DIVISORS),
       T1(mp_xor, MP_XOR),
       T1(mp_div_exact, MP_DIV_EXACT),
-
-
-      T2(s_mp_gcd_d, ONLY_PUBLIC_API, S_MP_GCD_D_C),
-      T3(s_mp_isprime_d, ONLY_PUBLIC_API, S_MP_ISPRIME_D_C, S_MP_MILLER_RABIN_D_C),
-      T2(s_mp_miller_rabin_d, ONLY_PUBLIC_API, S_MP_MILLER_RABIN_D_C),
-      T2(s_mp_mulmod_d, ONLY_PUBLIC_API, S_MP_MULMOD_D_C),
-      T4(s_mp_pollard_rho_d, ONLY_PUBLIC_API, S_MP_POLLARD_RHO_D_C, S_MP_MULMOD_D_C, S_MP_SQRINCRMOD_D_C),
-      T3(s_mp_powmod_d, ONLY_PUBLIC_API, S_MP_POWMOD_D_C, S_MP_MULMOD_D_C),
-      T3(s_mp_sqrincrmod_d, ONLY_PUBLIC_API, S_MP_SQRINCRMOD_D_C, S_MP_MULMOD_D_C),
+      T1(mp_div_exact_d, MP_DIV_EXACT_D),
+      T2(s_mp_gcd_d, ONLY_PUBLIC_API, S_MP_GCD_D),
+      T3(s_mp_isprime_d, ONLY_PUBLIC_API, S_MP_ISPRIME_D, S_MP_MILLER_RABIN_D),
+      T2(s_mp_miller_rabin_d, ONLY_PUBLIC_API, S_MP_MILLER_RABIN_D),
+      T2(s_mp_mulmod_d, ONLY_PUBLIC_API, S_MP_MULMOD_D),
+      T4(s_mp_pollard_rho_d, ONLY_PUBLIC_API, S_MP_POLLARD_RHO_D, S_MP_MULMOD_D, S_MP_SQRINCRMOD_D),
+      T3(s_mp_powmod_d, ONLY_PUBLIC_API, S_MP_POWMOD_D, S_MP_MULMOD_D),
+      T3(s_mp_sqrincrmod_d, ONLY_PUBLIC_API, S_MP_SQRINCRMOD_D, S_MP_MULMOD_D),
       T1(mp_euler_phi_d, MP_EULER_PHI_D),
 
       T3(s_mp_div_recursive, ONLY_PUBLIC_API, S_MP_DIV_RECURSIVE, S_MP_DIV_SCHOOL),

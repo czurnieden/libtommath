@@ -34,6 +34,7 @@
 #   define MP_DIV_2D_C
 #   define MP_DIV_D_C
 #   define MP_DIV_EXACT_C
+#   define MP_DIV_EXACT_D_C
 #   define MP_DR_IS_MODULUS_C
 #   define MP_DR_REDUCE_C
 #   define MP_DR_SETUP_C
@@ -129,6 +130,7 @@
 #   define MP_SET_UL_C
 #   define MP_SHRINK_C
 #   define MP_SIGNED_RSH_C
+#   define MP_SMALL_PRIME_GET_ARRAY_C
 #   define MP_SMALL_PRIME_NTHPRIME_C
 #   define MP_SMALL_PRIME_PRIMECOUNT_C
 #   define MP_SMALL_PRIME_SIEVE_CLEAR_C
@@ -156,6 +158,7 @@
 #   define S_MP_ADD_C
 #   define S_MP_CBRT_W_C
 #   define S_MP_CLEAR_BIT_C
+#   define S_MP_CNT_LSB_D_C
 #   define S_MP_COPY_DIGS_C
 #   define S_MP_COUNT_BITS_D_C
 #   define S_MP_COUNT_BITS_W_C
@@ -172,6 +175,7 @@
 #   define S_MP_GCD_D_C
 #   define S_MP_GET_BIT_C
 #   define S_MP_INVMOD_C
+#   define S_MP_INVMOD_D_C
 #   define S_MP_INVMOD_ODD_C
 #   define S_MP_ISPRIME_D_C
 #   define S_MP_LOG_2EXPT_C
@@ -331,6 +335,18 @@
 #   define MP_GROW_C
 #   define MP_INIT_MULTI_C
 #   define MP_ZERO_C
+#   define S_MP_INVMOD_D_C
+#endif
+
+#if defined(MP_DIV_EXACT_D_C)
+#   define MP_CLAMP_C
+#   define MP_DIV_2D_C
+#   define MP_DIV_D_C
+#   define MP_ERROR_TO_STRING_C
+#   define MP_GROW_C
+#   define MP_ZERO_C
+#   define S_MP_CNT_LSB_D_C
+#   define S_MP_DIV_EXACT_ODD_D_C
 #   define S_MP_INVMOD_D_C
 #endif
 
@@ -960,6 +976,11 @@
 #   define MP_SUB_D_C
 #endif
 
+#if defined(MP_SMALL_PRIME_GET_ARRAY_C)
+#   define MP_SMALL_PRIME_SIEVE_NEXT_PRIME_C
+#   define MP_SMALL_PRIME_SIEVE_PREC_PRIME_C
+#endif
+
 #if defined(MP_SMALL_PRIME_NTHPRIME_C)
 #   define MP_SMALL_PRIME_PRIMECOUNT_C
 #   define S_MP_BITLENGTH_C
@@ -1108,6 +1129,9 @@
 #endif
 
 #if defined(S_MP_CLEAR_BIT_C)
+#endif
+
+#if defined(S_MP_CNT_LSB_D_C)
 #endif
 
 #if defined(S_MP_COPY_DIGS_C)
@@ -1283,6 +1307,9 @@
 #   define MP_MOD_C
 #   define MP_SET_C
 #   define MP_SUB_C
+#endif
+
+#if defined(S_MP_INVMOD_D_C)
 #endif
 
 #if defined(S_MP_INVMOD_ODD_C)

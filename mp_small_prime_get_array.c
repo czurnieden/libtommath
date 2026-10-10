@@ -1,3 +1,8 @@
+#include "tommath_private.h"
+#ifdef MP_SMALL_PRIME_GET_ARRAY_C
+/* LibTomMath, multiple-precision integer library -- Tom St Denis */
+/* SPDX-License-Identifier: Unlicense */
+
 
 
 
@@ -16,11 +21,11 @@ mp_err mp_small_prime_get_array(const mp_digit start, const mp_digit end, int *c
       return MP_VAL;
    }
    /* The size of ERAT_UINT is fixed, the size of mp_digit is not */
-   if (sizeof(mp_digit) > sizeof(ERAT_UINT)) {
-      if ((start > (mp_digit)ERAT_UINT_MAX) || (end > (mp_digit)ERAT_UINT_MAX)) {
-         return MP_VAL;
-      }
+#if (MP_DIGIT_BIT > 16)
+   if ((start > (mp_digit)ERAT_UINT_MAX) || (end > (mp_digit)ERAT_UINT_MAX)) {
+      return MP_VAL;
    }
+#endif
    if (end < 2) {
       return MP_VAL;
    }
@@ -48,7 +53,7 @@ mp_err mp_small_prime_get_array(const mp_digit start, const mp_digit end, int *c
 
    /* A bit expensive, but if the caller insists on it ... */
    if (!want_count && wantlastprime && !prime_array) {
-      /* 
+      /*
           That will be wrong if the difference "end"-"start"
           is smaller than the gap to the prime preceding "end".
        */
@@ -72,7 +77,7 @@ mp_err mp_small_prime_get_array(const mp_digit start, const mp_digit end, int *c
       return MP_VAL;
    }
    if (wantarray_filled) {
-      *prime_array = malloc((size_t)MP_SMALL_PRIME_COUNT_REALLOC_STEP * sizeof(ERAT_UINT));
+      *prime_array = MP_MALLOC((size_t)MP_SMALL_PRIME_COUNT_REALLOC_STEP * sizeof(ERAT_UINT));
       if (*prime_array == NULL) {
          return MP_MEM;
       }
@@ -100,9 +105,10 @@ mp_err mp_small_prime_get_array(const mp_digit start, const mp_digit end, int *c
       counter++;
       if (wantarray_filled) {
          if (i >= allocated) {
-            tmp = realloc(*prime_array, (allocated + (size_t)MP_SMALL_PRIME_COUNT_REALLOC_STEP) * sizeof(ERAT_UINT));
+            tmp = MP_REALLOC(*prime_array, allocated * sizeof(ERAT_UINT),
+                             (allocated + (size_t)MP_SMALL_PRIME_COUNT_REALLOC_STEP) * sizeof(ERAT_UINT));
             if (tmp == NULL) {
-               free(*prime_array);
+               MP_FREE(*prime_array, allocated * sizeof(ERAT_UINT));
                return MP_MEM;
             }
             allocated += (size_t)MP_SMALL_PRIME_COUNT_REALLOC_STEP;
@@ -111,9 +117,9 @@ mp_err mp_small_prime_get_array(const mp_digit start, const mp_digit end, int *c
       }
    }
    if (wantarray_filled) {
-      tmp = realloc(*prime_array, (size_t)counter * sizeof(ERAT_UINT));
+      tmp = MP_REALLOC(*prime_array, (size_t)counter * sizeof(ERAT_UINT), (size_t)counter * sizeof(ERAT_UINT));
       if (tmp == NULL) {
-         free(*prime_array);
+         MP_FREE(*prime_array, (size_t)counter * sizeof(ERAT_UINT));
          return MP_MEM;
       }
       *prime_array = tmp;
@@ -126,3 +132,4 @@ mp_err mp_small_prime_get_array(const mp_digit start, const mp_digit end, int *c
 
 
 
+#endif

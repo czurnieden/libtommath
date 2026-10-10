@@ -251,6 +251,9 @@ MP_PRIVATE mp_digit s_mp_powmod_d(mp_digit b, mp_digit e, mp_digit modulus);
 /* Computes (a^2+1)%m for s_mp_pollard_rho_d */
 MP_PRIVATE mp_digit s_mp_sqrincrmod_d(mp_digit a, mp_digit m);
 
+/* Compute the modular inverse b^(-1) mod 2^MP_DIGIT_BIT */
+MP_PRIVATE mp_digit s_mp_invmod_d(mp_digit b);
+MP_PRIVATE int s_mp_cnt_lsb_d(mp_digit v);
 
 MP_PRIVATE mp_err s_mp_fp_log_d(const mp_int *a, mp_word *c) MP_WUR;
 MP_PRIVATE mp_err s_mp_fp_log(const mp_int *a, mp_int *c) MP_WUR;

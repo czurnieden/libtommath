@@ -25,6 +25,7 @@ mp_div_2.c
 mp_div_2d.c
 mp_div_d.c
 mp_div_exact.c
+mp_div_exact_d.c
 mp_dr_is_modulus.c
 mp_dr_reduce.c
 mp_dr_setup.c
@@ -120,6 +121,7 @@ mp_set_u64.c
 mp_set_ul.c
 mp_shrink.c
 mp_signed_rsh.c
+mp_small_prime_get_array.c
 mp_small_prime_nthprime.c
 mp_small_prime_primecount.c
 mp_small_prime_sieve_clear.c
@@ -147,6 +149,7 @@ s_mp_32_umul32.c
 s_mp_add.c
 s_mp_cbrt_w.c
 s_mp_clear_bit.c
+s_mp_cnt_lsb_d.c
 s_mp_copy_digs.c
 s_mp_count_bits_d.c
 s_mp_count_bits_w.c
@@ -163,6 +166,7 @@ s_mp_fprint.c
 s_mp_gcd_d.c
 s_mp_get_bit.c
 s_mp_invmod.c
+s_mp_invmod_d.c
 s_mp_invmod_odd.c
 s_mp_isprime_d.c
 s_mp_log_2expt.c

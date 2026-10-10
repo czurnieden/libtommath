@@ -1517,10 +1517,20 @@ For divisions known to be exact there is the aptly named function {\texttt{mp\_d
 mp_err mp_div_exact (const mp_int *a, const mp_int *b, mp_int *c);
 \end{alltt}
 
-In addition to the behaviour of {\texttt{mp\_div}} it checks if the divison is actually
+In addition to the behaviour of {\texttt{mp\_div}} it checks if the division is actually
 exact and returns \texttt{MP\_VAL} if it is not. This function is significantly
 faster\footnote{between 20\% and 40\% depending on size of $n$ and the ratio $kn/n$}
 than {\texttt{mp\_div}} if the division is exact.
+
+\index{mp\_div\_exact\_d}
+\begin{alltt}
+mp_err mp_div_exact (const mp_int *a, mp_digit b, mp_int *c);
+\end{alltt}
+In addition to the behaviour of {\texttt{mp\_div\_d}} it checks if the division is actually
+exact and returns \texttt{MP\_VAL} if it is not. This function is significantly
+faster\footnote{between 2 and 4 times depending on the size of $b$ and $a$}
+than {\texttt{mp\_div\_d}} if the division is exact.
+
 
 \section{Hashing}
 To get a non-cryptographic hash of an \texttt{mp\_int} use the following function.
@@ -2506,6 +2516,22 @@ Returns {\texttt{MP\_OVF}} if $p > 2^32 - 5$ as an information about that fact.
 mp_err mp_small_prime_sieve_prec_prime(ERAT_UINT n, ERAT_UINT *result, mp_erat_sieve *sieve);
 \end{alltt}
 Sets {\texttt{result}} to the prime {\texttt{p}} smaller than or equal to {\texttt{n}} if $p > 1$.
+
+\index{mp\_small\_prime\_get\_array}
+\begin{alltt}
+mp_err mp_small_prime_get_array(const mp_digit start, const mp_digit end, int *count,
+                                ERAT_UINT *last_prime,
+                                ERAT_UINT **prime_array, mp_erat_sieve *sieve)
+\end{alltt}
+Allocates memory and fills the given array {\texttt{prime_array}} with the help of the
+small prime sieve {\texttt{sieve}} with primes from {\texttt{start}} to {\texttt{end}}
+if {\texttt{prime_array}} is not {\texttt{NULL}}.
+
+Returns the count of the primes in {\texttt{count}} if it is not {\texttt{NULL}}.
+
+Returns the last prime in the array in {\texttt{last_prime}} if it is not {\texttt{NULL}}.
+
+
 
 \subsection{Small Number-theoretic Functions}
 \index{mp\_euler\_phi\_d}

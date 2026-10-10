@@ -153,11 +153,18 @@ Returns \fBMP_VAL\fP if \fBb = 0\fP
 .LP
 .BI "mp_err mp_div_exact (const mp_int *" a ", const mp_int *" b ", mp_int *" c ")"
 .in 1i
-Computes  \fBa / b = cb\fP.
+Computes  \fBa / b = cb + 0\fP.
 .br
 Returns \fBMP_VAL\fP if \fBb = 0\fP or if the divison is not exact.
 .in -1i
 
+.LP
+.BI "mp_err mp_div_exact_d (const mp_int *" a ", mp_digit " b ", mp_int *" c ")"
+.in 1i
+Computes  \fBa / b = cb + 0\fP.
+.br
+Returns \fBMP_VAL\fP if \fBb = 0\fP, \fBb > MP_MASK\fP, or if the divison is not exact.
+.in -1i
 
 .LP
 .BI "mp_err mp_div_d(const mp_int *" a ", mp_digit " b ", mp_int *" c ", mp_digit *" d ")"
@@ -1259,6 +1266,20 @@ Returns \fBMP_OVF\fP if \fBp > 2^32\fP as an information about that fact.
 .BI "mp_err mp_small_prime_sieve_prec_prime(ERAT_UINT " n ", ERAT_UINT *" result ", mp_erat_sieve *" sieve ")"
 .in 1i
 Sets \fBresult\fP to the prime \fBp\fP smaller than or equal to \fBn\fP if \fBp > 1\fP.
+.in -1i
+
+.LP
+.BI "mp_err mp_small_prime_get_array(const mp_digit start, const mp_digit end, int *count,"
+.BI "                                ERAT_UINT *last_prime,"
+.BI "                                ERAT_UINT **prime_array, mp_erat_sieve *sieve)"
+.in 1i
+Allocates memory and fills the given array \fBprime_array\fP with the help of the
+small prime sieve \fBsieve\fP with primes from \fBstart\fP to \fBend\fP
+if \fBprime_array\fP is not \fBNULL\fP.
+.br
+Returns the count of the primes in \fBount\fP if it is not \fBNULL\fP.
+.br
+Returns the last prime in the array in \fBlast_prime\fP if it is not \fBNULL\fP.
 .in -1i
 
 .LP

@@ -361,8 +361,9 @@ mp_err mp_mul(const mp_int *a, const mp_int *b, mp_int *c) MP_WUR;
 /* a/b => cb + d == a */
 mp_err mp_div(const mp_int *a, const mp_int *b, mp_int *c, mp_int *d) MP_WUR;
 
-/* a/b => cb == a  */
+/* a/b => cb + 0 == a  */
 mp_err mp_div_exact(const mp_int *a, const mp_int *b, mp_int *c) MP_WUR;
+mp_err mp_div_exact_d(const mp_int *a, mp_digit d, mp_int *q) MP_WUR;
 
 /* c = a mod b, 0 <= c < b  */
 mp_err mp_mod(const mp_int *a, const mp_int *b, mp_int *c) MP_WUR;
