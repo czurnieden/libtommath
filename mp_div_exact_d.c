@@ -2,14 +2,6 @@
 #ifdef MP_DIV_EXACT_D_C
 /* LibTomMath, multiple-precision integer library -- Tom St Denis */
 /* SPDX-License-Identifier: Unlicense */
-#define DEBUG_PRINT(ERROR_NUMBER, ERROR_GOTO)\
-        do{\
-           fprintf(stderr, "%s %d in %s: %s\n",\
-           __FILE__, __LINE__, __FUNCTION__,\
-            mp_error_to_string((ERROR_NUMBER)));\
-           goto ERROR_GOTO;\
-        }while(0)
-
 
 static mp_err s_mp_div_exact_odd_d(const mp_int *a, mp_digit d, mp_int *q)
 {
@@ -18,11 +10,10 @@ static mp_err s_mp_div_exact_odd_d(const mp_int *a, mp_digit d, mp_int *q)
    mp_word carry, prod;
    int i;
 
-   if ((err = mp_grow(q, a->used)) != MP_OKAY)                                                           DEBUG_PRINT(err,
-            LTM_ERR);
+   if ((err = mp_grow(q, a->used)) != MP_OKAY)                                                           goto LTM_ERR;
    q->used = a->used;
 
-   d_inv = s_mp_invmod_d(d);
+   d_inv = s_mp_ntt_invmod_d(d);
    carry = 0;
 
    for (i = 0; i < a->used; i++) {
@@ -50,7 +41,7 @@ static mp_err s_mp_div_exact_odd_d(const mp_int *a, mp_digit d, mp_int *q)
    /* Not exact if we have a remainder */
    if (carry != 0) {
       err = MP_VAL;
-      DEBUG_PRINT(err, LTM_ERR);
+      goto LTM_ERR;
    }
    mp_clamp(q);
 LTM_ERR:
@@ -65,12 +56,12 @@ mp_err mp_div_exact_d(const mp_int *a, mp_digit d, mp_int *q)
 
    if (d > MP_MASK) {
       err = MP_VAL;
-      DEBUG_PRINT(err, LTM_ERR);
+      goto LTM_ERR;
    }
 
    if (d == 0) {
       err = MP_VAL;
-      DEBUG_PRINT(err, LTM_ERR);
+      goto LTM_ERR;
    }
 
    if (mp_iszero(a)) {
@@ -81,20 +72,16 @@ mp_err mp_div_exact_d(const mp_int *a, mp_digit d, mp_int *q)
    /* Shortcut for powers of two. */
    if (MP_IS_2EXPT(d)) {
       shift_bits = s_mp_cnt_lsb_d(d);
-      if ((err = mp_div_2d(a, shift_bits, q, NULL)) != MP_OKAY)                                        DEBUG_PRINT(err,
-               LTM_ERR);
+      if ((err = mp_div_2d(a, shift_bits, q, NULL)) != MP_OKAY)                                         goto LTM_ERR;
    }
 
    if ((d & 1u) == 0) {
       shift_bits = s_mp_cnt_lsb_d(d);
       d >>= shift_bits;
-      if ((err = mp_div_2d(a, shift_bits, q, NULL)) != MP_OKAY)                                          DEBUG_PRINT(err,
-               LTM_ERR);
-      if ((err = s_mp_div_exact_odd_d(q, d, q)) != MP_OKAY)                                              DEBUG_PRINT(err,
-               LTM_ERR);
+      if ((err = mp_div_2d(a, shift_bits, q, NULL)) != MP_OKAY)                                          goto LTM_ERR;
+      if ((err = s_mp_div_exact_odd_d(q, d, q)) != MP_OKAY)                                              goto LTM_ERR;
    } else {
-      if ((err = s_mp_div_exact_odd_d(a, d, q)) != MP_OKAY)                                              DEBUG_PRINT(err,
-               LTM_ERR);
+      if ((err = s_mp_div_exact_odd_d(a, d, q)) != MP_OKAY)                                              goto LTM_ERR;
    }
 
    /* Fallback. Just in case */

@@ -5,7 +5,7 @@
 #include "s_mp_rand_jenkins.c"
 
 
-
+#ifdef MP_TESTING_NEED_PRINT_MP_WORD
 #define NT_SWAP(type, a, b) do {\
            type _c = a; a = b; b = _c;\
         }while (0)
@@ -48,7 +48,7 @@ static int print_mp_word(const char *comment, mp_word n, mp_word base, FILE *out
 
    return fprintf(out, "%s %s",comment, s);
 }
-
+#endif
 
 
 
@@ -1239,23 +1239,18 @@ static int test_s_mp_cbrt_w(void)
    for (i = 0; i < 100; i++) {
       /* rand_uint() is a PRNG so it won't loop forever */
       n = (uint32_t)rand_uint();
-      if (n == 0) {
+      if ((n == 0) || (n > ((uint32_t)1u << 30) ) ) {
          i--;
          continue;
       }
       s_mp_cbrt_w(n, &r);
       cube = r * r * r;
       if (cube != n) {
-         /* if r is the largest number such that r^3 <=n, than (r+1)^3 > n */
+         /* 
+            If r is the largest number such that r^3 <=n, than (r+1)^3 > n.
+            Except when (r + 1)^3 overflows.
+          */
          tmp = (r + 1u) * (r + 1u) * (r + 1u);
-         if (tmp <= n) {
-            print_mp_word("tmp = ", tmp, 10, stderr);
-            fprintf(stderr,"\n");
-            print_mp_word("n   = ", n, 10, stderr);
-            fprintf(stderr,"\n");
-            print_mp_word("r   = ", r, 10, stderr);
-            fprintf(stderr,"\n");
-         }
          EXPECT(tmp > n);
       }
    }
@@ -2815,8 +2810,71 @@ LBL_ERR:
    mp_clear_multi(&a, &b, &c, NULL);
    return EXIT_FAILURE;
 }
+#if (MP_DIGIT_BIT > 16)
+static int test_s_mp_ntt_mul_smooth(void)
+{
+   mp_int a, b, c, d;
+   int size;
 
+#if (MP_DIGIT_BIT == 60)
+   int tc_cutoff;
+#endif
 
+   DOR(mp_init_multi(&a, &b, &c, &d, NULL));
+   /* This number construction is limb-size specific */
+#if (MP_DIGIT_BIT == 60)
+   DO(mp_rand(&a, 1196));
+   DO(mp_mul_2d(&a,71787  - mp_count_bits(&a), &a));
+
+   DO(mp_rand(&b, 1338));
+   DO(mp_mul_2d(&b, 80318 - mp_count_bits(&b), &b));
+   DO(mp_mul_2d(&b, 6310, &b));
+   DO(mp_2expt(&c, 99000 - 1000));
+   DO(mp_add(&b, &c, &b));
+
+   tc_cutoff = MP_MUL_NTT_CUTOFF;
+   MP_MUL_NTT_CUTOFF = INT_MAX;
+   DO(mp_mul(&a, &b, &c));
+   MP_MUL_NTT_CUTOFF = tc_cutoff;
+   DO(mp_mul(&a, &b, &d));
+   EXPECT(mp_cmp(&c, &d) == MP_EQ);
+#endif
+
+   for (size = MP_MUL_NTT_CUTOFF; size < (MP_MUL_NTT_CUTOFF + 20); size++) {
+      DO(mp_rand(&a, size));
+      DO(mp_rand(&b, size));
+      DO(s_mp_ntt_mul_smooth(&a, &b, &c));
+      DO(s_mp_mul_full(&a,&b,&d));
+      EXPECT(mp_cmp(&c, &d) == MP_EQ);
+   }
+
+   mp_clear_multi(&a, &b, &c, &d, NULL);
+   return EXIT_SUCCESS;
+LBL_ERR:
+   mp_clear_multi(&a, &b, &c, &d, NULL);
+   return EXIT_FAILURE;
+}
+
+static int test_s_mp_ntt_sqr_smooth(void)
+{
+   mp_int a, b, c;
+   int size;
+
+   DOR(mp_init_multi(&a, &b, &c, NULL));
+   for (size = MP_SQR_NTT_CUTOFF; size < (MP_SQR_NTT_CUTOFF + 20); size++) {
+      DO(mp_rand(&a, size));
+      DO(s_mp_ntt_sqr_smooth(&a, &b));
+      DO(s_mp_sqr(&a, &c));
+      EXPECT(mp_cmp(&b, &c) == MP_EQ);
+   }
+
+   mp_clear_multi(&a, &b, &c, NULL);
+   return EXIT_SUCCESS;
+LBL_ERR:
+   mp_clear_multi(&a, &b, &c, NULL);
+   return EXIT_FAILURE;
+}
+#endif
 static int test_mp_radix_size(void)
 {
    mp_int a;
@@ -3818,7 +3876,11 @@ static int unit_tests(int argc, char **argv)
       T2(s_mp_mul_karatsuba, ONLY_PUBLIC_API, S_MP_MUL_KARATSUBA),
       T2(s_mp_sqr_karatsuba, ONLY_PUBLIC_API, S_MP_SQR_KARATSUBA),
       T2(s_mp_mul_toom, ONLY_PUBLIC_API, S_MP_MUL_TOOM),
-      T2(s_mp_sqr_toom, ONLY_PUBLIC_API, S_MP_SQR_TOOM)
+      T2(s_mp_sqr_toom, ONLY_PUBLIC_API, S_MP_SQR_TOOM),
+#if (MP_DIGIT_BIT > 16)
+      T2(s_mp_ntt_mul_smooth, ONLY_PUBLIC_API, S_MP_NTT_MUL_SMOOTH),
+      T2(s_mp_ntt_sqr_smooth, ONLY_PUBLIC_API, S_MP_NTT_SQR_SMOOTH)
+#endif
 #undef T3
 #undef T2
 #undef T1

@@ -33,6 +33,7 @@ RNUM=0
 # test are running if you do not have enough memory to avoid page faults.   #
 #############################################################################
 
+# TODO: probably a bit much with NTT now? "LAG" on the other side might be too low.
 # Number of rounds overall.
 LIMIT=100
 # Number of loops for each input.
@@ -56,7 +57,7 @@ KEEP_TEMP=1
 echo "You might like to watch the numbers go up to $LIMIT but it will take a long time!"
 
 # Might not have sufficient rights or disc full.
-echo "km ks tc3m tc3s" > $FILE_NAME || die "Writing header to $FILE_NAME" $?
+echo "km ks tc3m tc3s nttm ntts" > $FILE_NAME || die "Writing header to $FILE_NAME" $?
 i=1
 while [ $i -le $LIMIT ]; do
    RNUM=$(LCG)
@@ -104,3 +105,19 @@ echo "#define MP_DEFAULT_MUL_TOOM_CUTOFF      $TMP" >> $TOMMATH_CUTOFFS_H || die
 TMP=$(median $FILE_NAME 4 $i)
 echo "#define MP_DEFAULT_SQR_TOOM_CUTOFF      $TMP"
 echo "#define MP_DEFAULT_SQR_TOOM_CUTOFF      $TMP" >> $TOMMATH_CUTOFFS_H || die "(tc3s) Appending to $TOMMATH_CUTOFFS_H" $?
+TMP=$(median $FILE_NAME 5 $i)
+echo "#define MP_DEFAULT_MUL_NTT_CUTOFF       $TMP"
+echo "#define MP_DEFAULT_MUL_NTT_CUTOFF       $TMP" >> $TOMMATH_CUTOFFS_H || die "(nttm) Appending to $TOMMATH_CUTOFFS_H" $?
+TMP=$(median $FILE_NAME 6 $i)
+echo "#define MP_DEFAULT_SQR_NTT_CUTOFF       $TMP"
+echo "#define MP_DEFAULT_SQR_NTT_CUTOFF       $TMP" >> $TOMMATH_CUTOFFS_H || die "(ntts) Appending to $TOMMATH_CUTOFFS_H" $?
+
+
+
+
+
+
+
+
+
+

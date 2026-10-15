@@ -65,7 +65,7 @@ mp_err mp_div_exact(const mp_int *A, const mp_int *B, mp_int *Q)
 
    if ((err = mp_copy(&A_scaled, &tmp)) != MP_OKAY)                                                      goto LTM_ERR;
 
-   b0_inv = s_mp_invmod_d(B_scaled.dp[0]);
+   b0_inv = s_mp_ntt_invmod_d(B_scaled.dp[0]);
    /* What is cheaper, an addition or a shift? */
    maskplusone = (mp_word)1 << MP_DIGIT_BIT;
    for (i = 0; i < size_q; i++) {
@@ -122,17 +122,5 @@ LTM_ERR:
    mp_clear_multi(&A_scaled, &B_scaled, &tmp, NULL);
    return err;
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 #endif
