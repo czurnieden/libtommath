@@ -23,15 +23,17 @@ void s_mp_ntt_crt_coeff(ntt_crt_ctx *cx, const mp_digit *r, mp_digit *limbs)
    int t = cx->t, i, j, w;
    mp_digit *x = cx->x;
    mp_digit *d = cx->d;
+   mp_digit di, pj, diff;
+   mp_word carry, v;
 
-   for (i = 0; i < t; i++) x[i] = r[i];        /* each < p_i */
+   for (i = 0; i < t; i++) x[i] = r[i];            /* each < p_i */
 
    for (i = 0; i < t; i++) {
-      mp_digit di = x[i];                          /* mixed-radix digit */
+      di = x[i];                          /* mixed-radix digit */
       d[i] = di;
       for (j = i + 1; j < t; j++) {
-         mp_digit pj = cx->p[j];
-         mp_digit diff = (x[j] >= di) ? (x[j] - di) : (x[j] + pj - di);
+         pj = cx->p[j];
+         diff = (x[j] >= di) ? (x[j] - di) : (x[j] + pj - di);
          x[j] = s_mp_ntt_mont_mul(&cx->mc[j], diff, cx->minv[i][j]);
       }
    }
@@ -40,9 +42,9 @@ void s_mp_ntt_crt_coeff(ntt_crt_ctx *cx, const mp_digit *r, mp_digit *limbs)
    for (w = 0; w < NTT_MAXW; w++) limbs[w] = 0;
    limbs[0] = d[t - 1];
    for (i = t - 2; i >= 0; i--) {
-      mp_word carry = (mp_word)d[i];
+      carry = (mp_word)d[i];
       for (w = 0; w < NTT_MAXW; w++) {
-         mp_word v = (mp_word)limbs[w] * cx->p[i] + carry;
+         v = (mp_word)limbs[w] * cx->p[i] + carry;
          limbs[w] = (mp_digit)(v & NTT_MASK);
          carry = v >> NTT_LIMB_SIZE;
       }

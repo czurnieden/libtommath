@@ -21,21 +21,21 @@ int s_mp_ntt_smooth_plan(int m, int *radix, int max)
    int n = 0, t = m;
 
    if (m < 2) return -1;
-   while (t % 5 == 0) {
+   while ((t % 5) == 0) {
       if (n >= max) {
          return -1;
       }
       radix[n++] = 5;
       t /= 5;
    }
-   while (t % 3 == 0) {
+   while ((t % 3) == 0) {
       if (n >= max) {
          return -1;
       }
       radix[n++] = 3;
       t /= 3;
    }
-   while (t % 2 == 0) {
+   while ((t % 2) == 0) {
       if (n >= max) {
          return -1;
       }

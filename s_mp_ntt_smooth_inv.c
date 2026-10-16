@@ -9,13 +9,17 @@
 #if (MP_DIGIT_BIT > 16)
 void s_mp_ntt_smooth_inv(ntt_mont *mc, mp_digit *a, int m, const ntt_sroots *R)
 {
-   int k, start, i;
+   int k, start, i, r, ell, L, step;
    mp_digit ninv;
+   mp_digit *b;
 
    for (k = R->nstages - 1; k >= 0; k--) {
-      int r = R->radix[k], ell = R->ell[k], L = ell / r, step = m / ell;
+      r = R->radix[k];
+      ell = R->ell[k];
+      L = ell / r;
+      step = m / ell;
       for (start = 0; start < m; start += ell) {
-         mp_digit *b = a + start;
+         b = a + start;
          switch (r) {
          case 5:
             s_mp_ntt_inv5(mc, b, L, step, R);

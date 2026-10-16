@@ -45,17 +45,16 @@ mp_err s_mp_ntt_crt_assemble(ntt_crt_ctx *cx, mp_digit **residues, int nprimes,
 
    n = ncoef + NTT_MAXW;
    if ((err = mp_grow(c, n)) != MP_OKAY)        goto LTM_ERR;
-   if (err == MP_OKAY) {
-      carry = 0;
-      for (k = 0; k < n; k++) {
-         v = (mp_word)acc[k] + carry;
-         c->dp[k] = (mp_digit)(v & NTT_MASK);
-         carry = (mp_digit)(v >> NTT_LIMB_SIZE);
-      }
-      c->used = n;
-      c->sign = MP_ZPOS;
-      mp_clamp(c);
+   carry = 0;
+   for (k = 0; k < n; k++) {
+      v = (mp_word)acc[k] + carry;
+      c->dp[k] = (mp_digit)(v & NTT_MASK);
+      carry = (mp_digit)(v >> NTT_LIMB_SIZE);
    }
+   c->used = n;
+   c->sign = MP_ZPOS;
+   mp_clamp(c);
+
 LTM_ERR:
    MP_FREE(r, (size_t)nprimes * sizeof(mp_digit));
    MP_FREE(acc, ((size_t)ncoef + NTT_MAXW) * sizeof(mp_digit));

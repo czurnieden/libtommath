@@ -11,6 +11,7 @@
 void s_mp_ntt_smooth_fwd(ntt_mont *mc, mp_digit *a, int m, const ntt_sroots *R)
 {
    int k, start, r, ell, L, step;
+   mp_digit *b;
 
    for (k = 0; k < R->nstages; k++) {
       r = R->radix[k];
@@ -18,7 +19,7 @@ void s_mp_ntt_smooth_fwd(ntt_mont *mc, mp_digit *a, int m, const ntt_sroots *R)
       L = ell / r;
       step = m / ell;
       for (start = 0; start < m; start += ell) {
-         mp_digit *b = a + start;
+         b = a + start;
          switch (r) {
          case 5:
             s_mp_ntt_fwd5(mc, b, L, step, R);

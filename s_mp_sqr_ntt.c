@@ -27,7 +27,7 @@ mp_err s_mp_sqr_ntt(const mp_int *a, mp_int *c)
    }
 
    ncoef = a->used + a->used - 1; /* coefficients that carry the product */
-   if (ncoef > (1 << NTT_QUARTER_COEFF) || ncoef < 0) {
+   if ((ncoef > (1 << NTT_QUARTER_COEFF)) || (ncoef < 0)) {
       return MP_VAL;
    }
    m = s_mp_ntt_smooth_length(ncoef); /* smallest 5-smooth transform length */
@@ -38,7 +38,7 @@ mp_err s_mp_sqr_ntt(const mp_int *a, mp_int *c)
    /* Convolution bound: each output coefficient < min(la,lb) * 2^120. */
    minl = a->used;
    bound_bits = (int)NTT_LARGE_SIZE + s_mp_ntt_ilog2_ceil(minl) + 1;
-   if ((bound_bits + NTT_LIMB_SIZE_M_ONE) / NTT_LIMB_SIZE > NTT_MAXW) {
+   if (((bound_bits + NTT_LIMB_SIZE_M_ONE) / NTT_LIMB_SIZE) > NTT_MAXW) {
       return MP_VAL;
    }
 
@@ -54,7 +54,7 @@ mp_err s_mp_sqr_ntt(const mp_int *a, mp_int *c)
    /* TODO */
    mp_set(&P, 1);
 
-   /* Find primes until their product > 2^bound_bits. should result in three primes */
+   /* Find primes until their product > 2^bound_bits */
    nprimes = 0;
    while (mp_count_bits(&P) <= bound_bits) {
       if (nprimes >= NTT_MAXP) {
@@ -65,9 +65,6 @@ mp_err s_mp_sqr_ntt(const mp_int *a, mp_int *c)
          err = MP_VAL;
          goto LTM_ERR;
       }
-#ifdef MP_PRINT_NTT_PRIMES
-      fprintf(stderr,"Prime nprimes %d %"PRIu64"\n", nprimes, ents[nprimes].p);
-#endif
       mp_set(&pmp, ents[nprimes].p);
       if ((err = mp_mul(&P, &pmp, &P)) != MP_OKAY) goto LTM_ERR;
       nprimes++;

@@ -45,13 +45,13 @@ bool s_mp_ntt_small_is_prime(mp_digit n)
          continue;
       }
       x = s_mp_ntt_small_powmod(a, d, n);
-      if (x == 1 || x == n - 1) {
+      if ((x == 1) || (x == n - 1)) {
          continue;
       }
       composite = 1;
       for (j = 1; j < r; j++) {
          x = s_mp_ntt_small_mulmod(x, x, n);
-         if (x == n - 1) {
+         if (x == (n - 1)) {
             composite = 0;
             break;
          }

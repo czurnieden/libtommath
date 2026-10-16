@@ -39,7 +39,8 @@ mp_err s_mp_ntt_sroots_init(ntt_sroots *R, ntt_mont *mc, int m, mp_digit zeta)
    R->w = NULL;
    R->has3 = ((m % 3) == 0);
    R->has5 = ((m % 5) == 0);
-   R->c3 = R->c3i = 0;
+   R->c3 = 0;
+   R->c3i = 0;
 
    for (i = 0; i < 4; i++) {
       R->k5[i] = 0;
@@ -60,7 +61,7 @@ mp_err s_mp_ntt_sroots_init(ntt_sroots *R, ntt_mont *mc, int m, mp_digit zeta)
    }
 
    R->w = (mp_digit *)MP_MALLOC((size_t)m * sizeof(mp_digit));
-   if (!R->w) {
+   if (R->w == NULL) {
       return MP_MEM;
    }
    R->w[0] = s_mp_ntt_to_mont(mc, 1);

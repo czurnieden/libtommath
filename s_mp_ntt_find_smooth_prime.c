@@ -49,6 +49,7 @@ bool s_mp_ntt_find_smooth_prime(ntt_prime_ent *ent, int m, int index, mp_digit m
       }
 
       root = 0;
+      /* Max. "a" measured was 48 with 60-bit */
       for (a = 2; (a < 1000) && (root == 0); a++) {
          w = s_mp_ntt_small_powmod(a, k, p);             /* order divides m */
          if (w == 1) {
