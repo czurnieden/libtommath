@@ -61,7 +61,7 @@ int s_mp_ntt_smooth_length_weighted(int n_min, int w2, int w3, int w5)
          break;
       }
    }
-   return n;
+   return (int)n;
 }
 #endif
 

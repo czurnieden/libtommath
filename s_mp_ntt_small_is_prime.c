@@ -15,7 +15,7 @@ bool s_mp_ntt_small_is_prime(mp_digit n)
    const mp_digit bases[7] = {2u, 325u, 9375u, 28178u, 450775u, 9780504u, 1795265022u};
    int i, j, r;
    int composite;
-   mp_digit a, x, d;
+   mp_digit a, x, d, p;
 
    if (n < 2u) {
       return false;
@@ -27,7 +27,7 @@ bool s_mp_ntt_small_is_prime(mp_digit n)
       return false;
    }
    /* Yes, my dear linter, these are magic numbers, get used to it */
-   for (mp_digit p = 3u; (p < 1000u) && (p * p <= n); p+= 2u) {
+   for (p = 3u; (p < 1000u) && (p * p <= n); p+= 2u) {
       if (n % p == 0) {
          return (n == p);
       }

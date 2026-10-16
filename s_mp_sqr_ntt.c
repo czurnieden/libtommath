@@ -37,7 +37,7 @@ mp_err s_mp_sqr_ntt(const mp_int *a, mp_int *c)
 
    /* Convolution bound: each output coefficient < min(la,lb) * 2^120. */
    minl = a->used;
-   bound_bits = NTT_LARGE_SIZE + s_mp_ntt_ilog2_ceil(minl) + 1;
+   bound_bits = (int)NTT_LARGE_SIZE + s_mp_ntt_ilog2_ceil(minl) + 1;
    if ((bound_bits + NTT_LIMB_SIZE_M_ONE) / NTT_LIMB_SIZE > NTT_MAXW) {
       return MP_VAL;
    }
