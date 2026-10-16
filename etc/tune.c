@@ -481,7 +481,7 @@ int main(int argc, char **argv)
          if (test[n].fn != NULL) {
             s_run(test[n].name, test[n].fn, test[n].cutoff, 1);
             *test[n].update = *test[n].cutoff;
-            //*test[n].cutoff = INT_MAX;
+            /* *test[n].cutoff = INT_MAX; */
          }
       }
       for (n = 4; n < 6; ++n) {
