@@ -6,7 +6,7 @@
 
 
 
-mp_err mp_small_prime_sieve_next_prime(ERAT_UINT n, ERAT_UINT *result, mp_erat_sieve *sieve)
+mp_err mp_small_prime_sieve_next_prime(uint32_t n, uint32_t *result, mp_erat_sieve *sieve)
 {
    bool ret = false;
    mp_err err = MP_OKAY;

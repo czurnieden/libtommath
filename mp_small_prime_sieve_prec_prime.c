@@ -5,7 +5,7 @@
 
 
 
-mp_err mp_small_prime_sieve_prec_prime(ERAT_UINT n, ERAT_UINT *result, mp_erat_sieve *sieve)
+mp_err mp_small_prime_sieve_prec_prime(uint32_t n, uint32_t *result, mp_erat_sieve *sieve)
 {
    bool ret = false;
    mp_err err = MP_OKAY;
@@ -27,7 +27,7 @@ mp_err mp_small_prime_sieve_prec_prime(ERAT_UINT n, ERAT_UINT *result, mp_erat_s
       n--;
    }
 
-   /* Now we are down to the range 2 < n < ERAT_UINT_MAX */
+   /* Now we are down to the range 2 < n < UINT_MAX */
 
    /* As long as the flag is false check the odd numbers <= n */
    for (; ret == false; n -= 2) {

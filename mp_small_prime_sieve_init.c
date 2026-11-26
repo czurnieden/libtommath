@@ -16,7 +16,7 @@ mp_err mp_small_prime_sieve_init(mp_erat_sieve *sieve, bool warmup)
    sieve->segment.size = 0;
    sieve->single_segment_a = 0;
    if (warmup) {
-      err = s_mp_erat_eratosthenes_init(ERAT_UINT_MAX_SQRT, &(sieve->base));
+      err = s_mp_erat_eratosthenes_init(UINT32_MAX_SQRT, &(sieve->base));
    }
    return err;
 }

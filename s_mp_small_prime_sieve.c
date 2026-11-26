@@ -7,15 +7,15 @@
 #include <string.h>
 #endif
 
-ERAT_UINT s_mp_erat_isqrt(ERAT_UINT n)
+uint32_t s_mp_erat_isqrt(uint32_t n)
 {
-   ERAT_UINT s, rem, root;
+   uint32_t s, rem, root;
 
    if (n < 1) {
       return 0;
    }
    /* highest power of four <= n */
-   s = ((ERAT_UINT) 1) << (BITS_IN_ERAT_UINT - 2);
+   s = ((uint32_t) 1) << (BITS_IN_UINT32_T - 2);
 
    rem = n;
    root = 0;
@@ -40,9 +40,9 @@ void s_mp_mp_erat_sieve_setall(mp_erat_single_sieve *bst)
    memset(bst->content, 0xFF, bst->alloc);
 #else
    size_t i, bs_size;
-   bs_size = bst->alloc / sizeof(ERAT_UINT);
+   bs_size = bst->alloc / sizeof(uint32_t);
    for (i = 0; i < bs_size; i++) {
-      bst->content[i] = ERAT_UINT_MAX;
+      bst->content[i] = UINT32_MAX;
    }
 #endif
 }
@@ -51,21 +51,21 @@ void s_mp_mp_erat_sieve_setall(mp_erat_single_sieve *bst)
 /* TODO: inline? macros? */
 
 /* Set bit at position n to zero */
-void s_mp_mp_mp_erat_sieve_clear_bit(mp_erat_single_sieve *bst, ERAT_UINT n)
+void s_mp_mp_mp_erat_sieve_clear_bit(mp_erat_single_sieve *bst, uint32_t n)
 {
-   ((*((bst)->content+(n/BITS_IN_ERAT_UINT)) &= ~(1lu<<(n % BITS_IN_ERAT_UINT))));
+   ((*((bst)->content+(n/BITS_IN_UINT32_T)) &= ~(1lu<<(n % BITS_IN_UINT32_T))));
 }
 
 /* Read bit at position n */
-ERAT_UINT s_mp_mp_erat_sieve_get_bit(mp_erat_single_sieve *bst, ERAT_UINT n)
+uint32_t s_mp_mp_erat_sieve_get_bit(mp_erat_single_sieve *bst, uint32_t n)
 {
-   return (((*((bst)->content+(n/BITS_IN_ERAT_UINT)) & (1lu<<(n % BITS_IN_ERAT_UINT))) != 0));
+   return (((*((bst)->content+(n/BITS_IN_UINT32_T)) & (1lu<<(n % BITS_IN_UINT32_T))) != 0));
 }
 
 /* Seek set bit after position n */
-ERAT_UINT s_mp_mp_erat_sieve_nextset(mp_erat_single_sieve *bst, ERAT_UINT n)
+uint32_t s_mp_mp_erat_sieve_nextset(mp_erat_single_sieve *bst, uint32_t n)
 {
-   while ((n < (ERAT_UINT)(((bst)->size)) && (!s_mp_mp_erat_sieve_get_bit(bst, n)))) {
+   while ((n < (uint32_t)(((bst)->size)) && (!s_mp_mp_erat_sieve_get_bit(bst, n)))) {
       n++;
    }
    return n;
@@ -75,7 +75,7 @@ ERAT_UINT s_mp_mp_erat_sieve_nextset(mp_erat_single_sieve *bst, ERAT_UINT n)
  * Initiate a sieve that stores the odd numbers only:
  * allocate memory, set actual size and allocated size and fill it
  */
-mp_err s_mp_erat_eratosthenes_init(ERAT_UINT n, mp_erat_single_sieve *bst)
+mp_err s_mp_erat_eratosthenes_init(uint32_t n, mp_erat_single_sieve *bst)
 {
    bst->size = n;
    /* The number BITS we need */
@@ -83,12 +83,12 @@ mp_err s_mp_erat_eratosthenes_init(ERAT_UINT n, mp_erat_single_sieve *bst)
    /* The number of BYTES we need is an eighth of the above. */
    n = (n + 1) / 8;
 
-   bst->content = (ERAT_UINT *)MP_MALLOC(n + sizeof(ERAT_UINT));
+   bst->content = (uint32_t *)MP_MALLOC(n + sizeof(uint32_t));
    if (bst->content == NULL) {
       return MP_MEM;
    }
    /* Take note */
-   bst->alloc = n + sizeof(ERAT_UINT);
+   bst->alloc = n + sizeof(uint32_t);
    /* Fill sieve */
    s_mp_erat_eratosthenes(bst);
    return MP_OKAY;
@@ -96,21 +96,21 @@ mp_err s_mp_erat_eratosthenes_init(ERAT_UINT n, mp_erat_single_sieve *bst)
 
 /*
  * Build a segment sieve with the largest reasonable size. "a" is the start of
- * the sieve, Size is MIN(range_a_b,ERAT_UINT_MAX-a)
+ * the sieve, Size is MIN(range_a_b,UINT32_MAX - a)
  */
 mp_err s_mp_erat_init_single_segment_with_start(
-   ERAT_UINT a,
+   uint32_t a,
    mp_erat_single_sieve *base_sieve,
    mp_erat_single_sieve *single_segment,
-   ERAT_UINT *single_segment_a)
+   uint32_t *single_segment_a)
 {
-   ERAT_UINT b, n;
+   uint32_t b, n;
    mp_err e = MP_OKAY;
 
-   if (a > (ERAT_BIGGEST_PRIME - ERAT_UINT_MAX_SQRT)) {
+   if (a > (ERAT_BIGGEST_PRIME - UINT32_MAX_SQRT)) {
       b = ERAT_BIGGEST_PRIME;
    } else {
-      b = a + ERAT_UINT_MAX_SQRT;
+      b = a + UINT32_MAX_SQRT;
    }
 
    n = ((b - a)+1)/CHAR_BIT;
@@ -120,11 +120,11 @@ mp_err s_mp_erat_init_single_segment_with_start(
       Support of multithreading would need a bit of work.
    */
    if (single_segment->content == NULL) {
-      single_segment->content = (ERAT_UINT *) MP_MALLOC(n + sizeof(ERAT_UINT));
+      single_segment->content = (uint32_t *) MP_MALLOC(n + sizeof(uint32_t));
       if (single_segment->content == NULL) {
          return MP_MEM;
       }
-      single_segment->alloc = n + sizeof(ERAT_UINT);
+      single_segment->alloc = n + sizeof(uint32_t);
       single_segment->size = n * CHAR_BIT;
    }
 
@@ -141,9 +141,9 @@ mp_err s_mp_erat_init_single_segment_with_start(
  */
 void s_mp_erat_eratosthenes(mp_erat_single_sieve *bst)
 {
-   ERAT_UINT n, k, r, j;
+   uint32_t n, k, r, j;
 
-   n = (ERAT_UINT)bst->size;
+   n = (uint32_t)bst->size;
    r = s_mp_erat_isqrt(n);
    s_mp_mp_erat_sieve_setall(bst);
 
@@ -156,9 +156,9 @@ void s_mp_erat_eratosthenes(mp_erat_single_sieve *bst)
    }
 }
 
-ERAT_UINT s_mp_erat_nextprime(ERAT_UINT p, mp_erat_single_sieve *bst)
+uint32_t s_mp_erat_nextprime(uint32_t p, mp_erat_single_sieve *bst)
 {
-   ERAT_UINT ret;
+   uint32_t ret;
    if (p <= 1) {
       return 2;
    }
@@ -174,10 +174,10 @@ ERAT_UINT s_mp_erat_nextprime(ERAT_UINT p, mp_erat_single_sieve *bst)
  * Fill sieve "segment" of the range [a,b] from the basic sieve "base"
  * Default size of a segment (32-bit): 8192 bytes (plus some angst-allowance)
  */
-void s_mp_erat_eratosthenes_segment(ERAT_UINT a, ERAT_UINT b, mp_erat_single_sieve *base, mp_erat_single_sieve *segment)
+void s_mp_erat_eratosthenes_segment(uint32_t a, uint32_t b, mp_erat_single_sieve *base, mp_erat_single_sieve *segment)
 {
-   ERAT_UINT r, j;
-   ERAT_UINT p;
+   uint32_t r, j;
+   uint32_t p;
 
    r = s_mp_erat_isqrt(b);
 

@@ -573,32 +573,29 @@ mp_err mp_prime_rand(mp_int *a, int t, int size, int flags) MP_WUR;
 #ifndef ERAT_BIGGEST_PRIME
 #define ERAT_BIGGEST_PRIME      0xFFFFFFFBlu
 #define ERAT_BIGGEST_BASE_PRIME 0xFFF1lu
-#define ERAT_UINT               uint32_t
-#define ERAT_UINT_MAX           0xFFFFFFFFlu
-#define ERAT_UINT_MAX_SQRT      0xFFFFlu
-
-#define BITS_IN_ERAT_UINT (sizeof(ERAT_UINT)*CHAR_BIT)
+#define UINT32_MAX_SQRT         0xFFFFlu
+#define BITS_IN_UINT32_T (sizeof(uint32_t)*CHAR_BIT)
 #endif
 
 typedef struct {
-   ERAT_UINT *content;   /* bitset holding the sieve */
+   uint32_t *content;    /* bitset holding the sieve */
    size_t size;          /* number of entries (which is a slightly misleading description) */
    size_t alloc;         /* size in bytes */
 } mp_erat_single_sieve;
 
 typedef struct {
-   mp_erat_single_sieve base;     /* base sieve (0 -> ERAT_UINT_MAX_SQRT) */
+   mp_erat_single_sieve base;     /* base sieve (0 -> UINT32_MAX_SQRT) */
    mp_erat_single_sieve segment;  /* segment (range_a_b) */
-   ERAT_UINT single_segment_a;    /* startpoint of segment */
+   uint32_t single_segment_a;     /* startpoint of segment */
 } mp_erat_sieve;
 
 
 /* Check primality of n if n < 2^32 */
-mp_err mp_small_prime_sieve_is_small_prime(ERAT_UINT n, bool *result, mp_erat_sieve *sieve) MP_WUR;
+mp_err mp_small_prime_sieve_is_small_prime(uint32_t n, bool *result, mp_erat_sieve *sieve) MP_WUR;
 /* Returns next prime p if the next prime is p < 2^32 */
-mp_err mp_small_prime_sieve_next_prime(ERAT_UINT n, ERAT_UINT *result, mp_erat_sieve *sieve) MP_WUR;
+mp_err mp_small_prime_sieve_next_prime(uint32_t n, uint32_t *result, mp_erat_sieve *sieve) MP_WUR;
 /* Returns preceding prime p if the preceding prime is p > 1 */
-mp_err mp_small_prime_sieve_prec_prime(ERAT_UINT n, ERAT_UINT *result, mp_erat_sieve *sieve) MP_WUR;
+mp_err mp_small_prime_sieve_prec_prime(uint32_t n, uint32_t *result, mp_erat_sieve *sieve) MP_WUR;
 /* Reset sieve and clear memory */
 void mp_small_prime_sieve_clear(mp_erat_sieve *sieve);
 /* Init sieve to default values, build base-sieve, too, if the parameter warmup is true

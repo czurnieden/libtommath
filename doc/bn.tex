@@ -2398,8 +2398,6 @@ the case of RSA) since there is no skew on the least significant bits.
 
 \subsection{Small Prime Sieve}
 A small segmented sieve (unsigned 32-bit max.) is available via three functions.
-The type {\texttt{ERAT\_UINT}}, defined (\emph{not} {\texttt{typedef}}) in {\texttt{tommath.h}}
-is normally {\texttt{uint32\_t}} but should be checked before use to be sure.
 
 
 \index{mp\_small\_prime\_sieve\_init}
@@ -2419,21 +2417,21 @@ Reset sieve and free memory .
 
 \index{mp\_small\_prime\_sieve\_is\_small\_prime}
 \begin{alltt}
-mp_err mp_small_prime_sieve_is_small_prime(ERAT_UINT n, bool *result, mp_erat_sieve *sieve);
+mp_err mp_small_prime_sieve_is_small_prime(uint32_t n, bool *result, mp_erat_sieve *sieve);
 \end{alltt}
 Check primality of $n$ if $n < 2^32$.
 
 
 \index{mp\_small\_prime\_sieve\_next\_prime}
 \begin{alltt}
-mp_err mp_small_prime_sieve_next_prime(ERAT_UINT n, ERAT_UINT *result, mp_erat_sieve *sieve);
+mp_err mp_small_prime_sieve_next_prime(uint32_t n, uint32_t *result, mp_erat_sieve *sieve);
 \end{alltt}
 Sets {\texttt{result}} to the prime {\texttt{p}} larger than or equal to {\texttt{n}} if $p > 2^32 - 5$.
 Returns {\texttt{MP\_OVF}} if $p > 2^32 - 5$ as an information about that fact.
 
 \index{mp\_small\_prime\_sieve\_prec\_prime}
 \begin{alltt}
-mp_err mp_small_prime_sieve_prec_prime(ERAT_UINT n, ERAT_UINT *result, mp_erat_sieve *sieve);
+mp_err mp_small_prime_sieve_prec_prime(uint32_t n, uint32_t *result, mp_erat_sieve *sieve);
 \end{alltt}
 Sets {\texttt{result}} to the prime {\texttt{p}} smaller than or equal to {\texttt{n}} if $p > 1$.
 
@@ -2442,9 +2440,9 @@ Sets {\texttt{result}} to the prime {\texttt{p}} smaller than or equal to {\text
 \begin{alltt}
 #include <tommath.h>
 /* Simple example function. Fast enough for n < 2^32 */
-static mp_err erat_phi_moebius(ERAT_UINT n, mp_erat_sieve *sieve, ERAT_UINT *phi, int *moebius)
+static mp_err erat_phi_moebius(uint32_t n, mp_erat_sieve *sieve, uint32_t *phi, int *moebius)
 {
-   ERAT_UINT r_phi, prime;
+   uint32_t r_phi, prime;
    mp_err err = MP_OKAY;
    int m_count = 0, m_ret = 2;
 
@@ -2506,7 +2504,7 @@ ERAT_ERR:
 int main(int argc, char **argv){
    mp_err err = MP_OKAY;
    mp_erat_sieve sieve;
-   ERAT_UINT n, phi;
+   uint32_t n, phi;
    int moebius;
    if(argc > 1) {
       if( (err = mp_small_prime_sieve_init(&sieve, true) ) != MP_OKAY) {
