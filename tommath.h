@@ -573,7 +573,7 @@ mp_err mp_prime_rand(mp_int *a, int t, int size, int flags) MP_WUR;
 #ifndef ERAT_BIGGEST_PRIME
 #define ERAT_BIGGEST_PRIME      0xFFFFFFFBlu
 #define ERAT_BIGGEST_BASE_PRIME 0xFFF1lu
-#define UINT32_MAX_SQRT         0xFFFFlu
+#define UINT32_T_MAX_SQRT         0xFFFFlu
 #define BITS_IN_UINT32_T (sizeof(uint32_t)*CHAR_BIT)
 #endif
 
@@ -584,7 +584,7 @@ typedef struct {
 } mp_erat_single_sieve;
 
 typedef struct {
-   mp_erat_single_sieve base;     /* base sieve (0 -> UINT32_MAX_SQRT) */
+   mp_erat_single_sieve base;     /* base sieve (0 -> UINT32_T_MAX_SQRT) */
    mp_erat_single_sieve segment;  /* segment (range_a_b) */
    uint32_t single_segment_a;     /* startpoint of segment */
 } mp_erat_sieve;

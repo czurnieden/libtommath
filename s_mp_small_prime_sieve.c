@@ -107,10 +107,10 @@ mp_err s_mp_erat_init_single_segment_with_start(
    uint32_t b, n;
    mp_err e = MP_OKAY;
 
-   if (a > (ERAT_BIGGEST_PRIME - UINT32_MAX_SQRT)) {
+   if (a > (ERAT_BIGGEST_PRIME - UINT32_T_MAX_SQRT)) {
       b = ERAT_BIGGEST_PRIME;
    } else {
-      b = a + UINT32_MAX_SQRT;
+      b = a + UINT32_T_MAX_SQRT;
    }
 
    n = ((b - a)+1)/CHAR_BIT;
